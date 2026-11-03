@@ -162,7 +162,9 @@ function decrireProposition() {
     if (p.soutien != null) t += `, soutenu par ${nc(p.soutien)}`;
     t += '.';
     const adv = S.etat.pions[adversaire(S.joueur)];
-    if (p.chemin.slice(1).some((c) => adv.includes(c))) t += ' Ordre conditionnel : il n’aboutit que si le pion adverse part (et on ne peut que finir sur son départ, pas y passer).';
+    if (p.chemin.slice(1).some((c) => adv.includes(c))) t += S.etat.params.depart_libere === 'arrivee_seule'
+      ? ' Ordre conditionnel : il n’aboutit que si le pion adverse part (et on peut seulement s’arrêter sur son départ, pas le traverser).'
+      : ' Ordre conditionnel : il n’aboutit que si le pion adverse part.';
     else if (S.etat.params.soutien === 'oui' && p.soutien == null) t += ' Touchez un de vos pions voisin du départ pour le soutenir.';
   }
   if (S.apercu?.gain > 0) t += ` Aperçu (si l’autre passe) : +${S.apercu.gain} croisements.`;

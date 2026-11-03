@@ -91,19 +91,17 @@ test('Exemple 4 : murs mêlés et trace adverse', () => {
 });
 
 // Exemple 5 de regles-proto.md v0.2 : A en (2,2), b en (3,2).
-// A : (2,2) -> (2,3). B : (3,2) -> (2,2) -> (1,2) (passe par le croisement que A quitte).
-// CONTRADICTION ASSUMÉE : v0.2 attend que les deux trajets aboutissent (A en (2,3), b en (1,2)).
-// choix proto (CDP 03/11) : on peut seulement FINIR sur un départ libéré, pas y PASSER ; passer
-// par (2,2) est une rencontre, donc une coupure : les deux ordres sont annulés.
-test('Exemple 5 (adapté au choix CDP) : passer par le départ que A quitte -> coupure', () => {
+// A : (2,2) -> (2,3). B : (3,2) -> (2,2) -> (1,2) : b traverse le croisement que A quitte.
+// décision Lomig 03/11 (depart_libere = traversee, défaut) : les deux trajets aboutissent.
+test('Exemple 5 : traverser le départ que A quitte -> les deux aboutissent', () => {
   const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
   const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [2, 3]])), B: deplacer(ch(n, [[3, 2], [2, 2], [1, 2]])) });
-  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 2)]);
-  assert.deepEqual(r.etat.pions.B, [cr(n, 3, 2)]);
-  assert.ok(r.journal.some((x) => x.code === 'RENCONTRE' && /\(2, 2\)/.test(x.texte)));
+  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 3)]);
+  assert.deepEqual(r.etat.pions.B, [cr(n, 1, 2)]);
+  assert.ok(!r.journal.some((x) => ['RENCONTRE', 'COUPURE', 'CHAINE'].includes(x.code)));
 });
 
-test('Exemple 5, variante conforme à v0.2 et au CDP : B FINIT sur (2,2) que A quitte -> les deux aboutissent', () => {
+test('Exemple 5, variante : B FINIT sur (2,2) que A quitte -> les deux aboutissent', () => {
   const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
   const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [2, 3]])), B: deplacer(ch(n, [[3, 2], [2, 2]])) });
   assert.deepEqual(r.etat.pions.A, [cr(n, 2, 3)]);

@@ -54,12 +54,19 @@ export function lireEtValider(etat, ordres) {
 
 /**
  * Croisements communs aux deux trajets qui comptent comme une RENCONTRE.
- * choix proto (CDP 03/11) : finir son trajet sur le départ libéré du pion adverse n'est pas
- * une rencontre ; y passer sans s'arrêter en est une. (regles-proto.md v0.2 exclut le départ
- * de croisements(t) et autorise donc aussi le passage : la décision CDP prime.) Le croisement est exempté seulement s'il
- * n'apparaît qu'à la DERNIÈRE position d'un trajet et qu'à la PREMIÈRE position de l'autre.
+ * décision Lomig 03/11 (réglage `depart_libere`) :
+ *  - 'traversee' (défaut, = regles-proto.md v0.2) : le croisement de départ ne compte pas dans
+ *    croisements(t), sauf si le trajet y revient plus loin. On peut donc s'arrêter sur le départ
+ *    que quitte le pion adverse, ou le traverser.
+ *  - 'arrivee_seule' (ancien choix CDP) : on peut seulement FINIR sur ce départ. Le croisement est
+ *    exempté s'il n'apparaît qu'à la DERNIÈRE position d'un trajet et qu'à la PREMIÈRE de l'autre ;
+ *    y passer est une rencontre.
  */
-export function croisementsDeRencontre(tA, tB) {
+export function croisementsDeRencontre(tA, tB, mode = 'traversee') {
+  if (mode === 'traversee') {
+    const sB = new Set(tB.slice(1));
+    return [...new Set(tA.slice(1))].filter((c) => sB.has(c));
+  }
   const seulementA = (t, c, pos) => t.every((x, k) => x !== c || k === pos);
   const exempt = (c) =>
     (seulementA(tA, c, tA.length - 1) && seulementA(tB, c, 0)) ||
@@ -107,7 +114,7 @@ export function resoudreCoupures(etat, ordres) {
     const tB = trajet('B');
     if (tA && tB) {
       const segs = segmentsCommuns(tA, tB);
-      const crs = croisementsDeRencontre(tA, tB);
+      const crs = croisementsDeRencontre(tA, tB, p.depart_libere);
       if (segs.length || crs.length) {
         const ou = segs.length
           ? `rencontre sur le segment ${segs[0].split('-').map((c) => nc(+c)).join('–')}`
@@ -159,8 +166,8 @@ export function resoudreCoupures(etat, ordres) {
 
     // 3d. Croisements libérés (chaîne) : un ordre qui vise le croisement d'un pion adverse est
     // annulé si ce pion ne part pas (v0.2) ; le soutien n'en protège pas (v0.2 §3).
-    // choix proto (CDP 03/11) : on ne traverse jamais un pion immobile, et on ne finit sur le
-    // croisement d'un pion adverse que s'il part effectivement ce tour.
+    // décision Lomig 03/11 : si le pion adverse ne part pas (il ne bouge pas, ou son ordre est
+    // annulé), l'ordre qui visait OU traversait son croisement est annulé ; boucle jusqu'à stabilité.
     for (const P of JOUEURS) {
       const Q = adversaire(P);
       const tQ = trajet(Q);

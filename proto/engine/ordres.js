@@ -63,8 +63,8 @@ export function validerOrdre(etat, joueur, ordre) {
       // Un autre pion allié ne bouge pas ce tour (un seul ordre) : il est infranchissable.
       if (occ === joueur && ch[k] !== ch[0]) return ko('Le trajet passe par un de vos pions.');
       // regles-proto.md v0.2 : un croisement de pion ADVERSE est accepté (ordre conditionnel).
-      // choix proto (CDP 03/11) : la résolution tranche : finir sur son départ libéré réussit,
-      // y passer est une rencontre (coupure), et un pion immobile n'est jamais traversé ni rejoint.
+      // décision Lomig 03/11 : la résolution tranche : s'arrêter sur son départ libéré ou le traverser
+      // réussit (réglage depart_libere), et un pion qui ne part pas n'est jamais traversé ni rejoint.
     }
     let soutien;
     if (p.soutien === 'oui' && ordre.soutien != null) {

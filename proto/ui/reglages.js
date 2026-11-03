@@ -77,7 +77,7 @@ function carte(r, v, prefixe) {
 const GROUPES = [
   ['variante', 'Variantes', 'regles-proto.md §3, 1er tableau.'],
   ['choix', 'Choix proto, à tester', 'regles-proto.md §1, §3 (2e tableau) et §4.'],
-  ['cdp', 'Choix proto du CDP (03/11)', 'Ils priment sur regles-proto.md.'],
+  ['cdp', 'Décisions de Lomig et du CDP (03/11)', 'Elles priment sur regles-proto.md. Le départ libéré reste réglable pour le tester.'],
   ['partie', 'Partie', 'Valeurs décidées par Lomig.'],
 ];
 

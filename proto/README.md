@@ -1,6 +1,6 @@
 # QIDIGO : prototype web jouable
 
-Prototype pour tester les règles de **regles-proto.md (v0.2)** et les choix du CDP (03/11).
+Prototype pour tester les règles de **regles-proto.md (v0.2)**, avec les décisions de Lomig et du CDP (03/11).
 Il s'agit de HTML, CSS et JS « vanilla » en modules ES : pas de dépendance ni d'étape de build.
 Les chemins sont tous relatifs, ce qui permet de le servir sous `/QIDIGO-ck/proto/` sur GitHub Pages.
 Il est pensé pour Safari iPhone en portrait.
@@ -16,6 +16,9 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
 ## Jouer
 
 - **Poser** : touchez un croisement libre (ou un pion adverse : ordre conditionnel).
+- **Départ libéré** (décision de Lomig, 03/11) : un pion peut s'arrêter sur le croisement que quitte un pion adverse, ou le traverser.
+  Si ce pion ne part pas, l'ordre est annulé, en chaîne. Le réglage `depart_libere` permet de tester « seulement s'y arrêter ».
+  Une pose sur le départ d'un pion qui bouge coupe toujours les deux ordres (choix du CDP).
 - **Déplacer** : glissez depuis un de vos pions le long des traits. Revenir en arrière efface le dernier segment.
   Le trait se colle aux croisements (avec une loupe sous le doigt).
 - **Prêt** valide l'ordre. **Effacer** l'efface. Sans ordre, ce bouton devient **Passer**.
@@ -52,7 +55,7 @@ QUESTIONS.md                 points encore ouverts
 
 - **Règles** : `engine/params.js` (réglages, avec leurs défauts et descriptions) et `engine/resolution.js`.
   Le code de chaque étape cite son numéro dans regles-proto.md. Les choix du CDP sont marqués
-  `// choix proto (CDP 03/11)` et les points ouverts `// A CONFIRMER (regles-proto.md)`.
+  `// choix proto (CDP 03/11)`, les décisions de Lomig `// décision Lomig 03/11` et les points ouverts `// A CONFIRMER (regles-proto.md)`.
 - **Design** : `design/tokens.css` (piste A « Goban », seul thème retenu par Lomig),
   `design/composants.css` et `design/plateau.js`, utilisés tels quels.
   `ui/plateau.js` traduit l'état du moteur en options pour `plateauSVG`.

@@ -74,20 +74,86 @@ test('soutien : face à un trajet non soutenu, le trajet soutenu passe ; une pos
 // Décisions CDP du 03/11 : départ libéré, chaîne, échanges.
 // ---------------------------------------------------------------------------
 
-test('CDP : finir sur le départ libéré d’un pion adverse -> réussit', () => {
-  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
+// --- Réglage depart_libere = arrivee_seule (ancien choix CDP, toujours réglable) ---
+const ARRIVEE = { depart_libere: 'arrivee_seule' };
+
+test('arrivee_seule : finir sur le départ libéré d’un pion adverse -> réussit', () => {
+  const e = etatAvec({ params: ARRIVEE, pions: { A: [[2, 2]], B: [[3, 2]] } });
   // B part vers le bas ; A finit sur (3,2), le départ de B.
   const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: deplacer(ch(n, [[3, 2], [3, 3], [3, 4]])) });
   assert.deepEqual(pos(r.etat, 'A'), [cr(n, 3, 2)]);
   assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 4)]);
 });
 
-test('CDP : passer par le départ libéré sans s’arrêter -> coupure (les deux annulés)', () => {
-  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
+test('arrivee_seule : passer par le départ libéré sans s’arrêter -> coupure (les deux annulés)', () => {
+  const e = etatAvec({ params: ARRIVEE, pions: { A: [[2, 2]], B: [[3, 2]] } });
   const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2], [4, 2]])), B: deplacer(ch(n, [[3, 2], [3, 3], [3, 4]])) });
   assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2)]);
   assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 2)]);
   assert.ok(r.journal.some((x) => x.code === 'RENCONTRE' && /\(3, 2\)/.test(x.texte)));
+});
+
+// --- Réglage par défaut depart_libere = traversee (décision Lomig 03/11, = regles-proto v0.2) ---
+
+test('traversee (défaut) : c’est bien la valeur par défaut', () => {
+  assert.equal(etatAvec().params.depart_libere, 'traversee');
+});
+
+test('traversee : finir sur le départ libéré -> réussit', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: deplacer(ch(n, [[3, 2], [3, 3], [3, 4]])) });
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 3, 2)]);
+  assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 4)]);
+});
+
+test('traversee : traverser le départ libéré -> les deux trajets réussissent', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2], [4, 2]])), B: deplacer(ch(n, [[3, 2], [3, 3], [3, 4]])) });
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 4, 2)]);
+  assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 4)]);
+  assert.ok(!codes(r.journal).includes('RENCONTRE'));
+  assert.ok(!codes(r.journal).includes('CHAINE'));
+});
+
+test('traversee : viser le croisement d’un pion qui ne part pas -> ordre annulé', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
+  for (const oB of [rien(), poser(cr(n, 7, 7))]) {
+    const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: oB });
+    assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2)]);
+    assert.ok(r.journal.some((x) => x.code === 'CHAINE' && x.joueur === 'A'));
+  }
+});
+
+test('traversee : traverser le croisement d’un pion qui ne part pas -> ordre annulé', () => {
+  // B bouge un AUTRE pion : b en (3,2) reste, la traversée de A est annulée.
+  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2], [7, 7]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2], [4, 2]])), B: deplacer(ch(n, [[7, 7], [7, 8]])) });
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2)]);
+  assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 2), cr(n, 7, 8)].sort((a, b) => a - b));
+  assert.ok(r.journal.some((x) => x.code === 'CHAINE' && x.joueur === 'A' && /\(3, 2\)/.test(x.texte)));
+});
+
+test('traversee : chaîne — trajet adverse annulé, donc la traversée de son départ est annulée', () => {
+  // B (3,2) veut passer par (5,4), occupé par un pion A immobile : annulé.
+  // A (2,2) voulait TRAVERSER (3,2), départ de B, jusqu'en (4,2) — sans toucher le trajet de B :
+  // B reste, donc A est annulé à son tour.
+  const e = etatAvec({ pions: { A: [[2, 2], [5, 4]], B: [[3, 2]] } });
+  const r = resoudreTour(e, {
+    A: deplacer(ch(n, [[2, 2], [2, 1], [3, 1], [3, 2], [3, 3]])),
+    B: deplacer(ch(n, [[3, 2], [4, 2], [5, 2], [5, 3], [5, 4], [5, 5]])),
+  });
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2), cr(n, 5, 4)].sort((a, b) => a - b));
+  assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 2)]);
+  const chaine = r.journal.filter((x) => x.code === 'CHAINE');
+  assert.equal(chaine.length, 2);
+  assert.match(chaine[0].texte, /Joueur B.*\(5, 4\) ne bouge pas/);
+  assert.match(chaine[1].texte, /Joueur A.*\(3, 2\) ne bouge pas/);
+});
+
+test('traversee : deux pions qui finissent sur le même croisement se rencontrent toujours', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]], B: [[4, 2]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: deplacer(ch(n, [[4, 2], [3, 2]])) });
+  assert.ok(codes(r.journal).includes('RENCONTRE'));
 });
 
 test('CDP : mouvement annulé, l’autre ne peut pas finir sur le croisement resté occupé (chaîne)', () => {

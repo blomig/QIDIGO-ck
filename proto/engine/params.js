@@ -80,9 +80,12 @@ export const REGLAGES = [
   { id: 'fermetures', groupe: 'choix', libelle: 'Fermetures simultanées', type: 'choix', defaut: 'paralleles', fixe: true,
     valeurs: [['paralleles', 'En parallèle']], description: 'Les deux joueurs ferment sur le même état ; une case gagnée par les deux garde son propriétaire d’avant ; les captures s’appliquent ensemble.' },
 
-  // --- Décisions CDP du 03/11 (affichées) ---
-  { id: 'depart_libere', groupe: 'cdp', libelle: 'Départ libéré d’un pion adverse', type: 'choix', defaut: 'arrivee_seulement', fixe: true,
-    valeurs: [['arrivee_seulement', 'On peut y finir, pas y passer']], description: 'On peut finir son trajet sur le départ d’un pion adverse qui part (s’il ne part pas, l’ordre est annulé). Y passer est une rencontre (coupure). On ne traverse jamais un pion immobile. Une pose sur ce départ coupe le trajet et les deux ordres sont annulés.' },
+  // --- Décisions de Lomig et du CDP du 03/11 (affichées) ---
+  // décision Lomig 03/11 : traverser le départ libéré est permis par défaut (comme regles-proto v0.2) ;
+  // l'ancien choix CDP « arrivée seulement » reste disponible pour le tester.
+  { id: 'depart_libere', groupe: 'cdp', libelle: 'Départ libéré d’un pion adverse', type: 'choix', defaut: 'traversee',
+    valeurs: [['traversee', 'On peut s’y arrêter ou le traverser'], ['arrivee_seule', 'On peut seulement s’y arrêter']],
+    description: 'Décision de Lomig (03/11). Un pion peut entrer sur le croisement qu’un pion adverse quitte pendant le même tour : s’y arrêter, ou aussi le traverser (défaut, comme regles-proto v0.2). Avec « seulement s’y arrêter », y passer est une rencontre qui coupe les deux trajets. Si le pion adverse ne part pas (il ne bouge pas ou son ordre est annulé), l’ordre qui visait ou traversait son croisement est annulé, en chaîne. Une pose sur ce départ coupe toujours les deux ordres (choix du CDP).' },
   { id: 'annulations_chaine', groupe: 'cdp', libelle: 'Annulations en chaîne', type: 'choix', defaut: 'oui', fixe: true,
     valeurs: [['oui', 'Oui, jusqu’à stabilité']], description: 'Une annulation peut en entraîner une autre (ex. : le pion qui devait partir reste, l’arrivée adverse sur son croisement est annulée). On recommence jusqu’à ce que plus rien ne change.' },
 ];
