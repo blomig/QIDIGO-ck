@@ -1,0 +1,72 @@
+// « Passer » (choix proto CDP 03/11) et décompte des croisements contrôlés.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  resoudreTour, validerOrdre, passer, poser, deplacer, creerEtat, copier, geler, indiceCase, indice,
+  croisementsControles, compter, seuilCroisements,
+} from '../engine/index.js';
+import { etatAvec, ch, cr, codes } from './aide.js';
+
+const n = 9;
+
+test('Passer : ordre valide, ne fait rien, journalisé', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]] } });
+  assert.deepEqual(validerOrdre(e, 'A', passer()), { ok: true, ordre: { type: 'passer' } });
+  const r = resoudreTour(e, { A: passer(), B: passer() });
+  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 2)]);
+  assert.equal(codes(r.journal).filter((c) => c === 'PASSE').length, 2);
+  assert.ok(!codes(r.journal).includes('INVALIDE'));
+  assert.equal(r.etat.tour, 2);
+});
+
+test('Passer ne coupe rien : le trajet adverse aboutit', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: passer() });
+  assert.deepEqual(r.etat.pions.A, [cr(n, 3, 2)]);
+});
+
+test('Passer ne libère pas de croisement : une arrivée sur un pion qui passe est annulée', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]], B: [[3, 2]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: passer() });
+  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 2)]);
+});
+
+test('Ordre absent (chrono) : traité comme ne rien faire', () => {
+  const r = resoudreTour(etatAvec(), { A: poser(cr(n, 4, 4)) });
+  assert.deepEqual(r.etat.pions.A, [cr(n, 4, 4)]);
+});
+
+test('Décompte : une case seule vaut 4 croisements, deux cases voisines 6', () => {
+  const e = copier(creerEtat());
+  e.proprietaires[indiceCase(n, 4, 4)] = 'A';
+  assert.equal(compter(geler(copier(e))).A, 4);
+  e.proprietaires[indiceCase(n, 5, 4)] = 'A';
+  const c = croisementsControles(geler(e));
+  assert.equal(c.A.length, 6);
+  assert.ok(c.A.includes(indice(n, 5, 5)));
+  assert.equal(c.B.length, 0);
+});
+
+test('Décompte : toute la grille possédée = 81 croisements, au-dessus du seuil de 61', () => {
+  const e = copier(creerEtat());
+  e.proprietaires.fill('A');
+  const c = compter(geler(e));
+  assert.equal(c.A, 81);
+  assert.ok(c.A >= seuilCroisements(e.params));
+});
+
+test('Décompte : coin -> 1 case suffit au coin, frontière commune exclue', () => {
+  const e = copier(creerEtat());
+  e.proprietaires[indiceCase(n, 0, 0)] = 'A';
+  e.proprietaires[indiceCase(n, 0, 1)] = 'B';
+  const c = croisementsControles(geler(e));
+  // A : (0,0), (1,0) ; frontière (0,1), (1,1) partagée ; B : (0,2), (1,2).
+  assert.deepEqual(c.A.sort((a, b) => a - b), [indice(n, 0, 0), indice(n, 1, 0)]);
+  assert.deepEqual(c.B.sort((a, b) => a - b), [indice(n, 0, 2), indice(n, 1, 2)]);
+});
+
+test('ctrl est mis à jour après chaque tour (étape 8)', () => {
+  const e = etatAvec({ pions: { A: [[4, 4]] } });
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[4, 4], [5, 4], [5, 5], [4, 5], [4, 4]])), B: passer() });
+  assert.deepEqual(r.etat.ctrl, { A: 4, B: 0 });
+});

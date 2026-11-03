@@ -3,6 +3,7 @@
 Page publique du C-K de **QIDIGO** (jeu iPhone en conception, nom de travail) : arbre des concepts (C), base de connaissances (K), opérateurs, tensions, questions et déjà-vu.
 
 - **Page :** https://blomig.github.io/QIDIGO-ck/
+- **Prototype jouable (v0.1) :** https://blomig.github.io/QIDIGO-ck/proto/ (sources dans `proto/`, règles dans `proto/regles-proto.md`)
 - **Commentaires :** chaque concept (C12…), connaissance (K45…) et question (Q3…) a son fil dans les [Discussions](https://github.com/blomig/QIDIGO-ck/discussions) (catégorie Announcements), via [giscus](https://giscus.app). Il y a aussi un fil « discussion générale ». Il faut un compte GitHub pour écrire.
 - **Réponses aux questions :** dans le fil de la question, écrire « REPONSE LOMIG : a) » ou « b) ».
 - **Mode local (ancien) :** le bouton en haut à droite réactive les commentaires gardés dans le navigateur, avec export et import JSON.

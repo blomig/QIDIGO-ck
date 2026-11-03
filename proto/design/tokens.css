@@ -1,0 +1,148 @@
+/* QIDIGO — tokens de design (prototype web iPhone). Généré par _src/build.py depuis _src/tokens.py : ne pas éditer à la main.
+
+ * Unités : px CSS = pt iOS. Piste A « Goban » = défaut (:root). Piste B « Qix nuit » : data-theme="nuit" sur un ancêtre.
+
+ * Pistes de travail à affiner, pas des décisions. */
+
+/* Piste A — Goban (recommandée) : couleurs */
+:root, [data-theme="goban"] {
+  --q-bg-app: #F2ECDF;
+  --q-bg-surface: #FBF8F1;
+  --q-board: #E4C893;
+  --q-board-edge: #C9A766;
+  --q-ink: #1F1D1A;
+  --q-ink-2: #57524A;
+  --q-grid-line: rgba(31,29,26,.52);
+  --q-board-wall: #1F1D1A;
+  --q-hoshi: #1F1D1A;
+  --q-pion-noir: #1A1A1C;
+  --q-pion-noir-hi: #4A4A50;
+  --q-pion-noir-ring: #000000;
+  --q-pion-blanc: #FBFAF6;
+  --q-pion-blanc-lo: #D9D4C8;
+  --q-pion-blanc-ring: #1F1D1A;
+  --q-camp-n-line: #1F1D1A;
+  --q-camp-n-casing: rgba(0,0,0,0);
+  --q-camp-b-line: #FFFFFF;
+  --q-camp-b-casing: #1F1D1A;
+  --q-zone-n-wash: rgba(31,29,26,.20);
+  --q-zone-n-motif: rgba(31,29,26,.55);
+  --q-zone-b-wash: rgba(255,255,255,.62);
+  --q-zone-b-motif: rgba(31,29,26,.45);
+  --q-zone-neutre: rgba(31,29,26,.08);
+  --q-accent: #2B3F8C;
+  --q-accent-ink: #FFFFFF;
+  --q-accent-soft: rgba(43,63,140,.14);
+  --q-alerte: #B3261E;
+  --q-alerte-ink: #FFFFFF;
+  --q-ok: #2E6B3A;
+  --q-glow: none;
+  --q-w-ring-n: 1px;
+  --q-w-ring-b: 1.5px;
+  --q-pion-shadow: rgba(0,0,0,.28);
+  --q-line-glow: none;
+  --q-trace-opacity: .88;
+}
+
+/* Piste B — Qix nuit : couleurs */
+[data-theme="nuit"] {
+  --q-bg-app: #0A0D12;
+  --q-bg-surface: #121821;
+  --q-board: #0F141B;
+  --q-board-edge: #1E2733;
+  --q-ink: #E9EDF2;
+  --q-ink-2: #93A0B0;
+  --q-grid-line: rgba(147,160,176,.58);
+  --q-board-wall: #93A0B0;
+  --q-hoshi: #5D6B7C;
+  --q-pion-noir: #07090C;
+  --q-pion-noir-hi: #2A313B;
+  --q-pion-noir-ring: #FFB547;
+  --q-pion-blanc: #F4F7FA;
+  --q-pion-blanc-lo: #C9D3DE;
+  --q-pion-blanc-ring: #4FD8EB;
+  --q-camp-n-line: #FFB547;
+  --q-camp-n-casing: rgba(0,0,0,0);
+  --q-camp-b-line: #4FD8EB;
+  --q-camp-b-casing: rgba(0,0,0,0);
+  --q-zone-n-wash: rgba(255,181,71,.13);
+  --q-zone-n-motif: rgba(255,181,71,.55);
+  --q-zone-b-wash: rgba(79,216,235,.11);
+  --q-zone-b-motif: rgba(79,216,235,.60);
+  --q-zone-neutre: rgba(147,160,176,.08);
+  --q-accent: #FFB547;
+  --q-accent-ink: #1A1205;
+  --q-accent-soft: rgba(255,181,71,.16);
+  --q-alerte: #FF5C7A;
+  --q-alerte-ink: #1A0509;
+  --q-ok: #7BE495;
+  --q-glow: drop-shadow(0 0 3px currentColor);
+  --q-w-ring-n: 2.5px;
+  --q-w-ring-b: 2.5px;
+  --q-pion-shadow: rgba(0,0,0,.55);
+  --q-line-glow: drop-shadow(0 0 2.5px rgba(255,255,255,.35));
+  --q-trace-opacity: .72;
+}
+
+/* Tailles, épaisseurs, rayons, typo (communs aux deux pistes) */
+:root {
+  --q-grid-n: 9;
+  --q-pitch: 44px;
+  --q-pitch-min: 42px;
+  --q-pitch-max: 56px;
+  --q-board-margin-min: 16px;
+  --q-hit: 44px;
+  --q-pion-d: 31px;
+  --q-pion-reserve-d: 18px;
+  --q-hoshi-d: 4px;
+  --q-ctrl-mark: 7px;
+  --q-w-grid: 1px;
+  --q-w-wall: 2.5px;
+  --q-w-path: 4px;
+  --q-w-path-casing: 1.5px;
+  --q-w-trace: 3px;
+  --q-w-mur: 4px;
+  --q-dash: 6px 5px;
+  --q-hatch-step: 6px;
+  --q-dot-step: 6px;
+  --q-dot-r: 1.1px;
+  --q-chrono-d: 64px;
+  --q-chrono-w: 5px;
+  --q-btn-h: 56px;
+  --q-btn-r: 16px;
+  --q-btn-inset: 16px;
+  --q-r-card: 14px;
+  --q-r-chip: 999px;
+  --q-safe-top: 47px;
+  --q-safe-bottom: 34px;
+  --q-font-ui: -apple-system, 'SF Pro Text', 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+  --q-font-num: -apple-system, 'SF Pro Rounded', 'SF Pro Display', 'IBM Plex Sans', system-ui, sans-serif;
+  --q-fs-xs: 11px;
+  --q-fs-s: 13px;
+  --q-fs-m: 15px;
+  --q-fs-l: 17px;
+  --q-fs-xl: 28px;
+}
+
+/* Durées et courbes d'animation */
+:root {
+  --q-dur-dash: 600ms;
+  --q-dur-snap: 90ms;
+  --q-dur-valide: 180ms;
+  --q-dur-reveal: 450ms;
+  --q-dur-coupure: 400ms;
+  --q-dur-zone: 350ms;
+  --q-dur-capture: 300ms;
+  --q-dur-tour: 20s;
+  --q-dur-urgence: 1000ms;
+  --q-seuil-urgence: 5;
+  --q-ease-out: cubic-bezier(.2,.8,.2,1);
+  --q-ease-in-out: cubic-bezier(.65,0,.35,1);
+  --q-ease-in: cubic-bezier(.5,0,.75,0);
+  --q-ease-pop: cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Espacement de la grille selon la largeur d'écran et la taille N (7, 8, 9) :
+ * pitch = min(56, floor((largeur - 2 x 16) / (N - 1))) ; marge = (largeur - (N - 1) x pitch) / 2.
+ * 375 pt, N=9 -> 42 / 19,5 ; 390 -> 44 / 19 ; 393 -> 45 / 16,5 ; 430 -> 49 / 19 ; 375, N=8 -> 49 ; 375, N=7 -> 56.
+ * Calcul fait en JS (voir README) puis posé en --q-pitch / --q-board-margin sur .q-screen. */

@@ -1,0 +1,119 @@
+/* QIDIGO — mise en page du prototype (portrait iPhone).
+ * Les couleurs, tailles et durées viennent des tokens du designer (design/tokens.css, préfixe --q-).
+ * Chaque variable --ui-* a une valeur neutre de repli si design/ est absent. */
+:root {
+  --ui-bg: var(--q-bg-app, #f3f3f3);
+  --ui-surface: var(--q-bg-surface, #ffffff);
+  --ui-ink: var(--q-ink, #1d1d1d);
+  --ui-ink-2: var(--q-ink-2, #5a5a5a);
+  --ui-ligne: var(--q-grid-line, rgba(0, 0, 0, .4));
+  --ui-accent: var(--q-accent, #2b5fd9);
+  --ui-accent-ink: var(--q-accent-ink, #fff);
+  --ui-accent-soft: var(--q-accent-soft, rgba(43, 95, 217, .14));
+  --ui-alerte: var(--q-alerte, #c62828);
+  --ui-ok: var(--q-ok, #2e7d32);
+  --ui-r: var(--q-r-card, 14px);
+  --ui-font: var(--q-font-ui, system-ui, -apple-system, sans-serif);
+  --ui-fs-s: var(--q-fs-s, 13px);
+  --ui-fs-m: var(--q-fs-m, 15px);
+  --ui-fs-l: var(--q-fs-l, 17px);
+  --ui-btn-h: var(--q-btn-h, 52px);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ui-bg); color: var(--ui-ink); font: var(--ui-fs-m)/1.35 var(--ui-font); }
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+body { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+.app {
+  min-height: 100dvh; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 12px)
+           calc(env(safe-area-inset-bottom) + 8px) calc(env(safe-area-inset-left) + 12px);
+}
+
+/* Bandeau : compteurs A / B et chrono */
+.bandeau { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.centre { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tour { font-size: var(--ui-fs-s); color: var(--ui-ink-2); }
+.q-counter-val { font-size: 24px; }
+
+/* Plateau : le doigt ne fait jamais défiler ni zoomer la page. */
+.plateau-zone { position: relative; }
+.plateau { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; display: flex; justify-content: center; }
+.plateau svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+
+.voile {
+  position: absolute; inset: 0; display: grid; place-items: center; background: var(--ui-bg); border-radius: var(--ui-r); z-index: 5;
+}
+.carte { background: var(--ui-surface); border-radius: var(--ui-r); padding: 20px; width: min(92%, 360px); text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.voile-titre { font-size: var(--ui-fs-l); font-weight: 700; margin: 0 0 8px; }
+
+.statut { min-height: 2.7em; margin: 0; font-size: var(--ui-fs-s); color: var(--ui-ink-2); text-align: center; }
+.statut.erreur { color: var(--ui-alerte); }
+
+.actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.bouton {
+  appearance: none; border: 0; border-radius: var(--q-btn-r, 14px); min-height: 44px; padding: 0 14px; background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ui-ligne); font-weight: 600;
+}
+.bouton.secondaire { height: var(--ui-btn-h); }
+.bouton.lien { box-shadow: none; color: var(--ui-accent); }
+.bouton.plein { background: var(--ui-accent); color: var(--ui-accent-ink); box-shadow: none; }
+.bouton:disabled, .q-btn-pret:disabled { opacity: .45; }
+
+.resume { background: var(--ui-surface); border-radius: var(--ui-r); padding: 10px 12px; font-size: var(--ui-fs-s); }
+.resume h3 { margin: 0 0 6px; font-size: var(--ui-fs-m); }
+.resume ul { margin: 0; padding-left: 18px; }
+.resume .suite { margin-top: 10px; }
+
+.barre { display: flex; justify-content: space-around; margin-top: auto; }
+
+/* Panneaux plein écran (journal, réglages) */
+.panneau {
+  position: fixed; inset: 0; z-index: 20; background: var(--ui-bg); display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.panneau-tete { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--ui-ligne); }
+.panneau-tete h2 { margin: 0; font-size: var(--ui-fs-l); }
+.panneau-corps { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; flex: 1; }
+/* Marge en bas du contenu : le pied du panneau Réglages ne masque plus les dernières cartes. */
+.panneau-corps { padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
+
+/* Journal */
+.j-tour { margin-bottom: 12px; }
+.j-tour h3 { margin: 0 0 4px; font-size: var(--ui-fs-m); }
+.j-tour ul { margin: 0; padding-left: 18px; font-size: var(--ui-fs-s); }
+.j-annule { color: var(--ui-alerte); }
+.j-gain { color: var(--ui-ok); font-weight: 600; }
+.j-fin { font-weight: 700; }
+
+/* Réglages : une carte par réglage */
+.r-note { font-size: var(--ui-fs-s); color: var(--ui-ink-2); margin: 0 0 12px; }
+.r-groupe { margin: 18px 0 8px; font-size: var(--ui-fs-l); }
+.r-groupe small { display: block; font-weight: 400; font-size: var(--ui-fs-s); color: var(--ui-ink-2); }
+.r-carte { background: var(--ui-surface); border-radius: var(--ui-r); padding: 12px; margin-bottom: 10px; border: 0; }
+.r-carte legend { display: contents; }
+.r-tete { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.r-titre { font-weight: 700; }
+.r-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.r-badge { font-size: 12px; padding: 2px 8px; border-radius: var(--q-r-chip, 999px); box-shadow: inset 0 0 0 1px var(--ui-ligne); white-space: nowrap; }
+.r-badge.on { background: var(--ui-ok); color: #fff; box-shadow: none; }
+.r-badge.off { color: var(--ui-ink-2); }
+.r-badge.modifie { background: var(--ui-accent); color: var(--ui-accent-ink); box-shadow: none; }
+.r-desc { font-size: var(--ui-fs-s); color: var(--ui-ink-2); margin: 6px 0; }
+.r-defaut { font-size: 12px; color: var(--ui-ink-2); margin: 0 0 8px; }
+.r-choix { display: flex; flex-wrap: wrap; gap: 6px; }
+.r-choix label { position: relative; }
+.r-choix input { position: absolute; opacity: 0; inset: 0; margin: 0; }
+.r-choix span { display: inline-block; padding: 8px 12px; min-height: 36px; border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--ui-ligne); font-size: var(--ui-fs-s); }
+.r-choix input:checked + span { background: var(--ui-accent); color: var(--ui-accent-ink); box-shadow: none; font-weight: 600; }
+.r-choix input:disabled + span { opacity: .7; }
+.r-choix input:focus-visible + span { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
+.r-nombre { font: inherit; font-size: 16px; width: 6em; padding: 6px 8px; border-radius: 8px; border: 1.5px solid var(--ui-ligne); background: var(--ui-bg); color: var(--ui-ink); }
+.r-pied { position: sticky; bottom: 0; display: grid; gap: 8px; padding: 10px 0 4px; background: var(--ui-bg); }
+.r-erreur { color: var(--ui-alerte); font-size: var(--ui-fs-s); min-height: 1em; margin: 0; }
+
+/* Lien de soutien (variante `soutien`) : pointillé accent entre le pion qui soutient et le départ. */
+.ui-soutien { fill: none; stroke: var(--ui-accent); stroke-width: 2.5; stroke-dasharray: 3 4; stroke-linecap: round; }

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr" data-theme="goban">
+<head>
+  <meta charset="utf-8">
+  <!-- Portrait iPhone : pas de zoom (ni pincement ni double tap), plein écran avec safe-area. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#F2ECDF">
+  <link rel="icon" href="data:,">
+  <title>QIDIGO — prototype</title>
+  <!-- Design du designer (design/) : tokens puis composants, puis la mise en page du prototype. -->
+  <link rel="stylesheet" href="./design/tokens.css">
+  <link rel="stylesheet" href="./design/composants.css">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./ui/app.js"></script>
+</head>
+<body>
+  <main id="app" class="app" aria-live="polite">
+    <header class="bandeau">
+      <div class="q-counter q-counter--n" id="compteur-A"></div>
+      <div class="centre">
+        <div class="tour q-num" id="tour">Tour 1 / 20</div>
+        <div class="q-chrono" id="chrono">
+          <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+            <circle class="q-chrono-track" cx="32" cy="32" r="29"/>
+            <circle class="q-chrono-arc" cx="32" cy="32" r="29"/>
+          </svg>
+          <div class="q-chrono-val" id="chrono-val">20<small>s</small></div>
+        </div>
+      </div>
+      <div class="q-counter q-counter--b q-counter--right" id="compteur-B"></div>
+    </header>
+
+    <section class="plateau-zone">
+      <div id="plateau" class="plateau" aria-label="Plateau"></div>
+      <!-- Écran de passage de l'appareil (mode deux joueurs) : masque tout le plateau. -->
+      <div id="passage" class="voile" hidden>
+        <div class="carte">
+          <p class="voile-titre" id="passage-titre">Au tour du joueur A</p>
+          <p id="passage-texte">Passez l’appareil. Ne regardez pas l’ordre de l’autre joueur.</p>
+          <button class="q-btn-pret" id="passage-ok" type="button">Je suis prêt</button>
+        </div>
+      </div>
+    </section>
+
+    <p id="statut" class="statut" role="status"></p>
+
+    <div class="actions">
+      <button class="bouton secondaire" id="btn-effacer" type="button">Effacer</button>
+      <button class="q-btn-pret" id="btn-pret" type="button">Prêt</button>
+    </div>
+
+    <section id="resume" class="resume" hidden></section>
+
+    <nav class="barre">
+      <button class="bouton lien" id="btn-journal" type="button">Journal</button>
+      <button class="bouton lien" id="btn-reglages" type="button">Réglages</button>
+      <button class="bouton lien" id="btn-rejouer" type="button">Rejouer</button>
+    </nav>
+  </main>
+
+  <!-- Panneaux plein écran -->
+  <div id="panneau-journal" class="panneau" hidden>
+    <div class="panneau-tete"><h2>Journal des tours</h2><button class="bouton lien" data-fermer type="button">Fermer</button></div>
+    <div class="panneau-corps" id="journal"></div>
+  </div>
+  <div id="panneau-reglages" class="panneau" hidden>
+    <div class="panneau-tete"><h2>Réglages</h2><button class="bouton lien" data-fermer type="button">Fermer</button></div>
+    <div class="panneau-corps" id="reglages"></div>
+  </div>
+  <noscript>Ce prototype a besoin de JavaScript.</noscript>
+</body>
+</html>

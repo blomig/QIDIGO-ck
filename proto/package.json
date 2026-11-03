@@ -1,0 +1,9 @@
+{
+  "name": "qidigo-proto",
+  "private": true,
+  "description": "Prototype web jouable de QIDIGO (sans dépendance, sans build).",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

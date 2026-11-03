@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg class="q-board " xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Plateau QIDIGO"><style><![CDATA[
+/* QIDIGO — tokens de design (prototype web iPhone). Généré par _src/build.py depuis _src/tokens.py : ne pas éditer à la main.
+
+ * Unités : px CSS = pt iOS. Piste A « Goban » = défaut (:root). Piste B « Qix nuit » : data-theme="nuit" sur un ancêtre.
+
+ * Pistes de travail à affiner, pas des décisions. */
+
+/* Piste A — Goban (recommandée) : couleurs */
+:root, [data-theme="goban"] {
+  --q-bg-app: #F2ECDF;
+  --q-bg-surface: #FBF8F1;
+  --q-board: #E4C893;
+  --q-board-edge: #C9A766;
+  --q-ink: #1F1D1A;
+  --q-ink-2: #57524A;
+  --q-grid-line: rgba(31,29,26,.52);
+  --q-board-wall: #1F1D1A;
+  --q-hoshi: #1F1D1A;
+  --q-pion-noir: #1A1A1C;
+  --q-pion-noir-hi: #4A4A50;
+  --q-pion-noir-ring: #000000;
+  --q-pion-blanc: #FBFAF6;
+  --q-pion-blanc-lo: #D9D4C8;
+  --q-pion-blanc-ring: #1F1D1A;
+  --q-camp-n-line: #1F1D1A;
+  --q-camp-n-casing: rgba(0,0,0,0);
+  --q-camp-b-line: #FFFFFF;
+  --q-camp-b-casing: #1F1D1A;
+  --q-zone-n-wash: rgba(31,29,26,.20);
+  --q-zone-n-motif: rgba(31,29,26,.55);
+  --q-zone-b-wash: rgba(255,255,255,.62);
+  --q-zone-b-motif: rgba(31,29,26,.45);
+  --q-zone-neutre: rgba(31,29,26,.08);
+  --q-accent: #2B3F8C;
+  --q-accent-ink: #FFFFFF;
+  --q-accent-soft: rgba(43,63,140,.14);
+  --q-alerte: #B3261E;
+  --q-alerte-ink: #FFFFFF;
+  --q-ok: #2E6B3A;
+  --q-glow: none;
+  --q-w-ring-n: 1px;
+  --q-w-ring-b: 1.5px;
+  --q-pion-shadow: drop-shadow(0 1.5px 1.2px rgba(0,0,0,.38));
+  --q-line-glow: none;
+  --q-trace-opacity: .88;
+}
+
+/* Piste B — Qix nuit : couleurs */
+[data-theme="nuit"] {
+  --q-bg-app: #0A0D12;
+  --q-bg-surface: #121821;
+  --q-board: #0F141B;
+  --q-board-edge: #1E2733;
+  --q-ink: #E9EDF2;
+  --q-ink-2: #93A0B0;
+  --q-grid-line: rgba(147,160,176,.58);
+  --q-board-wall: #93A0B0;
+  --q-hoshi: #5D6B7C;
+  --q-pion-noir: #07090C;
+  --q-pion-noir-hi: #2A313B;
+  --q-pion-noir-ring: #FFB547;
+  --q-pion-blanc: #F4F7FA;
+  --q-pion-blanc-lo: #C9D3DE;
+  --q-pion-blanc-ring: #4FD8EB;
+  --q-camp-n-line: #FFB547;
+  --q-camp-n-casing: rgba(0,0,0,0);
+  --q-camp-b-line: #4FD8EB;
+  --q-camp-b-casing: rgba(0,0,0,0);
+  --q-zone-n-wash: rgba(255,181,71,.13);
+  --q-zone-n-motif: rgba(255,181,71,.55);
+  --q-zone-b-wash: rgba(79,216,235,.11);
+  --q-zone-b-motif: rgba(79,216,235,.60);
+  --q-zone-neutre: rgba(147,160,176,.08);
+  --q-accent: #FFB547;
+  --q-accent-ink: #1A1205;
+  --q-accent-soft: rgba(255,181,71,.16);
+  --q-alerte: #FF5C7A;
+  --q-alerte-ink: #1A0509;
+  --q-ok: #7BE495;
+  --q-glow: drop-shadow(0 0 3px currentColor);
+  --q-w-ring-n: 2.5px;
+  --q-w-ring-b: 2.5px;
+  --q-pion-shadow: drop-shadow(0 0 4px rgba(0,0,0,.9));
+  --q-line-glow: drop-shadow(0 0 2.5px rgba(255,255,255,.35));
+  --q-trace-opacity: .72;
+}
+
+/* Tailles, épaisseurs, rayons, typo (communs aux deux pistes) */
+:root {
+  --q-grid-n: 9;
+  --q-pitch: 44px;
+  --q-pitch-min: 42px;
+  --q-pitch-max: 56px;
+  --q-board-margin-min: 16px;
+  --q-hit: 44px;
+  --q-pion-d: 31px;
+  --q-pion-reserve-d: 18px;
+  --q-hoshi-d: 4px;
+  --q-ctrl-mark: 7px;
+  --q-w-grid: 1px;
+  --q-w-wall: 2.5px;
+  --q-w-path: 4px;
+  --q-w-path-casing: 1.5px;
+  --q-w-trace: 3px;
+  --q-w-mur: 4px;
+  --q-dash: 6px 5px;
+  --q-hatch-step: 6px;
+  --q-dot-step: 6px;
+  --q-dot-r: 1.1px;
+  --q-chrono-d: 64px;
+  --q-chrono-w: 5px;
+  --q-btn-h: 56px;
+  --q-btn-r: 16px;
+  --q-btn-inset: 16px;
+  --q-r-card: 14px;
+  --q-r-chip: 999px;
+  --q-safe-top: 47px;
+  --q-safe-bottom: 34px;
+  --q-font-ui: -apple-system, 'SF Pro Text', 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+  --q-font-num: -apple-system, 'SF Pro Rounded', 'SF Pro Display', 'IBM Plex Sans', system-ui, sans-serif;
+  --q-fs-xs: 11px;
+  --q-fs-s: 13px;
+  --q-fs-m: 15px;
+  --q-fs-l: 17px;
+  --q-fs-xl: 28px;
+}
+
+/* Durées et courbes d'animation */
+:root {
+  --q-dur-dash: 600ms;
+  --q-dur-snap: 90ms;
+  --q-dur-valide: 180ms;
+  --q-dur-reveal: 450ms;
+  --q-dur-coupure: 400ms;
+  --q-dur-zone: 350ms;
+  --q-dur-capture: 300ms;
+  --q-dur-tour: 20s;
+  --q-dur-urgence: 1000ms;
+  --q-seuil-urgence: 5;
+  --q-ease-out: cubic-bezier(.2,.8,.2,1);
+  --q-ease-in-out: cubic-bezier(.65,0,.35,1);
+  --q-ease-in: cubic-bezier(.5,0,.75,0);
+  --q-ease-pop: cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Espacement de la grille selon la largeur d'écran et la taille N (7, 8, 9) :
+ * pitch = min(56, floor((largeur - 2 x 16) / (N - 1))) ; marge = (largeur - (N - 1) x pitch) / 2.
+ * 375 pt, N=9 -> 42 / 19,5 ; 390 -> 44 / 19 ; 393 -> 45 / 16,5 ; 430 -> 49 / 19 ; 375, N=8 -> 49 ; 375, N=7 -> 56.
+ * Calcul fait en JS (voir README) puis posé en --q-pitch / --q-board-margin sur .q-screen. */
+/* QIDIGO — composants (prototype web iPhone, portrait). Dépend de tokens.css.
+ * Piste A « Goban » par défaut ; piste B : data-theme="nuit" sur un ancêtre.
+ * Unités : px CSS = pt iOS. Préfixe q- partout. */
+
+/* ---------- Écran ---------- */
+.q-screen{position:relative;width:390px;height:844px;overflow:hidden;background:var(--q-bg-app);color:var(--q-ink);
+  font-family:var(--q-font-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  touch-action:none;user-select:none;-webkit-user-select:none}
+.q-num{font-family:var(--q-font-num);font-variant-numeric:tabular-nums}
+
+/* ---------- Plateau (SVG produit par plateau.js) ---------- */
+.q-board{display:block;overflow:visible}
+.q-board-bg{fill:var(--q-board)}
+.q-grid{fill:none;stroke:var(--q-grid-line);stroke-width:var(--q-w-grid)}
+.q-wall{fill:none;stroke:var(--q-board-wall);stroke-width:var(--q-w-wall)}
+.q-hoshi{fill:var(--q-hoshi)}
+
+/* Croisement : zone tactile carrée = pitch x pitch (cellule de Voronoï), invisible en jeu */
+.q-hit{fill:transparent;stroke:none}
+.q-show-hits .q-hit{fill:var(--q-accent-soft);stroke:var(--q-accent);stroke-width:1;stroke-dasharray:3 3}
+.q-hit--on{fill:var(--q-accent-soft);stroke:var(--q-accent);stroke-width:1.5}
+.q-interdit{stroke:var(--q-ink-2);stroke-width:2;stroke-linecap:round}
+.q-ctrl--n{fill:var(--q-camp-n-line);stroke:var(--q-camp-b-casing);stroke-width:0}
+.q-ctrl--b{fill:var(--q-camp-b-line);stroke:var(--q-camp-b-casing);stroke-width:1}
+
+/* Pions */
+.q-st-n{stop-color:var(--q-pion-noir)} .q-st-n-hi{stop-color:var(--q-pion-noir-hi)}
+.q-st-b{stop-color:var(--q-pion-blanc)} .q-st-b-lo{stop-color:var(--q-pion-blanc-lo)}
+.q-pion-ombre{fill:var(--q-pion-shadow)} /* ombre = disque décalé, pas de filtre CSS (Safari filtre mal les éléments SVG) */
+.q-pion--n .q-pion-body{stroke:var(--q-pion-noir-ring);stroke-width:var(--q-w-ring-n)}
+.q-pion--b .q-pion-body{stroke:var(--q-pion-blanc-ring);stroke-width:var(--q-w-ring-b)}
+.q-pion-sel{fill:none;stroke:none}
+.q-pion--sel .q-pion-sel{stroke:var(--q-accent);stroke-width:2.5;animation:q-sel 1.2s var(--q-ease-in-out) infinite alternate}
+.q-pion--ghost{opacity:.42} .q-pion--ghost .q-pion-ombre{display:none}
+.q-pion--ghost .q-pion-body{stroke-dasharray:3 3}
+.q-pion--capt .q-pion-sel{stroke:var(--q-alerte);stroke-width:2;stroke-dasharray:4 3;animation:q-spin 4s linear infinite}
+.q-pion--capture .q-pion-body{animation:q-capture var(--q-dur-capture) var(--q-ease-in) forwards}
+@keyframes q-sel{from{opacity:.55;transform:scale(.94)}to{opacity:1;transform:scale(1.04)}}
+@keyframes q-spin{to{transform:rotate(360deg)}}
+@keyframes q-capture{to{transform:scale(.35);opacity:0}}
+
+/* Traits : gaine (casing) + âme (core). Blanc en Goban = âme blanche gainée d'encre. */
+.q-path{fill:none}
+.q-path path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.q-path .q-core{stroke-width:var(--q-w-path);filter:var(--q-line-glow)}
+.q-path .q-casing{stroke-width:calc(var(--q-w-path) + 2 * var(--q-w-path-casing))}
+.q-path--n .q-core{stroke:var(--q-camp-n-line)} .q-path--n .q-casing{stroke:var(--q-camp-n-casing)}
+.q-path--b .q-core{stroke:var(--q-camp-b-line)} .q-path--b .q-casing{stroke:var(--q-camp-b-casing)}
+/* Trace : tour précédent, ne bloque pas. Atténuée (--q-trace-opacity). */
+.q-trace{opacity:var(--q-trace-opacity)}
+.q-trace .q-core{stroke-width:var(--q-w-trace)}
+.q-trace .q-casing{stroke-width:calc(var(--q-w-trace) + 2 * var(--q-w-path-casing))}
+/* Mur : trace qui borde une zone gagnée. Pleine opacité, 4 pt (= trajet). */
+.q-mur .q-core{stroke-width:var(--q-w-mur)}
+.q-mur .q-casing{stroke-width:calc(var(--q-w-mur) + 2 * var(--q-w-path-casing))}
+/* Trajet en cours de tracé (mon ordre, secret) : pointillé accent qui défile, halo couleur plateau */
+.q-encours .q-casing{stroke:var(--q-board);stroke-width:calc(var(--q-w-path) + 4px)}
+.q-encours .q-core{stroke:var(--q-accent);stroke-dasharray:var(--q-dash);animation:q-dash var(--q-dur-dash) linear infinite;filter:none}
+@keyframes q-dash{to{stroke-dashoffset:-11}}
+/* Trajet validé (doigt levé) : trait plein accent + pastille d'arrivée */
+.q-valide .q-casing{stroke:var(--q-board);stroke-width:calc(var(--q-w-path) + 4px)}
+.q-valide .q-core{stroke:var(--q-accent);animation:q-valide var(--q-dur-valide) var(--q-ease-out)}
+.q-valide-end{fill:var(--q-accent);stroke:var(--q-board);stroke-width:2}
+@keyframes q-valide{from{stroke-dasharray:6 5;opacity:.7}to{stroke-dasharray:none;opacity:1}}
+/* Trajet révélé (résolution) : se dessine du départ à l'arrivée */
+.q-revele path{stroke-dasharray:calc(var(--len) * 1px);stroke-dashoffset:calc(var(--len) * 1px);
+  animation:q-trace-in var(--q-dur-reveal) var(--q-ease-in-out) forwards}
+@keyframes q-trace-in{to{stroke-dashoffset:0}}
+
+/* Coupure / annulation : flash 0-80 ms, secousse 80-240 ms, dissolution 240-400 ms.
+   Production : la classe .q-coupe joue une fois ; --f (ms) fige une image (planche). */
+.q-coupe{animation:q-coupe var(--q-dur-coupure) linear forwards}
+.q-coupe .q-core{animation:q-coupe-core var(--q-dur-coupure) linear forwards}
+.q-cut-burst{fill:none;stroke:var(--q-alerte);stroke-width:3;animation:q-burst var(--q-dur-coupure) var(--q-ease-out) forwards}
+.q-cut-x circle{fill:var(--q-alerte)} .q-cut-x path{stroke:var(--q-alerte-ink);stroke-width:2.2;stroke-linecap:round}
+.q-cut-x{animation:q-cutx var(--q-dur-coupure) var(--q-ease-pop) forwards}
+[style*="--f"].q-coupe,[style*="--f"].q-coupe .q-core,[style*="--f"] .q-cut-burst,[style*="--f"] .q-cut-x{
+  animation-play-state:paused;animation-delay:calc(var(--f) * -1ms)}
+@keyframes q-coupe{
+  0%{transform:translate(0,0);opacity:1}
+  20%{transform:translate(0,0)}
+  30%{transform:translate(-3px,0)} 40%{transform:translate(3px,0)} 50%{transform:translate(-2px,0)} 60%{transform:translate(0,0);opacity:1}
+  100%{transform:translate(0,0);opacity:0}}
+@keyframes q-coupe-core{
+  0%{stroke-dasharray:60 0}
+  20%{stroke:var(--q-alerte)}
+  60%{stroke-dasharray:60 0;stroke:var(--q-alerte)}
+  100%{stroke-dasharray:1 10;stroke:var(--q-alerte)}}
+@keyframes q-burst{0%{transform:scale(.2);opacity:1}50%{transform:scale(1.15);opacity:0}100%{transform:scale(1.15);opacity:0}}
+@keyframes q-cutx{0%{transform:scale(0)}20%{transform:scale(1.25)}35%{transform:scale(1)}85%{opacity:1}100%{transform:scale(1);opacity:1}}
+
+/* Zones gagnées : teinte + motif (Noir = hachures 45°, Blanc = points). Jamais la couleur seule. */
+.q-zone--n .q-zone-wash{fill:var(--q-zone-n-wash)}
+.q-zone--b .q-zone-wash{fill:var(--q-zone-b-wash)}
+.q-zone--x .q-zone-wash{fill:var(--q-zone-neutre)}
+.q-motif--n{stroke:var(--q-zone-n-motif);stroke-width:1.2}
+.q-motif--b{fill:var(--q-zone-b-motif)}
+.q-zone--new{animation:q-zone-in var(--q-dur-zone) var(--q-ease-out) both}
+.q-zone--apercu{opacity:.5}
+.q-zone--apercu .q-zone-wash{stroke:var(--q-accent);stroke-width:1;stroke-dasharray:3 3}
+@keyframes q-zone-in{from{opacity:0}to{opacity:1}}
+
+/* Doigt et loupe décalée (C49) */
+.q-doigt{fill:var(--q-accent-soft);stroke:var(--q-accent);stroke-width:1.5}
+.q-loupe-ring{fill:none;stroke:var(--q-ink);stroke-width:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+.q-loupe-pt{fill:var(--q-accent)}
+
+/* ---------- Chrono circulaire (20 s) ---------- */
+.q-chrono{position:relative;width:var(--q-chrono-d);height:var(--q-chrono-d);--q-c:182.2}
+.q-chrono svg{transform:rotate(-90deg);display:block}
+.q-chrono .q-chrono-track{fill:none;stroke:var(--q-grid-line);stroke-width:var(--q-chrono-w);opacity:.35}
+.q-chrono .q-chrono-arc{fill:none;stroke:var(--q-ink);stroke-width:var(--q-chrono-w);stroke-linecap:round;
+  stroke-dasharray:var(--q-c);stroke-dashoffset:calc(var(--q-c) * (1 - var(--q-reste, 1)))}
+.q-chrono.is-running .q-chrono-arc{animation:q-chrono var(--q-dur-tour) linear forwards}
+.q-chrono .q-chrono-val{position:absolute;inset:0;display:grid;place-items:center;font:600 22px/1 var(--q-font-num);font-variant-numeric:tabular-nums}
+.q-chrono .q-chrono-val small{font-size:11px;font-weight:500;color:var(--q-ink-2);margin-left:1px}
+.q-chrono.is-urgent .q-chrono-arc{stroke:var(--q-alerte)}
+.q-chrono.is-urgent .q-chrono-val{color:var(--q-alerte)}
+.q-chrono.is-urgent{animation:q-pulse var(--q-dur-urgence) var(--q-ease-in-out) infinite}
+@keyframes q-chrono{from{stroke-dashoffset:0}to{stroke-dashoffset:var(--q-c)}}
+@keyframes q-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* ---------- Compteur de croisements (x / 81, objectif 61) ---------- */
+.q-counter{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;min-width:0}
+.q-counter-label{grid-column:1/-1;font-size:var(--q-fs-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--q-ink-2);display:flex;gap:6px;align-items:center}
+.q-counter-val{font:700 var(--q-fs-xl)/1 var(--q-font-num);font-variant-numeric:tabular-nums}
+.q-counter-val small{font-size:var(--q-fs-s);font-weight:500;color:var(--q-ink-2)}
+.q-counter-val .q-gain{font-size:var(--q-fs-s);font-weight:600;color:var(--q-accent);margin-left:4px}
+.q-counter-bar{grid-column:1/-1;position:relative;height:8px;border-radius:4px;background:var(--q-zone-neutre);
+  box-shadow:inset 0 0 0 1px var(--q-grid-line);overflow:visible}
+.q-counter-bar i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v) / var(--q-total, 81) * 100%);border-radius:4px}
+.q-counter-bar b{position:absolute;top:0;bottom:0;left:calc(var(--v) / var(--q-total, 81) * 100%);width:calc(var(--g, 0) / var(--q-total, 81) * 100%);
+  background:repeating-linear-gradient(45deg,var(--q-accent) 0 2px,transparent 2px 4px);opacity:.8}
+.q-counter-bar em{position:absolute;top:-4px;bottom:-4px;left:calc(var(--q-seuil, 61) / var(--q-total, 81) * 100%);width:2px;margin-left:-1px;background:var(--q-ink);border-radius:1px}
+.q-counter--n .q-counter-bar i{background:repeating-linear-gradient(45deg,var(--q-camp-n-line) 0 2.5px,color-mix(in srgb,var(--q-camp-n-line) 70%,transparent) 2.5px 5px)}
+.q-counter--b .q-counter-bar i{background:radial-gradient(circle at 2.5px 4px,var(--q-zone-b-motif) 1px,transparent 1.4px) 0 0/5px 8px,var(--q-camp-b-line);box-shadow:inset 0 0 0 1px var(--q-camp-b-casing)}
+.q-counter.is-goal .q-counter-val{color:var(--q-ok)}
+.q-counter--right{text-align:right}
+.q-counter--right .q-counter-label{justify-content:flex-end}
+
+/* Jeton de pion en HTML (compteur, réserve) */
+.q-chip{display:inline-block;width:var(--q-pion-reserve-d);height:var(--q-pion-reserve-d);border-radius:50%;flex:none;vertical-align:middle}
+.q-chip--n{background:radial-gradient(circle at 35% 30%,var(--q-pion-noir-hi),var(--q-pion-noir) 70%);box-shadow:0 0 0 var(--q-w-ring-n) var(--q-pion-noir-ring),0 1px 1px rgba(0,0,0,.3)}
+.q-chip--b{background:radial-gradient(circle at 38% 32%,var(--q-pion-blanc) 55%,var(--q-pion-blanc-lo));box-shadow:0 0 0 var(--q-w-ring-b) var(--q-pion-blanc-ring),0 1px 1px rgba(0,0,0,.25)}
+.q-chip--vide{background:none;box-shadow:inset 0 0 0 1.5px var(--q-grid-line)}
+.q-reserve{display:flex;gap:6px;align-items:center}
+.q-reserve .q-chip{width:12px;height:12px}
+
+/* ---------- Bouton Prêt (bas d'écran, pouce) ---------- */
+.q-btn-pret{appearance:none;border:0;width:100%;height:var(--q-btn-h);min-height:44px;border-radius:var(--q-btn-r);
+  font:600 var(--q-fs-l)/1 var(--q-font-ui);letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--q-accent);color:var(--q-accent-ink);box-shadow:0 2px 0 color-mix(in srgb,var(--q-accent) 60%,#000);
+  transition:transform 90ms var(--q-ease-out),box-shadow 90ms var(--q-ease-out)}
+.q-btn-pret small{font-weight:500;font-size:var(--q-fs-s);opacity:.82}
+.q-btn-pret:active,.q-btn-pret.is-pressed{transform:translateY(2px) scale(.985);box-shadow:0 0 0 transparent}
+.q-btn-pret[data-etat="inactif"]{background:transparent;color:var(--q-ink-2);box-shadow:inset 0 0 0 1.5px var(--q-grid-line)}
+.q-btn-pret[data-etat="envoye"]{background:var(--q-accent-soft);color:var(--q-accent);box-shadow:inset 0 0 0 1.5px var(--q-accent)}
+.q-btn-pret[data-etat="urgent"]{background:var(--q-alerte);color:var(--q-alerte-ink);box-shadow:0 2px 0 color-mix(in srgb,var(--q-alerte) 60%,#000);animation:q-pulse var(--q-dur-urgence) var(--q-ease-in-out) infinite}
+
+/* Accessibilité : mouvement réduit -> fondus courts, pas de secousse ni de pulsation */
+@media (prefers-reduced-motion: reduce){
+  .q-encours .q-core,.q-pion--sel .q-pion-sel,.q-chrono.is-urgent,.q-btn-pret[data-etat="urgent"],.q-pion--capt .q-pion-sel{animation:none}
+  .q-coupe{animation:q-fade 200ms linear forwards} .q-coupe .q-core{animation:none;stroke:var(--q-alerte)}
+}
+@keyframes q-fade{to{opacity:0}}
+
+
+]]></style><defs>
+      <pattern id="q3-hn" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="q-motif q-motif--n" x1="0" y1="0" x2="0" y2="6"/></pattern>
+      <pattern id="q3-db" width="6" height="6" patternUnits="userSpaceOnUse"><circle class="q-motif q-motif--b" cx="3" cy="3" r="1.15"/></pattern>
+      <radialGradient id="q3-gn" cx="35%" cy="30%" r="75%"><stop offset="0" class="q-st-n-hi"/><stop offset="1" class="q-st-n"/></radialGradient>
+      <radialGradient id="q3-gb" cx="38%" cy="32%" r="78%"><stop offset=".55" class="q-st-b"/><stop offset="1" class="q-st-b-lo"/></radialGradient>
+      <clipPath id="q3-loupe"><circle r="42"/></clipPath>
+    </defs><g id="q3-c"><rect class="q-board-bg" x="0" y="0" width="44" height="44"/><path class="q-grid" d="M22 0V44M0 22H44"/><g class="q-pion q-pion--n q-pion--sel " transform="translate(22 22)"><circle class="q-pion-sel" r="20.5"/><circle class="q-pion-ombre" cy="1.6" r="15.9"/><circle class="q-pion-body" r="15.5" fill="url(#q3-gn)"/></g></g></svg>
