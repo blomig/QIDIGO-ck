@@ -1,0 +1,246 @@
+{
+  "description": "Poids de l’IA forte tunés par tools/arena.js (stratégie évolutionnaire 1+λ contre un pool : faible, forte de base, meilleures versions précédentes). Lu par ai/ia-forte.js (niveau Fort).",
+  "date": "2026-11-03T14:10:40.074Z",
+  "graine": 7,
+  "generations": 5,
+  "population": 6,
+  "partiesParAdversaire": 32,
+  "budgetTuning": 300,
+  "poids": {
+    "croisements": 1.51,
+    "cases": 1.14,
+    "potentiel": 2.674,
+    "exposition": 0.347,
+    "coupure": 1.448,
+    "reserve": -0.288,
+    "seuil": 3.936,
+    "tours_restants": 0.666,
+    "maximin": 0.461,
+    "temperature": 5.042,
+    "poids_coupe": 0.806,
+    "profondeur2": 0.61,
+    "alea": 0.583
+  },
+  "historique": [
+    {
+      "gen": 1,
+      "parent": 0.5072463768115942,
+      "meilleur": 0.5652173913043478,
+      "choisi": "g1m2",
+      "parAdv": {
+        "faible": 5,
+        "base": 17
+      },
+      "sigma": 0.6,
+      "s": 43.271
+    },
+    {
+      "gen": 2,
+      "parent": 0.47368421052631576,
+      "meilleur": 0.48120300751879697,
+      "choisi": "g2m3",
+      "parAdv": {
+        "faible": 5,
+        "base": 14,
+        "hof1": 15.5
+      },
+      "sigma": 0.72,
+      "s": 72.09
+    },
+    {
+      "gen": 3,
+      "parent": 0.5177664974619289,
+      "meilleur": 0.5177664974619289,
+      "choisi": "gen2",
+      "parAdv": {
+        "faible": 4,
+        "base": 17,
+        "hof1": 15.5,
+        "hof2": 16.5
+      },
+      "sigma": 0.864,
+      "s": 102.929
+    },
+    {
+      "gen": 4,
+      "parent": 0.4517766497461929,
+      "meilleur": 0.5279187817258884,
+      "choisi": "g4m4",
+      "parAdv": {
+        "faible": 5,
+        "base": 16.5,
+        "hof1": 16.5,
+        "hof2": 16.5
+      },
+      "sigma": 0.6912,
+      "s": 107.588
+    },
+    {
+      "gen": 5,
+      "parent": 0.49238578680203043,
+      "meilleur": 0.49238578680203043,
+      "choisi": "gen4",
+      "parAdv": {
+        "faible": 5,
+        "base": 15,
+        "hof2": 15,
+        "hof4": 16
+      },
+      "sigma": 0.8294400000000001,
+      "s": 230.802
+    }
+  ],
+  "validation": {
+    "total": {
+      "parties": 400,
+      "victoires": 38,
+      "defaites": 46,
+      "nuls": 316,
+      "tauxSansNuls": 0.4523809523809524,
+      "icSansNuls": [
+        0.3503554445205683,
+        0.5585715331301119
+      ],
+      "tauxNulsDemi": 0.49,
+      "icAvecNuls": [
+        0.4413384044602659,
+        0.5388518483517277
+      ],
+      "victoiresAuSeuil": 0,
+      "victoiresAuTour20": 84,
+      "dureeMoy": 20,
+      "dureeP95": 20,
+      "msParCoupX": {
+        "moy": 79.09611450612493,
+        "p95": 116.78417999995872
+      },
+      "msParCoupY": {
+        "moy": 79.39188432087515,
+        "p95": 117.81596700003138
+      },
+      "partPassesX": 0.001
+    },
+    "parReglage": [
+      {
+        "reglage": "grille=9,reprise=oui",
+        "parties": 100,
+        "victoires": 9,
+        "defaites": 10,
+        "nuls": 81,
+        "tauxSansNuls": 0.47368421052631576,
+        "icSansNuls": [
+          0.2732950548744854,
+          0.6829251748817489
+        ],
+        "tauxNulsDemi": 0.495,
+        "icAvecNuls": [
+          0.39901943335773693,
+          0.591350514717023
+        ],
+        "victoiresAuSeuil": 0,
+        "victoiresAuTour20": 19,
+        "dureeMoy": 20,
+        "dureeP95": 20,
+        "msParCoupX": {
+          "moy": 94.49068944500006,
+          "p95": 128.00145799998427
+        },
+        "msParCoupY": {
+          "moy": 95.2490947810011,
+          "p95": 129.81148199999006
+        },
+        "partPassesX": 0
+      },
+      {
+        "reglage": "grille=9,reprise=non",
+        "parties": 100,
+        "victoires": 13,
+        "defaites": 17,
+        "nuls": 70,
+        "tauxSansNuls": 0.43333333333333335,
+        "icSansNuls": [
+          0.27377237430615114,
+          0.6080299045459127
+        ],
+        "tauxNulsDemi": 0.48,
+        "icAvecNuls": [
+          0.38464384320080547,
+          0.5768359490982345
+        ],
+        "victoiresAuSeuil": 0,
+        "victoiresAuTour20": 30,
+        "dureeMoy": 20,
+        "dureeP95": 20,
+        "msParCoupX": {
+          "moy": 94.19132644900048,
+          "p95": 124.88982599996962
+        },
+        "msParCoupY": {
+          "moy": 94.10827931099993,
+          "p95": 122.83309700002428
+        },
+        "partPassesX": 0.002
+      },
+      {
+        "reglage": "grille=8,reprise=oui",
+        "parties": 100,
+        "victoires": 5,
+        "defaites": 10,
+        "nuls": 85,
+        "tauxSansNuls": 0.3333333333333333,
+        "icSansNuls": [
+          0.15176100694691236,
+          0.5828687484878702
+        ],
+        "tauxNulsDemi": 0.475,
+        "icAvecNuls": [
+          0.37987053400580617,
+          0.5719792063679938
+        ],
+        "victoiresAuSeuil": 0,
+        "victoiresAuTour20": 15,
+        "dureeMoy": 20,
+        "dureeP95": 20,
+        "msParCoupX": {
+          "moy": 72.62078984599893,
+          "p95": 94.88910099992063
+        },
+        "msParCoupY": {
+          "moy": 73.02585816000105,
+          "p95": 96.20106699992903
+        },
+        "partPassesX": 0.001
+      },
+      {
+        "reglage": "grille=7,reprise=oui",
+        "parties": 100,
+        "victoires": 11,
+        "defaites": 9,
+        "nuls": 80,
+        "tauxSansNuls": 0.55,
+        "icSansNuls": [
+          0.34208200830759966,
+          0.741804979142907
+        ],
+        "tauxNulsDemi": 0.51,
+        "icAvecNuls": [
+          0.4134784047743415,
+          0.6057816990761385
+        ],
+        "victoiresAuSeuil": 0,
+        "victoiresAuTour20": 20,
+        "dureeMoy": 20,
+        "dureeP95": 20,
+        "msParCoupX": {
+          "moy": 55.08165228450031,
+          "p95": 70.91315200005192
+        },
+        "msParCoupY": {
+          "moy": 55.184305031498546,
+          "p95": 70.99878200003877
+        },
+        "partPassesX": 0.001
+      }
+    ]
+  }
+}

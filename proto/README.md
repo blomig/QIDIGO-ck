@@ -33,6 +33,9 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
   Le réglage permet de revenir à `non`. Une reprise disputée au même tour est réglée par `reprise_meme_tour` (provisoire, voir QUESTIONS.md).
 - Pendant votre saisie, **l'aperçu** montre en pointillé la zone fermée et le gain prévu, en supposant que l'autre passe.
 - **Modes** : contre l'IA (vous êtes A, noir) ou à deux sur le même téléphone. Dans ce mode, un écran de passage masque l'ordre de l'autre.
+- **Niveau de l'IA** (Réglages, appliqué avec Rejouer) : **Fort** par défaut (`ai/ia-forte.js`), ou **Facile** (`ai/ia-faible.js`, au hasard).
+  L'IA forte calcule dans un Web Worker (`ai/worker-ia.js`) pendant que vous planifiez, en moins de 0,9 s par coup.
+  Si le navigateur refuse le worker, le calcul se fait directement dans la page.
 - **Réglages** : chaque variante et chaque choix proto, avec sa description, son état et sa valeur par défaut.
   Les réglages s'appliquent à la partie suivante (**Rejouer**) et sont gardés dans `localStorage`.
 - **Journal** : tous les tours, avec chaque annulation et sa cause.
@@ -49,7 +52,11 @@ engine/                      moteur PUR (aucun accès au DOM, aucune dépendance
   ordres.js                  ordres poser / deplacer / passer / rien et validation
   resolution.js              résolution d'un tour (étapes 1 à 9 de regles-proto.md) et journal
   rng.js                     hasard à graine (mulberry32)
-ai/ia-faible.js              IA au hasard, toujours légale
+ai/ia-faible.js              IA « Facile » : au hasard, toujours légale
+ai/ia-forte.js               IA « Fort » : ordres légaux, matrice de gains contre les réponses probables (vrai moteur), choix robuste
+ai/poids-tunes.json          poids lus par ia-forte (aujourd'hui POIDS_BASE : le tuning du 03/11 n'est pas significatif, voir poids-tunes.rejet.json)
+ai/worker-ia.js, ai/ia.js    Web Worker et pont page ↔ worker (repli en calcul direct)
+tools/arena.js               banc d'essai node : matchs, banc, tuning, vitesse d'expansion
 ui/app.js                    boucle de jeu, chrono, modes, compteurs
 ui/plateau.js                saisie tactile et options pour design/plateau.js (plateauSVG)
 ui/reglages.js               panneau Réglages
@@ -66,3 +73,36 @@ QUESTIONS.md                 points encore ouverts
 - **Design** : `design/tokens.css` (piste A « Goban », seul thème retenu par Lomig),
   `design/composants.css` et `design/plateau.js`, utilisés tels quels.
   `ui/plateau.js` traduit l'état du moteur en options pour `plateauSVG`.
+
+## IA forte, banc et tuning
+
+`ai/ia-forte.js` :
+1. génère tous les ordres légaux (poses, trajets jusqu'à `trajet_max`, Passer) ;
+2. les trie par un pré-score rapide ;
+3. joue les meilleurs contre un échantillon de réponses adverses probables, avec le vrai moteur (`resoudreTour`) ;
+4. retient le coup robuste (mélange maximin et moyenne pondérée) et ajoute une recherche d'un tour de plus sur les meilleurs coups ;
+5. tire au hasard (à graine) parmi les coups proches.
+
+Les poids d'évaluation sont nommés dans `POIDS_BASE` : croisements, cases, potentiel, exposition, coupure, réserve, seuil et tours_restants.
+Le budget compte les résolutions, donc un coup est reproductible. `msMax` plafonne le temps dans le navigateur.
+
+```sh
+cd proto
+node tools/arena.js match --a forte --b faible --parties 100 --reglages grille=8,reprise=non
+node tools/arena.js banc --paires forte:faible,tunee:forte --parties 100      # tous les réglages du banc
+node tools/arena.js tuning --generations 8 --population 6 --parties 20 --validation 400 --graine 7
+node tools/arena.js expansion --parties 60                                   # vitesse d'expansion selon trajet_max
+```
+
+- Les configurations sont `faible`, `forte` (POIDS_BASE), `tunee` (ai/poids-tunes.json) et `fichier:chemin.json`.
+- Les couleurs alternent d'une partie à l'autre. Les parties tournent en parallèle (`--workers`) et tout est à graine (`--graine`). `--json fichier` garde le détail.
+- Le rapport donne :
+  - le taux de victoire avec son IC 95 % de Wilson, nuls exclus puis nuls comptés ½ ;
+  - la durée des parties ;
+  - les victoires au seuil ou au tour 20, et les nuls ;
+  - le temps par coup (moyenne et p95), la part de Passer et la longueur des trajets.
+- `tuning` est une ES (1+λ) qui tire les mêmes graines pour toute une génération. Son pool réunit faible, la base et les meilleures versions précédentes.
+  Les parties de validation (tunée contre base, graines séparées) écrivent `ai/poids-tunes.json` seulement si la borne basse de l'IC dépasse 50 %.
+  Sinon, elles écrivent `ai/poids-tunes.rejet.json`. `--forcer` passe outre.
+
+Résultats du 03/11 : banc/ à la racine du dépôt local (forte-faible.txt, tuning.txt, expansion.txt, forte-forte.txt).

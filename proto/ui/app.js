@@ -5,7 +5,8 @@ import {
   creerEtat, resoudreTour, validerOrdre, passer, creerRng, graineAleatoire, seuilCroisements,
   nbCroisements, adversaire, nomJoueur,
 } from '../engine/index.js';
-import { choisirOrdre } from '../ai/ia-faible.js';
+import { demanderOrdre } from '../ai/ia.js';
+import { choisirOrdre as choisirFacile } from '../ai/ia-faible.js';
 import { dessinerPlateau, installerSaisie, geometrie, analyserDernierTour, afficherCompteurPas, CAMP } from './plateau.js';
 import { chargerReglages, rendreReglages } from './reglages.js';
 import { rendreJournal, lignes } from './journal.js';
@@ -19,6 +20,9 @@ const S = {
   rng: null,
   graine: 0,
   mode: 'ia',
+  niveau: 'fort', // niveau de l'IA : 'fort' (défaut, ai/ia-forte.js) ou 'facile' (ai/ia-faible.js)
+  ordreIA: null, // promesse de l'ordre de l'IA, lancée dès le début du tour (elle ne dépend que de l'état)
+  tempsIA: [], // ms par coup de l'IA (mesure, exposée dans window.QIDIGO)
   phase: 'saisie', // 'passage' | 'saisie' | 'resultat' | 'fin'
   joueur: 'A',
   ordres: {},
@@ -41,6 +45,8 @@ function nouvellePartie() {
   arreterChrono();
   S.reglages = chargerReglages();
   S.mode = S.reglages.ui.mode;
+  S.niveau = S.reglages.ui.niveau;
+  S.tempsIA = [];
   S.graine = S.reglages.graine !== '' && Number.isFinite(Number(S.reglages.graine)) ? Number(S.reglages.graine) >>> 0 : graineAleatoire();
   S.rng = creerRng(S.graine);
   S.etat = creerEtat(S.reglages.params);
@@ -61,6 +67,14 @@ function demarrerTour() {
 
 function debutSaisie() {
   S.phase = 'saisie';
+  // L'IA réfléchit pendant que vous planifiez (Web Worker) : son ordre ne dépend que de l'état du début du tour.
+  if (S.mode === 'ia' && S.niveau !== 'facile') {
+    const etat = S.etat;
+    S.ordreIA = demanderOrdre(etat, 'B', S.niveau, S.rng.entier(4294967296)).then((r) => {
+      S.tempsIA.push(r.ms);
+      return r.ordre;
+    });
+  }
   S.proposition = null;
   S.apercu = null;
   S.message = consigne();
@@ -83,9 +97,21 @@ function soumettre(ordre) {
   S.ordres[S.joueur] = validerOrdre(S.etat, S.joueur, o).ok ? o : passer();
   S.proposition = null;
   S.apercu = null;
-  if (S.mode === 'ia') {
-    S.ordres.B = choisirOrdre(S.etat, 'B', S.rng);
+  if (S.mode === 'ia' && S.niveau === 'facile') {
+    // Niveau Facile : calcul direct avec le générateur de la partie (une graine rejoue les mêmes coups
+    // qu'avant l'ajout du niveau Fort, par exemple la partie de Lomig, graine 2761909367).
+    S.ordres.B = choisirFacile(S.etat, 'B', S.rng);
     resoudre();
+  } else if (S.mode === 'ia') {
+    S.phase = 'ia';
+    S.message = 'L’IA termine sa réflexion…';
+    rendre();
+    const etat = S.etat;
+    S.ordreIA.then((o) => {
+      if (S.etat !== etat) return; // partie relancée entre-temps
+      S.ordres.B = o;
+      resoudre();
+    });
   } else if (S.joueur === 'A') {
     S.joueur = 'B';
     S.phase = 'passage';
@@ -242,7 +268,7 @@ function installer() {
     nouvellePartie();
   });
   $('btn-journal').addEventListener('click', () => {
-    rendreJournal($('journal'), S.etat, `<p class="r-note">Graine : ${S.graine} · grille ${S.etat.params.grille}×${S.etat.params.grille} · mode ${S.mode === 'ia' ? 'contre l’IA' : 'à deux'}</p>`);
+    rendreJournal($('journal'), S.etat, `<p class="r-note">Graine : ${S.graine} · grille ${S.etat.params.grille}×${S.etat.params.grille} · mode ${S.mode === 'ia' ? `contre l’IA (${S.niveau === 'facile' ? 'Facile' : 'Fort'})` : 'à deux'}</p>`);
     ouvrir('panneau-journal');
   });
   $('btn-reglages').addEventListener('click', () => {
@@ -345,8 +371,12 @@ function rendre() {
     pret.textContent = 'Rejouer';
     pret.dataset.etat = 'actif';
   }
+  if (S.phase === 'ia') {
+    pret.textContent = 'L’IA réfléchit…';
+    pret.dataset.etat = 'inactif';
+  }
   pret.hidden = passage;
-  $('statut').textContent = S.phase === 'saisie' ? S.message || consigne() : '';
+  $('statut').textContent = S.phase === 'saisie' || S.phase === 'ia' ? S.message || consigne() : '';
   $('statut').classList.toggle('erreur', S.phase === 'saisie' && S.erreur);
 
   // Résumé du tour résolu (public).

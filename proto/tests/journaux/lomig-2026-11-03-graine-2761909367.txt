@@ -1,0 +1,76 @@
+Journal des toursFermer
+
+Graine : 2761909367 · grille 9×9 · mode contre l’IA
+Tour 11
+
+   - Joueur A déplace un pion de (2, 4) à (2, 0) (4 segments).
+   - Joueur B déplace un pion de (7, 8) à (8, 8) (1 segment).
+   - Joueur A ferme une zone et gagne 24 cases.
+   - Croisements contrôlés : A 81, B 0.
+   - Joueur A atteint le seuil de 61 et gagne (81 à 0 croisements
+   contrôlés).
+
+Tour 10
+
+   - Joueur A déplace un pion de (0, 7) à (2, 4) (5 segments).
+   - Joueur B pose un pion en (2, 6).
+   - Croisements contrôlés : A 58, B 0.
+
+Tour 9
+
+   - Joueur A déplace un pion de (4, 4) à (3, 0) (5 segments).
+   - Joueur B déplace un pion de (7, 5) à (7, 8) (5 segments).
+   - Joueur A ferme une zone et gagne 12 cases.
+   - Croisements contrôlés : A 58, B 0.
+
+Tour 8
+
+   - Joueur A déplace un pion de (5, 7) à (0, 7) (5 segments).
+   - Joueur B pose un pion en (6, 3).
+   - Joueur A ferme une zone et gagne 16 cases.
+   - Croisements contrôlés : A 43, B 0.
+
+Tour 7
+
+   - Joueur A déplace un pion de (4, 2) à (8, 2) (4 segments).
+   - Joueur B pose un pion en (0, 2).
+   - Joueur A ferme une zone et gagne 8 cases.
+   - Croisements contrôlés : A 20, B 0.
+
+Tour 6
+
+   - Joueur A déplace un pion de (8, 5) à (4, 4) (5 segments).
+   - Joueur B déplace un pion de (8, 8) à (8, 7) (1 segment).
+   - Joueur A ferme une zone et gagne 4 cases.
+   - Croisements contrôlés : A 10, B 0.
+
+Tour 5
+
+   - Joueur A pose un pion en (5, 7).
+   - Joueur B déplace un pion de (6, 7) à (8, 8) (3 segments).
+   - Croisements contrôlés : A 0, B 0.
+
+Tour 4
+
+   - Joueur B passe.
+   - Joueur A déplace un pion de (4, 7) à (4, 2) (5 segments).
+   - Croisements contrôlés : A 0, B 0.
+
+Tour 3
+
+   - Joueur A pose un pion en (4, 7).
+   - Joueur B pose un pion en (7, 5).
+   - Croisements contrôlés : A 0, B 0.
+
+Tour 2
+
+   - Joueur A déplace un pion de (4, 5) à (8, 5) (4 segments).
+   - Joueur B déplace un pion de (6, 6) à (6, 7) (1 segment).
+   - Croisements contrôlés : A 0, B 0.
+
+Tour 1
+
+   - Joueur A pose un pion en (4, 5).
+   - Joueur B pose un pion en (6, 6).
+   - Croisements contrôlés : A 0, B 0.
+

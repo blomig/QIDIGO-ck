@@ -44,3 +44,49 @@ Point flou, avec une interprétation provisoire mise en réglage :
 4. **Choix proto non réglables** : regles-proto.md n'en décrit qu'une seule valeur. Il s'agit de
    plateau_depart, poses_meme_croisement, dehors_egalite, territoire_acquis, pions_comptent,
    seuil_egalite, departage et fermetures. Il faudrait les alternatives pour pouvoir les tester.
+
+7. **Une fermeture peut prendre l'espace libre en faisant de son propre territoire le « dehors »**
+   (partie de Lomig, graine 2761909367, tour 11 : A passe de 58 à 81 et gagne 24 cases contenant des
+   pions B). Diagnostic : **pas un bug du moteur, un défaut de la règle**.
+   - Texte : §1 « Zone » (« La région qui a le plus de cases est le dehors. Toutes les autres régions
+     sont des zones de P ») et §2 étape 5 (« dehors = région(s) de taille maximale ; zones = les
+     autres ; gain(P) = cases des zones fermées(P) sans propriétaire »). §1 Territoire : « Les pions
+     ne comptent pas en eux-mêmes ». Code : `zonesDe` et `fermeturesDe` (engine/resolution.js) font
+     exactement cela, sur toutes les cases, y compris celles que P possède déjà.
+   - Mécanisme : avant le tour 11, les régions des murs de A font 24 (le reste libre, c'est le
+     dehors), 12, 8 et 20 (déjà à A). Le trajet (2,4)→(2,0) coupe les 24 en 8 + 16. La plus grande
+     région devient alors le territoire de A (20 cases) : elle passe « dehors », et les deux morceaux
+     libres deviennent des zones de A, fermées par les nouveaux segments. Les pions B en (0,2) et
+     (2,6) n'y changent rien.
+   - Options (simulées sur ce tour, hors moteur) :
+     1. **Dehors calculé hors de son territoire** : la plus grande région se cherche seulement parmi
+        les cases que P ne possède pas. Tour 11 : +8 cases, A 73 (gagne quand même au seuil, 61).
+     2. **Pas de zone sur un pion adverse** : une région qui touche un croisement occupé par un pion
+        adverse n'est pas une zone. Tour 11 : +0, A reste à 58, la partie continue.
+     3. **Zone plafonnée** : une zone fait au plus la moitié des cases que P ne possède pas encore.
+        Tour 11 : +8, A 73.
+   Lomig tranche. Rien n'est changé dans le moteur.
+
+8. **Valeur par défaut de `reprise`** : le tableau de regles-proto.md §3 indique `non`, la décision
+   de Lomig (03/11) donne `oui`. Le proto suit Lomig. La partie de Lomig a été jouée avec `non` (le
+   test la rejoue avec `reprise = non`).
+
+9. **Journal de Lomig, tour 10** : le journal ne donne que le départ et l'arrivée. Sept trajets
+   différents donnent le même résultat. Le test garde le premier (tests/journaux/lomig-2026-11-03-ordres.json).
+
+10. **Blocage gratuit par une pose sur le départ** (observé au banc, IA forte contre IA forte).
+    Grille 9, reprise oui, 12 parties : 10 sur 12 finissent 0–0 au tour 20, pour 38 coupures par partie.
+    Validation du tuning : 316 nuls sur 400.
+    - Le schéma : un joueur pose chaque tour sur le croisement de départ du seul pion adverse en jeu.
+      Règle (choix du CDP, réglage `depart_libere`) : « Une pose sur ce départ coupe toujours les deux ordres. »
+    - La pose est annulée, donc la réserve ne baisse pas et ce veto ne coûte rien. Il se répète à
+      l'infini : l'autre joueur ne bouge plus et personne ne marque.
+    - `pose_coupante = maintenue` ne change rien, car le départ est un cas à part.
+    - Options :
+      1. Le veto coûte un pion : la pose sur un départ est maintenue (le pion est posé) ou le pion est perdu.
+      2. La pose sur un départ ne coupe que le déplacement adverse, sans être annulée : elle a lieu sur le
+         croisement libéré.
+      3. Pas deux fois de suite sur le même pion : on ne peut pas poser sur le départ du même pion deux tours de suite.
+    Avec plusieurs pions en jeu, on ne bloque qu'un pion par tour. Le blocage total vient de l'IA, qui
+    garde ses pions en réserve. C'est un point à corriger côté IA (voir le rapport du banc). La règle,
+    elle, rend ce veto gratuit.

@@ -1,0 +1,18 @@
+{
+  "source": "POIDS_BASE : le tuning du 03/11 (5 générations, validation 400 parties) n’a pas battu la base de façon significative (voir ai/poids-tunes.rejet.json et banc/tuning.txt). Fichier lu par ai/ia-forte.js ; « node tools/arena.js tuning » le remplace si un tuning est validé.",
+  "poids": {
+    "croisements": 1,
+    "cases": 0.3,
+    "potentiel": 1.2,
+    "exposition": 0.4,
+    "coupure": 0.5,
+    "reserve": 0.2,
+    "seuil": 15,
+    "tours_restants": 1,
+    "maximin": 0.5,
+    "temperature": 3,
+    "poids_coupe": 0.6,
+    "profondeur2": 0.35,
+    "alea": 0.4
+  }
+}

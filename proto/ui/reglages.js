@@ -8,8 +8,10 @@ const CLE = 'qidigo-proto:reglages';
 
 /** Réglages d'interface (hors moteur). */
 export const REGLAGES_UI = [
-  { id: 'mode', libelle: 'Mode de jeu', defaut: 'ia', valeurs: [['ia', 'Contre l’IA (faible)'], ['deux', 'À deux sur ce téléphone']],
-    description: 'Contre l’IA : vous jouez A (noir), l’IA joue B (blanc) au hasard, toujours légalement. À deux : on se passe l’appareil ; un écran masque l’ordre de l’autre.' },
+  { id: 'mode', libelle: 'Mode de jeu', defaut: 'ia', valeurs: [['ia', 'Contre l’IA'], ['deux', 'À deux sur ce téléphone']],
+    description: 'Contre l’IA : vous jouez A (noir), l’IA joue B (blanc), toujours légalement. À deux : on se passe l’appareil ; un écran masque l’ordre de l’autre.' },
+  { id: 'niveau', libelle: 'Niveau de l’IA', defaut: 'fort', valeurs: [['fort', 'Fort'], ['facile', 'Facile']],
+    description: 'Fort : l’IA prévoit vos réponses probables (matrice de gains résolue par le vrai moteur), coupe vos fermetures et cherche un tour plus loin, en moins d’une seconde par coup. Facile : l’ancienne IA, qui joue un ordre légal au hasard. Contre l’IA seulement.' },
 ];
 
 export function reglagesParDefaut() {
@@ -86,10 +88,10 @@ const GROUPES = [
  */
 export function rendreReglages(conteneur, brouillon, actuels, actions) {
   grilleCourante = brouillon.params.grille;
-  const differe = JSON.stringify(brouillon.params) !== JSON.stringify(actuels.params) || brouillon.ui.mode !== actuels.ui.mode;
+  const differe = JSON.stringify(brouillon.params) !== JSON.stringify(actuels.params) || JSON.stringify(brouillon.ui) !== JSON.stringify(actuels.ui);
   let html = `<p class="r-note">Les réglages s’appliquent à la <strong>partie suivante</strong> : touchez « Enregistrer et rejouer », ou plus tard « Rejouer ».</p>`;
   if (differe) html += `<p class="r-note"><strong>Des réglages diffèrent de la partie en cours.</strong></p>`;
-  html += `<h3 class="r-groupe">Jeu<small>Mode de jeu.</small></h3>`;
+  html += `<h3 class="r-groupe">Jeu<small>Mode de jeu et niveau de l’IA.</small></h3>`;
   for (const r of REGLAGES_UI) html += carte(r, brouillon.ui[r.id], 'ui');
   html += `<fieldset class="r-carte"><legend><div class="r-tete"><span class="r-titre">Graine du hasard (IA)</span></div></legend>
     <p class="r-desc">Laisser vide pour une partie au hasard ; un nombre rejoue la même IA.</p>
