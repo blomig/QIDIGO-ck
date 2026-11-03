@@ -127,7 +127,9 @@ export function analyserDernierTour(etatApres) {
     const autre = coupes[1]?.chemin || [];
     pointCoupure = t.slice(1).find((c) => autre.includes(c)) ?? t[t.length - 1];
   }
-  return { reussis, coupes, posesAnnulees, pointCoupure };
+  // décision Lomig 03/11 : cases reprises à l'adversaire à ce tour (pour l'animation).
+  const reprises = h.journal.filter((e) => e.code === 'REPRISE').map((e) => ({ j: e.joueur, cases: e.cases || [] }));
+  return { reussis, coupes, posesAnnulees, pointCoupure, reprises };
 }
 
 /**
@@ -270,6 +272,22 @@ export function dessinerPlateau(conteneur, etat, vue, geo) {
     const a = prop.soutien;
     const b = prop.chemin[0];
     svg = svg.replace(/<\/svg>$/, `<path class="ui-soutien" d="M${X(a)} ${Y(a)}L${X(b)} ${Y(b)}"/></svg>`);
+  }
+  // décision Lomig 03/11 : les cases reprises clignotent (couleur du nouveau propriétaire), puis
+  // gardent un liseré accent. Jetons Goban ; prefers-reduced-motion -> pas d'animation (style.css).
+  if ((vue.phase === 'resultat' || vue.phase === 'fin') && vue.dernier?.reprises?.length) {
+    const n = etat.params.grille;
+    const p = geo.pitch;
+    const rects = vue.dernier.reprises
+      .flatMap(({ j, cases }) => cases.map((k) => {
+        const { i, j: jj } = coordCase(n, k);
+        const x = geo.margin + i * p;
+        const y = geo.margin + jj * p;
+        return `<rect class="ui-reprise ui-reprise--${CAMP[j]}" x="${x}" y="${y}" width="${p}" height="${p}"/>`
+          + `<rect class="ui-reprise-cadre" x="${x + 2}" y="${y + 2}" width="${p - 4}" height="${p - 4}" rx="3"/>`;
+      }))
+      .join('');
+    svg = svg.replace(/<\/svg>$/, `<g class="ui-reprises" aria-hidden="true">${rects}</g></svg>`);
   }
   conteneur.innerHTML = svg;
 }

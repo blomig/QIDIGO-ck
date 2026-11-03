@@ -133,3 +133,20 @@ button { font: inherit; color: inherit; }
 .ui-pas em { font-style: normal; font-size: var(--q-fs-xs); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-left: 6px; }
 .ui-pas.is-max { background: var(--q-accent); color: var(--q-accent-ink); box-shadow: 0 0 0 3px var(--q-accent-soft), 0 2px 6px rgba(0, 0, 0, .22); }
 .ui-pas.is-max small { color: var(--q-accent-ink); opacity: .85; }
+
+/* Reprise de territoire (décision Lomig 03/11) : les cases reprises clignotent dans la couleur de
+   leur nouveau propriétaire, puis gardent un liseré accent. Jetons Goban (design/tokens.css). */
+.ui-reprise { opacity: 0; pointer-events: none; animation: ui-reprise-flash calc(var(--q-dur-zone, 600ms) * 1.4) var(--q-ease-out, ease-out) 3 both; }
+.ui-reprise--n { fill: var(--q-camp-n-line); }
+.ui-reprise--b { fill: var(--q-camp-b-line); stroke: var(--q-camp-b-casing); stroke-width: 1; }
+.ui-reprise-cadre { fill: none; stroke: var(--q-accent); stroke-width: 2.5; pointer-events: none;
+  animation: ui-reprise-cadre calc(var(--q-dur-zone, 600ms) * 1.4) var(--q-ease-out, ease-out) both; }
+@keyframes ui-reprise-flash { 0% { opacity: 0; } 25% { opacity: .85; } 100% { opacity: 0; } }
+@keyframes ui-reprise-cadre { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+.ui-reprise-cadre { transform-box: fill-box; transform-origin: center; }
+.j-reprise { color: var(--ui-accent); }
+@media (prefers-reduced-motion: reduce) {
+  /* Pas de clignotement : la case reprise reste simplement teintée et encadrée. */
+  .ui-reprise { animation: none; opacity: .35; }
+  .ui-reprise-cadre { animation: none; opacity: 1; transform: none; }
+}

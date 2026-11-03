@@ -27,6 +27,10 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
 - **Prêt** valide l'ordre. **Effacer** l'efface. Sans ordre, ce bouton devient **Passer**.
   Si le chrono expire, l'ordre en cours est envoyé s'il est valide, sinon « Passer ».
 - **Soutien** (variante) : pendant un déplacement, touchez un de vos pions voisin du départ.
+- **Reprise** (décision de Lomig, 03/11 : `reprise = oui` par défaut) : fermer une zone prend toutes ses cases, y compris celles de l'adversaire.
+  On reprend donc un territoire par morceaux. Les cases reprises clignotent dans la couleur du nouveau propriétaire, puis gardent un liseré accent.
+  Avec prefers-reduced-motion, elles sont seulement teintées. Le journal l'indique (« Joueur A reprend 2 cases à Joueur B. »).
+  Le réglage permet de revenir à `non`. Une reprise disputée au même tour est réglée par `reprise_meme_tour` (provisoire, voir QUESTIONS.md).
 - Pendant votre saisie, **l'aperçu** montre en pointillé la zone fermée et le gain prévu, en supposant que l'autre passe.
 - **Modes** : contre l'IA (vous êtes A, noir) ou à deux sur le même téléphone. Dans ce mode, un écran de passage masque l'ordre de l'autre.
 - **Réglages** : chaque variante et chaque choix proto, avec sa description, son état et sa valeur par défaut.

@@ -296,11 +296,22 @@ export function fermeturesDe(etat, P, nouveauxP, trajetP) {
     const ferme = z.some((k) => cotesCase(n, k).some(({ segment, voisine }) => voisine >= 0 && !dans.has(voisine) && nouveauxP.has(segment)));
     if (ferme) fermees.push(z);
   }
-  // Réglage `reprise` : « non » -> seulement les cases sans propriétaire ; « oui » -> toutes.
+  // Réglage `reprise` (regles-proto.md §3, étape 5) : « non » -> seulement les cases sans propriétaire
+  // (le territoire est alors acquis pour toujours) ; « oui » (décision Lomig 03/11, défaut) -> toutes
+  // les cases de la zone fermée, y compris celles de l'adversaire : seules les cases COUVERTES par la
+  // zone changent de main (reprise par morceaux). « Territoire acquis » reste vrai dans les deux cas :
+  // une case ne se perd jamais parce que ses murs disparaissent, seulement par une reprise adverse.
   const gain = new Set();
   for (const z of fermees) {
     for (const k of z) {
-      if (etat.params.reprise === 'oui' ? etat.proprietaires[k] !== P : etat.proprietaires[k] === null) gain.add(k);
+      const proprio = etat.proprietaires[k];
+      if (etat.params.reprise !== 'oui') {
+        if (proprio === null) gain.add(k);
+      } else if (proprio !== P || etat.params.reprise_meme_tour === 'defense') {
+        // A CONFIRMER (regles-proto.md) : avec « defense », ses propres cases sont aussi dans le gain,
+        // pour qu'une case disputée au même tour reste à son propriétaire (étape 6).
+        gain.add(k);
+      }
     }
   }
   return { fermees, gain };
@@ -310,19 +321,31 @@ export function fermeturesDe(etat, P, nouveauxP, trajetP) {
 // Étapes 6 à 9
 // ---------------------------------------------------------------------------
 
-/** Étape 6 : attribution simultanée (une case gagnée par les deux garde son propriétaire). */
+/**
+ * Étape 6 : attribution simultanée (une case gagnée par les deux garde son propriétaire d'avant).
+ * Les cases prises à l'adversaire (reprise) sont journalisées à part, avec leur liste (`cases`),
+ * pour que l'interface les fasse clignoter.
+ */
 export function attribuer(brouillon, gains) {
   const journal = [];
-  const compte = { A: 0, B: 0 };
+  const nouvelles = { A: 0, B: 0 };
+  const reprises = { A: [], B: [] };
+  const avant = brouillon.proprietaires.slice(); // attribution sur l'état d'avant l'étape 6
   for (const P of JOUEURS) {
     for (const k of gains[P]) {
       if (gains[adversaire(P)].has(k)) continue;
+      if (avant[k] === P) continue; // déjà à P : rien ne change
+      if (avant[k] === adversaire(P)) reprises[P].push(k);
+      else nouvelles[P]++;
       brouillon.proprietaires[k] = P;
-      compte[P]++;
     }
   }
   for (const P of JOUEURS) {
-    if (compte[P]) journal.push(entree(brouillon.tour, 'ZONE', `${nomJoueur(P)} ferme une zone et gagne ${compte[P]} case${compte[P] > 1 ? 's' : ''}.`, { joueur: P }));
+    const nb = nouvelles[P];
+    if (nb) journal.push(entree(brouillon.tour, 'ZONE', `${nomJoueur(P)} ferme une zone et gagne ${nb} case${nb > 1 ? 's' : ''}.`, { joueur: P }));
+    const r = reprises[P].length;
+    // décision Lomig 03/11 : une ligne de journal par reprise.
+    if (r) journal.push(entree(brouillon.tour, 'REPRISE', `${nomJoueur(P)} reprend ${r} case${r > 1 ? 's' : ''} à ${nomJoueur(adversaire(P))}.`, { joueur: P, cases: reprises[P].slice().sort((a, b) => a - b) }));
   }
   return journal;
 }

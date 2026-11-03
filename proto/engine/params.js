@@ -40,9 +40,16 @@ export const REGLAGES = [
   { id: 'traces', groupe: 'variante', libelle: 'Rôle des traces', type: 'choix', defaut: 'bord_de_zone',
     valeurs: [['bord_de_zone', 'Bords de zone'], ['decoratives', 'Décoratives']],
     description: '« Bords de zone » : murs = bord + toutes vos traces. « Décoratives » : murs = bord + votre seul trajet de ce tour (une zone se ferme en un trajet). Q11.' },
-  { id: 'reprise', groupe: 'variante', desactivee: 'non', libelle: 'Reprise de territoire', type: 'choix', defaut: 'non',
+  // décision Lomig 03/11 : reprise = oui par défaut (on garde « non » dans les Réglages).
+  { id: 'reprise', groupe: 'variante', desactivee: 'non', libelle: 'Reprise de territoire', type: 'choix', defaut: 'oui',
     valeurs: [['non', 'Désactivée'], ['oui', 'Activée']],
-    description: 'Activée : fermer une zone prend toutes ses cases, y compris celles de l’adversaire (K98).' },
+    description: 'Décision de Lomig (03/11) : activée par défaut. Fermer une zone prend toutes ses cases, y compris celles de l’adversaire : on reprend un territoire par morceaux en fermant une zone qui en couvre une partie (K98). Une case gagnée par les deux au même tour garde son propriétaire (étape 6). Désactivée : on ne gagne que les cases sans propriétaire.' },
+  // A CONFIRMER (regles-proto.md) : reprise mutuelle au même tour. Lecture littérale de l'étape 5
+  // (« gain = toutes les cases de la zone fermée ») : la case que son propriétaire referme lui-même au
+  // même tour est dans les deux gains, donc il la garde (étape 6). Réglage provisoire.
+  { id: 'reprise_meme_tour', groupe: 'choix', libelle: 'Reprise disputée au même tour', type: 'choix', defaut: 'defense',
+    valeurs: [['defense', 'Le propriétaire qui referme aussi la garde'], ['attaque', 'L’attaquant la prend']],
+    description: 'Provisoire (QUESTIONS.md). Avec la reprise : A ferme une zone qui couvre une case de B, et B ferme au même tour une zone qui couvre aussi cette case. « Garde » : la case est dans les deux gains (étape 5 : toutes les cases de la zone), elle reste à B (étape 6). « Prend » : le gain de B ne contient pas ses propres cases, A la prend.' },
   { id: 'seuil', groupe: 'variante', libelle: 'Seuil de victoire (%)', type: 'nombre', defaut: 75, min: 1, max: 100,
     description: 'Contrôler ce pourcentage des croisements, arrondi au supérieur : 75 % = 61/81, 48/64, 37/49 (Q7 a).' },
 
@@ -71,7 +78,7 @@ export const REGLAGES = [
   { id: 'dehors_egalite', groupe: 'choix', libelle: 'Plus grandes régions à égalité', type: 'choix', defaut: 'toutes_dehors', fixe: true,
     valeurs: [['toutes_dehors', 'Toutes sont le dehors']], description: 'Si plusieurs régions ont le plus grand nombre de cases, toutes sont le dehors.' },
   { id: 'territoire_acquis', groupe: 'choix', libelle: 'Territoire', type: 'choix', defaut: 'acquis', fixe: true,
-    valeurs: [['acquis', 'Acquis']], description: 'Une case possédée garde son propriétaire, même si ses murs disparaissent.' },
+    valeurs: [['acquis', 'Acquis']], description: 'Une case possédée garde son propriétaire, même si ses murs disparaissent. Avec la reprise (défaut), seule une zone adverse fermée qui la couvre peut la lui prendre ; sans reprise, elle ne change plus jamais de main.' },
   { id: 'pions_comptent', groupe: 'choix', libelle: 'Les pions comptent', type: 'choix', defaut: 'non', fixe: true,
     valeurs: [['non', 'Non']], description: 'Seul le territoire compte, pas les pions.' },
   { id: 'seuil_egalite', groupe: 'choix', libelle: 'Seuil atteint par les deux', type: 'choix', defaut: 'plus_grand_sinon_continuer', fixe: true,

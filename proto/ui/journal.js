@@ -2,7 +2,7 @@
 
 const CLASSES = {
   RENCONTRE: 'j-annule', COUPURE: 'j-annule', POSES: 'j-annule', CHAINE: 'j-annule', INVALIDE: 'j-annule',
-  ZONE: 'j-gain', CAPTURE: 'j-gain', FIN: 'j-fin',
+  ZONE: 'j-gain', REPRISE: 'j-gain j-reprise', CAPTURE: 'j-gain', FIN: 'j-fin',
 };
 
 const echapper = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
