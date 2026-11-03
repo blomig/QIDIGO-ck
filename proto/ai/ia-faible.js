@@ -4,7 +4,8 @@
 
 import { voisins, nbCroisements } from '../engine/grille.js';
 import { longueurMax } from '../engine/params.js';
-import { validerOrdre, poser, deplacer, rien, passer } from '../engine/ordres.js';
+import { validerOrdre, poser, deplacer, rien, passer, lot, posesMaxParTour } from '../engine/ordres.js';
+import { lotValide } from '../engine/resolution.js';
 
 /** Poses légales pour `joueur`. */
 export function posesLegales(etat, joueur) {
@@ -45,6 +46,7 @@ export function trajetAleatoire(etat, joueur, depart, rng, longueurVisee) {
  */
 export function choisirOrdre(etat, joueur, rng) {
   if (etat.fini) return rien();
+  if (etat.params.ordres === 'pion') return choisirLot(etat, joueur, rng);
   // choix proto (CDP 03/11) : l'IA peut aussi « Passer » (rarement : 1 fois sur 20).
   if (rng.reel() < 0.05) return passer();
   const poses = posesLegales(etat, joueur);
@@ -60,4 +62,39 @@ export function choisirOrdre(etat, joueur, rng) {
   }
   if (poses.length) return rng.choisir(poses);
   return passer();
+}
+
+/**
+ * Mode `ordres = pion` : un lot légal au hasard. Chaque pion se déplace une fois sur deux (trajet au
+ * hasard, chaque pas validé avec le lot entier), puis une pose au hasard une fois sur deux
+ * (jusqu'à poses_par_tour). Passe en entier 1 fois sur 20.
+ */
+export function choisirLot(etat, joueur, rng) {
+  if (rng.reel() < 0.05) return passer();
+  const n = etat.params.grille;
+  const acc = [];
+  const ok = (o) => lotValide(etat, joueur, lot(...acc, o));
+  for (const depart of rng.melanger(etat.pions[joueur])) {
+    if (rng.reel() >= 0.5) continue;
+    const visee = 1 + rng.entier(Math.min(n, longueurMax(etat.params)));
+    let chemin = [depart];
+    let valide = null;
+    for (let pas = 0; pas < visee; pas++) {
+      let prolonge = false;
+      for (const v of rng.melanger(voisins(n, chemin[chemin.length - 1]))) {
+        const essai = [...chemin, v];
+        if (ok(deplacer(essai))) { chemin = essai; valide = essai; prolonge = true; break; }
+      }
+      if (!prolonge) break;
+    }
+    if (valide) acc.push(deplacer(valide));
+  }
+  const maxPoses = Math.min(posesMaxParTour(etat.params), etat.reserve[joueur]);
+  for (let k = 0; k < maxPoses; k++) {
+    if (!(rng.reel() < (etat.pions[joueur].length === 0 && k === 0 ? 1 : 0.5))) break;
+    const poses = posesLegales(etat, joueur).filter((o) => ok(o));
+    if (!poses.length) break;
+    acc.push(rng.choisir(poses));
+  }
+  return acc.length ? lot(...acc) : passer();
 }

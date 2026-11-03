@@ -62,7 +62,25 @@ export function optionsPlateau(etat, vue, geo) {
   for (const j of ['A', 'B']) for (const c of etat.pions[j]) pions.push({ ...coord(n, c), c: CAMP[j], idx: c, j });
 
   // Ordre secret du joueur courant (seulement pendant sa saisie).
-  if (vue.phase === 'saisie') {
+  if (vue.phase === 'saisie' && vue.proposition?.type === 'lot') {
+    // Mode « un ordre par pion » : tous les ordres du lot (le trajet en cours de tracé remplace celui du même pion).
+    const glisse = vue.chemin && vue.chemin.length > 1 ? vue.chemin : null;
+    if (glisse) o.encours = { pts: glisse.map((c) => pt(n, c)) };
+    const ordres = vue.proposition.ordres.filter((x) => !(glisse && x.type === 'deplacer' && x.chemin[0] === glisse[0]));
+    const deps = ordres.filter((x) => x.type === 'deplacer');
+    if (deps.length) o.valide = { pts: deps[0].chemin.map((c) => pt(n, c)) };
+    for (const x of ordres) if (x.type === 'poser') pions.push({ ...coord(n, x.croisement), c: CAMP[vue.joueur], ghost: true });
+    const aOrdre = new Set(deps.map((x) => x.chemin[0]));
+    for (const q of pions) if (aOrdre.has(q.idx) || q.idx === vue.chemin?.[0] || (q.ghost && q.c === CAMP[vue.joueur])) q.sel = true;
+    if (vue.apercu) {
+      if (vue.apercu.cells.length) o.zones.push({ c: CAMP[vue.joueur], cells: vue.apercu.cells, apercu: true });
+      for (const q of pions) if (vue.apercu.captures.includes(q.idx)) q.capt = true;
+    }
+    if (vue.doigt) {
+      o.doigt = vue.doigt;
+      o.loupe = true;
+    }
+  } else if (vue.phase === 'saisie') {
     const prop = vue.proposition;
     if (vue.chemin && vue.chemin.length > 1) o.encours = { pts: vue.chemin.map((c) => pt(n, c)) };
     else if (prop?.type === 'deplacer') o.valide = { pts: prop.chemin.map((c) => pt(n, c)) };
@@ -113,7 +131,17 @@ export function analyserDernierTour(etatApres) {
   const posesAnnulees = [];
   for (const j of ['A', 'B']) {
     const o = h.ordres[j];
-    if (o?.type === 'deplacer') {
+    if (o?.type === 'lot') {
+      // Mode « un ordre par pion » : chaque ordre du lot, reconnu à son trajet ou à son croisement.
+      for (const x of o.ordres) {
+        if (x.type === 'deplacer') {
+          const ok = h.journal.some((e) => e.code === 'DEPLACEMENT' && e.joueur === j && e.chemin?.join('.') === x.chemin.join('.'));
+          (ok ? reussis : coupes).push({ j, chemin: x.chemin });
+        } else if (x.type === 'poser' && !h.journal.some((e) => e.code === 'POSE' && e.joueur === j && e.croisement === x.croisement)) {
+          posesAnnulees.push({ j, croisement: x.croisement });
+        }
+      }
+    } else if (o?.type === 'deplacer') {
       const ok = h.journal.some((e) => e.code === 'DEPLACEMENT' && e.joueur === j);
       (ok ? reussis : coupes).push({ j, chemin: o.chemin });
     } else if (o?.type === 'poser') {
@@ -138,6 +166,8 @@ export function analyserDernierTour(etatApres) {
  * rappels = { etat(), joueur(), actif(), geo(), surChemin(chemin, doigt), surOrdre(ordre|null, raison?), surTapPion(c) }
  */
 export function installerSaisie(conteneur, rappels) {
+  // Validation d'un tracé : seul (mode joueur) ou avec les autres ordres du lot (mode pion, rappel `validerTrace`).
+  const valTrace = (etat, moi, ch) => (rappels.validerTrace ? rappels.validerTrace(ch) : validerOrdre(etat, moi, deplacer(ch)));
   let glisse = null; // { chemin, depart, bouge, pointerId }
 
   const versGrille = (ev) => {
@@ -186,7 +216,7 @@ export function installerSaisie(conteneur, rappels) {
           const essai = [...ch, s];
           // On n'ajoute un segment que si le trajet reste valide (le moteur décide).
           // décision Lomig 03/11 : à trajet_max segments, le tracé ne s'allonge plus (on peut reculer).
-          if (validerOrdre(etat, rappels.joueur(), deplacer(essai)).ok) ch.push(s);
+          if (valTrace(etat, rappels.joueur(), essai).ok) ch.push(s);
           else break;
         }
       }
@@ -202,7 +232,7 @@ export function installerSaisie(conteneur, rappels) {
     const etat = rappels.etat();
     const moi = rappels.joueur();
     if (g.surPion && g.chemin.length >= 2) {
-      const v = validerOrdre(etat, moi, deplacer(g.chemin));
+      const v = valTrace(etat, moi, g.chemin);
       rappels.surChemin(null, null);
       rappels.surOrdre(v.ok ? v.ordre : null, v.ok ? null : v.raison);
       return;
@@ -289,6 +319,29 @@ export function dessinerPlateau(conteneur, etat, vue, geo) {
       }))
       .join('');
     svg = svg.replace(/<\/svg>$/, `<g class="ui-reprises" aria-hidden="true">${rects}</g></svg>`);
+  }
+  // Mode « un ordre par pion » : les trajets du lot après le premier (le rendu du designer n'en trace qu'un),
+  // insérés sous les pions avec les mêmes classes Goban, et un numéro d'ordre près de chaque pion qui en a un.
+  if (vue.phase === 'saisie' && prop?.type === 'lot') {
+    const n = etat.params.grille;
+    const X = (c) => geo.margin + coord(n, c).x * geo.pitch;
+    const Y = (c) => geo.margin + coord(n, c).y * geo.pitch;
+    const glisse = vue.chemin && vue.chemin.length > 1 ? vue.chemin : null;
+    const ordres = prop.ordres.filter((x) => !(glisse && x.type === 'deplacer' && x.chemin[0] === glisse[0]));
+    const deps = ordres.filter((x) => x.type === 'deplacer');
+    const d = (ch) => ch.map((c, k) => `${k ? 'L' : 'M'}${X(c)} ${Y(c)}`).join('');
+    const autres = deps.slice(1).map((x) => `<g class="q-path q-valide"><path class="q-casing" d="${d(x.chemin)}"/><path class="q-core" d="${d(x.chemin)}"/><circle class="q-valide-end" cx="${X(x.chemin.at(-1))}" cy="${Y(x.chemin.at(-1))}" r="5"/></g>`).join('');
+    if (autres) {
+      const i = svg.indexOf('<g class="q-pion');
+      svg = i >= 0 ? svg.slice(0, i) + autres + svg.slice(i) : svg.replace(/<\/svg>$/, `${autres}</svg>`);
+    }
+    const r = geo.pitch * 0.2;
+    const badges = ordres.map((x, k) => {
+      const c = x.type === 'deplacer' ? x.chemin[0] : x.croisement;
+      const bx = X(c) + geo.pitch * 0.3, by = Y(c) - geo.pitch * 0.3;
+      return `<g class="ui-num-ordre"><circle cx="${bx}" cy="${by}" r="${r}"/><text x="${bx}" y="${by}" font-size="${r * 1.3}">${k + 1}</text></g>`;
+    }).join('');
+    svg = svg.replace(/<\/svg>$/, `<g class="ui-nums-ordres" aria-hidden="true">${badges}</g></svg>`);
   }
   conteneur.innerHTML = svg;
 }

@@ -6,7 +6,7 @@ import {
   coord, segmentsDuChemin, nbCases, nbCroisements, cotesCase, casesAutourCroisement,
 } from './grille.js';
 import { copier, geler, adversaire, occupant, nomJoueur, casesPossedees } from './etat.js';
-import { validerOrdre } from './ordres.js';
+import { validerOrdre, validerLot } from './ordres.js';
 import { JOUEURS, seuilCroisements, compteEnCases, uniteScore } from './params.js';
 
 /** Entrée de journal lisible. */
@@ -26,8 +26,20 @@ export function nomCroisement(n, c) {
 export function lireEtValider(etat, ordres) {
   const journal = [];
   const lus = {};
+  const parPion = etat.params.ordres === 'pion';
   for (const j of JOUEURS) {
     const o = ordres?.[j];
+    if (parPion) {
+      // Mode `ordres = pion` : un lot par joueur ; pion sans ordre = Passer (implicite).
+      const v = validerLot(etat, j, o, rencontreEntre(etat.params));
+      lus[j] = { type: 'lot', ordres: v.ordres };
+      for (const r of v.rejets) journal.push(entree(etat.tour, 'INVALIDE', `${nomJoueur(j)} : ordre invalide (${r.raison}), remplacé par « rien ».`, { joueur: j }));
+      if (!v.ordres.length) {
+        const passe = o?.type === 'passer' || (o?.type === 'lot' && !v.rejets.length);
+        journal.push(passe ? entree(etat.tour, 'PASSE', `${nomJoueur(j)} passe.`, { joueur: j }) : entree(etat.tour, 'RIEN', `${nomJoueur(j)} : rien.`, { joueur: j }));
+      }
+      continue;
+    }
     if (o?.type === 'passer') {
       lus[j] = { type: 'passer' };
       journal.push(entree(etat.tour, 'PASSE', `${nomJoueur(j)} passe.`, { joueur: j }));
@@ -46,6 +58,23 @@ export function lireEtValider(etat, ordres) {
     }
   }
   return { ordres: lus, journal };
+}
+
+/** Règle de rencontre entre deux trajets (segment ou croisement commun), selon depart_libere. */
+export const rencontreEntre = (p) => (tA, tB) => segmentsCommuns(tA, tB).length > 0 || croisementsDeRencontre(tA, tB, p.depart_libere).length > 0;
+
+/** Validation d'un lot (mode pion) avec la règle de rencontre du moteur. Raccourci pour l'IA et l'interface. */
+export const validerLotJoueur = (etat, joueur, l) => validerLot(etat, joueur, l, rencontreEntre(etat.params));
+/** Vrai si tous les ordres du lot sont acceptés. */
+export const lotValide = (etat, joueur, l) => validerLotJoueur(etat, joueur, l).rejets.length === 0;
+
+/** Ordres actifs d'un joueur sous forme de liste (un ordre seul, un lot, ou rien). */
+export function listeOrdres(o) {
+  if (!o) return [];
+  if (Array.isArray(o)) return o.filter(Boolean);
+  if (o.type === 'lot') return o.ordres.slice();
+  if (o.type === 'rien' || o.type === 'passer') return [];
+  return [o];
 }
 
 // ---------------------------------------------------------------------------
@@ -86,106 +115,128 @@ export function segmentsCommuns(tA, tB) {
  * choix proto (CDP 03/11) : cette boucle unique remplace la cascade de l'étape 3d de
  * regles-proto.md v0.2. Comme retirer un ordre ne crée jamais de nouvelle rencontre, le premier
  * passage de 3a–3c se fait bien « sur les ordres d'origine », et le résultat est le même.
- * @returns {{actifs: {A: object|null, B: object|null}, journal: object[]}}
+ * Généralisé à N ordres par joueur (mode `ordres = pion`, CDP 03/11) : chaque sous-étape relève
+ * TOUS les conflits sur les ordres encore actifs, puis les applique ensemble. Avec un ordre par
+ * joueur, il y a au plus un conflit par sous-étape : résultat et journal sont identiques à avant.
+ * @returns {{actifs: {A: object|null, B: object|null}, journal: object[]}} (mode pion : actifs = listes)
  */
 export function resoudreCoupures(etat, ordres) {
   const p = etat.params;
   const n = p.grille;
   const tour = etat.tour;
   const nc = (c) => nomCroisement(n, c);
+  const parPion = p.ordres === 'pion';
   const journal = [];
-  const actifs = {};
-  for (const j of JOUEURS) actifs[j] = ordres[j] && ordres[j].type !== 'rien' && ordres[j].type !== 'passer' ? ordres[j] : null;
-
-  const trajet = (j) => (actifs[j]?.type === 'deplacer' ? actifs[j].chemin : null);
-  const pose = (j) => (actifs[j]?.type === 'poser' ? actifs[j].croisement : null);
-  const soutenu = (j) => p.soutien === 'oui' && actifs[j]?.type === 'deplacer' && actifs[j].soutien != null;
-  const libelle = (j) => (actifs[j]?.type === 'poser' ? 'la pose' : 'le déplacement');
-  const annuler = (j, code, cause) => {
-    journal.push(entree(tour, code, `${nomJoueur(j)} : ${libelle(j)} est annulé${actifs[j].type === 'poser' ? 'e' : ''} — ${cause}`, { joueur: j }));
-    actifs[j] = null;
+  const unites = [];
+  for (const j of JOUEURS) for (const o of listeOrdres(ordres[j])) if (o.type === 'poser' || o.type === 'deplacer') unites.push({ j, o, actif: true });
+  const actives = (j, type) => unites.filter((u) => u.actif && u.j === j && (!type || u.o.type === type));
+  const soutenu = (u) => p.soutien === 'oui' && u.o.type === 'deplacer' && u.o.soutien != null;
+  const libelle = (u) => (u.o.type === 'poser'
+    ? (parPion ? `la pose en ${nc(u.o.croisement)}` : 'la pose')
+    : (parPion ? `le déplacement depuis ${nc(u.o.chemin[0])}` : 'le déplacement'));
+  const annuler = (u, code, cause) => {
+    if (!u.actif) return;
+    journal.push(entree(tour, code, `${nomJoueur(u.j)} : ${libelle(u)} est annulé${u.o.type === 'poser' ? 'e' : ''} — ${cause}`, { joueur: u.j }));
+    u.actif = false;
   };
 
-  for (let garde = 0; garde < 10; garde++) {
-    let change = false;
-
-    // 3a. DÉPLACER / DÉPLACER : rencontre sur un croisement ou un segment.
-    const tA = trajet('A');
-    const tB = trajet('B');
-    if (tA && tB) {
-      const segs = segmentsCommuns(tA, tB);
-      const crs = croisementsDeRencontre(tA, tB, p.depart_libere);
-      if (segs.length || crs.length) {
+  for (let garde = 0; garde < 10 + 4 * unites.length; garde++) {
+    // 3a. DÉPLACER / DÉPLACER : rencontre sur un croisement ou un segment (trajets adverses).
+    const a3 = [];
+    for (const ua of actives('A', 'deplacer')) {
+      for (const ub of actives('B', 'deplacer')) {
+        const tA = ua.o.chemin;
+        const tB = ub.o.chemin;
+        const segs = segmentsCommuns(tA, tB);
+        const crs = croisementsDeRencontre(tA, tB, p.depart_libere);
+        if (!segs.length && !crs.length) continue;
         const ou = segs.length
           ? `rencontre sur le segment ${segs[0].split('-').map((c) => nc(+c)).join('–')}`
           : `rencontre au croisement ${nc(crs[0])}`;
-        if (soutenu('A') !== soutenu('B')) {
-          // Soutien (§3) : seul le trajet non soutenu est annulé.
-          const perdant = soutenu('A') ? 'B' : 'A';
-          annuler(perdant, 'RENCONTRE', `${ou} ; le trajet adverse est soutenu.`);
-        } else {
-          annuler('A', 'RENCONTRE', `${ou}.`);
-          annuler('B', 'RENCONTRE', `${ou}.`);
-        }
-        change = true;
+        a3.push({ ua, ub, ou });
       }
     }
-    if (change) continue;
+    for (const { ua, ub, ou } of a3) {
+      if (soutenu(ua) !== soutenu(ub)) {
+        // Soutien (§3) : seul le trajet non soutenu est annulé.
+        annuler(soutenu(ua) ? ub : ua, 'RENCONTRE', `${ou} ; le trajet adverse est soutenu.`);
+      } else {
+        annuler(ua, 'RENCONTRE', `${ou}.`);
+        annuler(ub, 'RENCONTRE', `${ou}.`);
+      }
+    }
+    if (a3.length) continue;
 
-    // 3b. POSER(c) / DÉPLACER(t) : pose sur un croisement du trajet adverse.
+    // 3b. POSER(c) / DÉPLACER(t) : pose sur un croisement d'un trajet adverse.
+    const b3 = [];
     for (const P of JOUEURS) {
       const Q = adversaire(P);
-      const c = pose(P);
-      const t = trajet(Q);
-      if (c == null || !t || !t.includes(c)) continue;
+      for (const up of actives(P, 'poser')) {
+        const c = up.o.croisement;
+        const coupes = actives(Q, 'deplacer').filter((uq) => uq.o.chemin.includes(c));
+        if (coupes.length) b3.push({ P, up, c, coupes });
+      }
+    }
+    for (const { P, up, c, coupes } of b3) {
       // décision Lomig 03/11 (Q10) : une pose sur le départ t[0] est illégale (croisement occupé au
       // début du tour, refusée par validerOrdre), donc c est un croisement libre du trajet.
-      if (soutenu(Q)) {
-        // Soutien (§3) : une pose sur un trajet soutenu ne le coupe pas ; la pose est annulée.
-        annuler(P, 'COUPURE', `pose en ${nc(c)} sur un trajet soutenu : le trajet s’exécute.`);
-      } else {
-        annuler(Q, 'COUPURE', `${nomJoueur(P)} pose en ${nc(c)}, sur son trajet.`);
-        if (p.pose_coupante === 'annulee') annuler(P, 'COUPURE', `la pose en ${nc(c)} a coupé un trajet (réglage « pose qui coupe » : annulée).`);
-        else journal.push(entree(tour, 'COUPURE', `${nomJoueur(P)} : la pose en ${nc(c)} est maintenue (réglage « pose qui coupe » : maintenue).`, { joueur: P }));
-      }
-      change = true;
-      break;
-    }
-    if (change) continue;
-
-    // 3c. POSER(c) / POSER(c) : les deux annulées (choix proto `poses_meme_croisement`).
-    if (pose('A') != null && pose('A') === pose('B')) {
-      const c = pose('A');
-      annuler('A', 'POSES', `les deux joueurs posent en ${nc(c)}.`);
-      annuler('B', 'POSES', `les deux joueurs posent en ${nc(c)}.`);
-      continue;
-    }
-
-    // 3d. Croisements libérés (chaîne) : un ordre qui vise le croisement d'un pion adverse est
-    // annulé si ce pion ne part pas (v0.2) ; le soutien n'en protège pas (v0.2 §3).
-    // décision Lomig 03/11 : si le pion adverse ne part pas (il ne bouge pas, ou son ordre est
-    // annulé), l'ordre qui visait OU traversait son croisement est annulé ; boucle jusqu'à stabilité.
-    for (const P of JOUEURS) {
-      const Q = adversaire(P);
-      const tQ = trajet(Q);
-      const part = (c) => tQ != null && tQ[0] === c;
-      const t = trajet(P);
-      if (t) {
-        const bloque = t.slice(1).find((c) => occupant(etat, c) === Q && !part(c));
-        if (bloque != null) {
-          annuler(P, 'CHAINE', `le pion adverse en ${nc(bloque)} ne bouge pas : il ne peut être ni traversé ni rejoint.`);
-          change = true;
-          break;
+      let annulee = false;
+      for (const uq of coupes) {
+        if (soutenu(uq)) {
+          // Soutien (§3) : une pose sur un trajet soutenu ne le coupe pas ; la pose est annulée.
+          annuler(up, 'COUPURE', `pose en ${nc(c)} sur un trajet soutenu : le trajet s’exécute.`);
+          annulee = true;
+        } else {
+          annuler(uq, 'COUPURE', `${nomJoueur(P)} pose en ${nc(c)}, sur son trajet.`);
         }
       }
-      const c = pose(P);
-      if (c != null && occupant(etat, c) === Q && !part(c)) {
-        annuler(P, 'CHAINE', `le croisement ${nc(c)} reste occupé par un pion adverse.`);
-        change = true;
-        break;
+      if (annulee || coupes.every(soutenu)) continue;
+      if (p.pose_coupante === 'annulee') annuler(up, 'COUPURE', `la pose en ${nc(c)} a coupé un trajet (réglage « pose qui coupe » : annulée).`);
+      else journal.push(entree(tour, 'COUPURE', `${nomJoueur(P)} : la pose en ${nc(c)} est maintenue (réglage « pose qui coupe » : maintenue).`, { joueur: P }));
+    }
+    if (b3.length) continue;
+
+    // 3c. POSER(c) / POSER(c) : les deux annulées (choix proto `poses_meme_croisement`).
+    const c3 = [];
+    for (const ua of actives('A', 'poser')) for (const ub of actives('B', 'poser')) if (ua.o.croisement === ub.o.croisement) c3.push([ua, ub]);
+    for (const [ua, ub] of c3) {
+      annuler(ua, 'POSES', `les deux joueurs posent en ${nc(ua.o.croisement)}.`);
+      annuler(ub, 'POSES', `les deux joueurs posent en ${nc(ua.o.croisement)}.`);
+    }
+    if (c3.length) continue;
+
+    // 3d. Croisements libérés (chaîne) : un ordre qui vise le croisement d'un pion qui ne part pas
+    // est annulé (v0.2) ; le soutien n'en protège pas (v0.2 §3).
+    // décision Lomig 03/11 : si le pion adverse ne part pas (il ne bouge pas, ou son ordre est
+    // annulé), l'ordre qui visait OU traversait son croisement est annulé ; boucle jusqu'à stabilité.
+    // Mode pion (CDP 03/11) : même règle pour un pion AMI dont le déplacement est annulé.
+    const partent = new Set(unites.filter((u) => u.actif && u.o.type === 'deplacer').map((u) => u.o.chemin[0]));
+    const d3 = [];
+    for (const P of JOUEURS) {
+      for (const u of actives(P)) {
+        if (u.o.type === 'deplacer') {
+          const t = u.o.chemin;
+          const bloque = t.slice(1).find((c) => c !== t[0] && occupant(etat, c) != null && !partent.has(c));
+          if (bloque != null) {
+            d3.push([u, occupant(etat, bloque) === P
+              ? `votre pion en ${nc(bloque)} ne part pas : il ne peut être ni traversé ni rejoint.`
+              : `le pion adverse en ${nc(bloque)} ne bouge pas : il ne peut être ni traversé ni rejoint.`]);
+          }
+        } else {
+          const c = u.o.croisement;
+          if (occupant(etat, c) != null && occupant(etat, c) !== P && !partent.has(c)) d3.push([u, `le croisement ${nc(c)} reste occupé par un pion adverse.`]);
+        }
       }
     }
-    if (!change) break;
+    // Une annulation à la fois (comme avant), puis on recommence : l'annulation d'un départ peut en
+    // bloquer d'autres, et le croisement cité dans le journal est lu après chaque annulation.
+    if (!d3.length) break;
+    annuler(d3[0][0], 'CHAINE', d3[0][1]);
+  }
+  const actifs = {};
+  for (const j of JOUEURS) {
+    const l = unites.filter((u) => u.j === j && u.actif).map((u) => u.o);
+    actifs[j] = parPion ? l : l[0] || null;
   }
   return { actifs, journal };
 }
@@ -208,8 +259,11 @@ export function executer(brouillon, actifs) {
   const trajets = { A: new Set(), B: new Set() };
   const couleursAvant = { ...brouillon.couleurs };
   for (const P of JOUEURS) {
-    const o = actifs[P];
-    if (!o) continue;
+    const liste = listeOrdres(actifs[P]);
+    // Mode pion : les déplacements d'un même joueur sont simultanés (positions lues avant le tour).
+    const arrivees = new Map(liste.filter((o) => o.type === 'deplacer').map((o) => [o.chemin[0], o.chemin[o.chemin.length - 1]]));
+    if (arrivees.size) brouillon.pions[P] = brouillon.pions[P].map((c) => (arrivees.has(c) ? arrivees.get(c) : c));
+    for (const o of liste) {
     if (o.type === 'poser') {
       brouillon.pions[P].push(o.croisement);
       brouillon.reserve[P] -= 1;
@@ -218,7 +272,6 @@ export function executer(brouillon, actifs) {
       const ch = o.chemin;
       const depart = ch[0];
       const arrivee = ch[ch.length - 1];
-      brouillon.pions[P] = brouillon.pions[P].map((c) => (c === depart ? arrivee : c));
       for (const s of segmentsDuChemin(ch)) {
         trajets[P].add(s);
         const avant = couleursAvant[s];
@@ -230,6 +283,7 @@ export function executer(brouillon, actifs) {
         nouveaux[P].add(s);
       }
       journal.push(entree(tour, 'DEPLACEMENT', `${nomJoueur(P)} déplace un pion de ${nomCroisement(n, depart)} à ${nomCroisement(n, arrivee)} (${ch.length - 1} segment${ch.length > 2 ? 's' : ''}).`, { joueur: P, chemin: ch.slice() }));
+    }
     }
   }
   return { nouveaux, trajets, journal };

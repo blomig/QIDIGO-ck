@@ -135,3 +135,29 @@ node tools/arena.js expansion --parties 60                                   # v
 
 Résultats du 03/11 : banc/ à la racine du dépôt local (forte-faible.txt, tuning.txt, expansion.txt, forte-forte.txt ; en croisements).
 Depuis le comptage en cases : cases-forte-faible.json (forte bat faible 200 à 0) et def-*.json / def-tableau.md (banc de la capture définitive).
+
+## Ordres par pion (piste à l'essai, 03/11)
+
+Réglages `ordres` (`joueur`, le défaut, ou `pion`) et `poses_par_tour` (`1`, le défaut, ou `illimite`). Ce sont deux
+cartes du panneau Réglages ; les défauts ne changent pas.
+
+En mode pion, chaque pion en jeu reçoit un trajet, ou passe s'il n'en reçoit pas. On peut en plus poser depuis la
+réserve : une pose au plus par tour, ou sans limite selon `poses_par_tour`.
+
+- **Moteur.** L'ordre d'un joueur est un lot `{ type: 'lot', ordres }`, construit avec `lot(...)` dans
+  `engine/ordres.js` et validé par `validerLot`. La résolution reste le pipeline unique de `engine/resolution.js`,
+  généralisé à N ordres. Les conflits entre ses propres ordres sont refusés à la saisie ; ce sont des choix du CDP,
+  listés dans QUESTIONS.md, section « Ordres par pion ». Le mode joueur est strictement identique : 300 parties de
+  référence donnent la même empreinte (`banc/ordres-pion/reference-joueur.mjs`). Tests : `tests/ordres-pion.test.js`.
+- **IA.** La faible tire un lot légal au hasard. La forte (`choisirLot` dans `ai/ia-forte.js`) procède ainsi :
+  1. elle garde les 4 meilleurs ordres de chaque pion et les meilleures poses, chacun évalué avec le vrai moteur ;
+  2. elle tire un échantillon de lots adverses : glouton, variantes et coupures ;
+  3. elle coordonne son lot par montée par coordonnées, en notant chaque lot avec le vrai moteur.
+
+  Elle prend environ 50 ms par coup, en node comme dans le navigateur, avec un plafond de 250 ms.
+- **Interface.**
+  - Glisser depuis chaque pion donne son trajet ; toucher un croisement pose.
+  - Toucher un pion qui a un ordre, ou une pose prévue, l'annule. « Tout effacer » vide le lot.
+  - Chaque ordre porte un numéro près de son pion.
+  - Le compteur « ordres n/m » s'affiche dans la ligne d'état.
+- **Banc et résultats.** Voir `banc/ordres-pion-tableau.md` et `banc/ordres-pion-etat.md`.

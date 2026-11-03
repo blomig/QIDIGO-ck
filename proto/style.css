@@ -154,3 +154,14 @@ button { font: inherit; color: inherit; }
 /* Capture définitive (CDP 03/11) : un pion retiré de la partie est barré dans la réserve. */
 .q-chip--retire { position: relative; opacity: .45; }
 .q-chip--retire::after { content: ""; position: absolute; left: -2px; right: -2px; top: 50%; border-top: 2px solid currentColor; transform: rotate(-45deg); }
+
+/* Variante « un ordre par pion » (piste à l'essai, 03/11) : numéro d'ordre près des pions et compteur « ordres 2/3 ».
+   Jetons Goban seulement. */
+.ui-num-ordre circle { fill: var(--q-accent); stroke: var(--q-bg-surface); stroke-width: 1.5; }
+.ui-num-ordre text { fill: var(--q-accent-ink); font-family: var(--q-font-num); font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.ui-ordres {
+  display: inline-flex; align-items: baseline; gap: 4px; margin-right: 8px; padding: 2px 10px;
+  border-radius: var(--q-r-chip, 999px); background: var(--ui-accent-soft); color: var(--ui-ink);
+  font-family: var(--q-font-num); font-variant-numeric: tabular-nums; font-size: var(--ui-fs-s); white-space: nowrap;
+}
+.ui-ordres b { font-size: var(--ui-fs-m); font-weight: 700; }

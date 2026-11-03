@@ -157,3 +157,46 @@ Point flou, avec une interprétation provisoire mise en réglage :
   - qu'une rencontre ne coûte qu'à un seul des deux joueurs (le soutien existe déjà) ;
   - qu'un pion de réserve non posé coûte quelque chose.
 
+
+## Ordres par pion (piste testée le 03/11, réglage `ordres = pion`, défaut inchangé `joueur`)
+
+Ces choix sont des lectures du CDP pour le proto, pas des règles. Lomig doit trancher chacun d'eux. Le principe suivi :
+ce qui serait un auto-sabotage absurde est **refusé à la saisie** (ordre invalide, remplacé par « rien » dans le
+journal ; l'interface ne permet pas de le donner), plutôt que de s'annuler en silence.
+
+1. **Nombre de poses** : au plus **une pose depuis la réserve par tour**, en plus d'un ordre par pion en jeu (lecture du
+   CDP). Sous-variante `poses_par_tour = illimite` : autant de poses que la réserve le permet.
+2. **Pion sans ordre** : il passe (Passer implicite). Un lot vide équivaut à « Passer ».
+3. **Deux trajets amis qui se croisent ou partagent un segment** : refusé à la saisie. Le test est le même qu'entre
+   adversaires (même fonction de rencontre, réglage `depart_libere` compris). Seul le premier trajet saisi est gardé.
+   Alternative possible : ils s'annulent comme entre adversaires.
+4. **Deux pions amis qui visent la même arrivée** : c'est un croisement commun, donc refusé à la saisie (cas 3).
+5. **Un pion qui vise le départ d'un pion ami qui part** : permis, c'est l'équivalent du « départ libéré ». On peut s'y
+   arrêter ou le traverser (`traversee`), ou seulement s'y arrêter (`arrivee_seule`). Si le pion de tête est arrêté (par
+   exemple par une rencontre adverse), le suiveur est annulé en chaîne (code CHAINE, « votre pion en … ne part pas »),
+   comme pour un départ adverse. Traverser un pion ami qui ne bouge pas est refusé à la saisie. Deux pions amis peuvent
+   échanger leurs places par des trajets disjoints : les déplacements d'un même joueur sont simultanés.
+6. **Pose sur le trajet de son propre pion** : refusée à la saisie, car elle le couperait. La pose sur le départ de son
+   propre pion reste interdite, comme avant (croisement occupé au début du tour, Q10). Deux poses amies sur le même
+   croisement sont refusées.
+7. **Un pion, un ordre** : un second ordre pour le même pion est refusé.
+8. **Fermetures multiples dans un même tour** : tous les segments tracés par le joueur à ce tour forment ensemble
+   `nouveaux(P)`, et toute zone qu'ils ferment compte (gain = union). Les captures et la reprise s'appliquent ensuite
+   comme d'habitude.
+9. **Conflits avec l'adversaire quand chacun a plusieurs ordres** : ils sont lus sur les ordres d'origine. Un trajet qui
+   rencontre deux trajets adverses les annule tous les deux. Une pose adverse ne coupe que le trajet qu'elle touche ; les
+   autres trajets du joueur s'exécutent.
+10. **Soutien** (désactivé par défaut) : un pion qui soutient ne se déplace pas au même tour, et un pion soutient au plus
+    un trajet. Si une pose touche à la fois un trajet soutenu et un trajet non soutenu, elle coupe le second et elle est
+    annulée.
+11. **Saisie à l'écran** (choix du CDP pour le proto) :
+    - glisser depuis un pion qui a déjà un trajet remplace ce trajet ;
+    - toucher un pion qui a un ordre annule cet ordre ;
+    - toucher une pose prévue l'annule ;
+    - avec une pose au plus par tour, une nouvelle pose remplace la précédente ;
+    - « Tout effacer » vide le lot ;
+    - le compteur « ordres n/m » compte m = pions en jeu + poses encore permises (limite et réserve) ;
+    - un tracé qui traverse un pion ami ne s'allonge que si ce pion a déjà un trajet. Il faut donc donner d'abord
+      l'ordre du pion de tête.
+    - Si l'annulation d'un ordre rend un autre ordre invalide (un suiveur qui comptait sur le départ du pion de tête),
+      cet autre ordre est retiré lui aussi, et un message le dit.

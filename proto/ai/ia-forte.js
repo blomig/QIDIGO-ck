@@ -19,8 +19,8 @@ import {
 } from '../engine/grille.js';
 import { adversaire, occupant } from '../engine/etat.js';
 import { longueurMax, seuilCroisements, compteEnCases } from '../engine/params.js';
-import { validerOrdre, poser, deplacer, passer, rien } from '../engine/ordres.js';
-import { resoudreTour, executer, fermeturesDe } from '../engine/resolution.js';
+import { validerOrdre, poser, deplacer, passer, rien, lot, posesMaxParTour } from '../engine/ordres.js';
+import { resoudreTour, executer, fermeturesDe, lotValide } from '../engine/resolution.js';
 
 /** Poids « forte de base » (choisis à la main avant tuning). Les noms sont ceux du rapport. */
 export const POIDS_BASE = Object.freeze({
@@ -496,6 +496,7 @@ const cleOrdre = (o) => (o.type === 'poser' ? 'p' + o.croisement : o.type === 'd
  */
 export function choisirOrdre(etat, joueur, rng, options = {}) {
   if (etat.fini) return rien();
+  if (etat.params.ordres === 'pion') return choisirLot(etat, joueur, rng, options);
   const definies = Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined));
   const opts = { ...OPTIONS_DEFAUT, ...definies, poids: { ...POIDS_BASE, ...(options.poids || poidsActifs()) } };
   const w = opts.poids;
@@ -657,4 +658,194 @@ export function equilibreMatrice(M, iterations = 400) {
   }
   const t = sL.reduce((a, b) => a + b, 0);
   return Array.from(sL, (v) => v / t);
+}
+
+// ---------------------------------------------------------------------------
+// Mode `ordres = pion` (piste CDP 03/11) : un ordre par pion + poses. Combinatoire maîtrisée :
+//  1. recherche PAR UNITÉ : pour chaque pion, ses K meilleurs ordres (pré-tri, puis évaluation de
+//     chacun seul avec le vrai moteur contre un adversaire passif) ; idem pour les poses ;
+//  2. réponses adverses : lot glouton de l'adversaire, variantes tirées au hasard parmi ses meilleurs
+//     ordres par pion, coupures de nos fermetures, Passer ;
+//  3. COORDINATION : recherche locale (montée par coordonnées) sur notre lot, chaque lot étant noté
+//     contre l'échantillon de réponses (maximin/moyenne, comme la matrice du mode joueur), avec le
+//     vrai moteur ; marge de déploiement pour la pose.
+// ---------------------------------------------------------------------------
+
+export const OPTIONS_PION = Object.freeze({ budget: 1000, msMax: 250, kParPion: 4, nPreParPion: 8, nPoses: 6, kPoses: 4, nVariantes: 3, passes: 3 });
+
+/** Meilleurs ordres par unité (pion, pose) de X, évalués seuls avec le moteur. */
+function unitesDe(base, X, w, cpt, rng, o, extraPoses = []) {
+  const ctx = contextePreTri(base, X);
+  const vide = lot();
+  const v0 = valeur(resoudre(base, X, vide, vide, cpt), X, w);
+  const parPion = new Map();
+  const fermants = [];
+  for (const c of base.pions[X]) parPion.set(c, []);
+  const notes = trajetsLegaux(base, X).map((ordre) => {
+    const pre = preScore(base, X, ordre, w, ctx) + (rng ? rng.reel() * 0.01 : 0);
+    const gain = ordre._gain || 0;
+    delete ordre._gain;
+    if (gain > 0) fermants.push({ ordre, gain });
+    return { ordre, pre };
+  });
+  notes.sort((a, b) => b.pre - a.pre);
+  const vus = new Map();
+  for (const t of notes) {
+    const d = t.ordre.chemin[0];
+    const k = vus.get(d) || 0;
+    if (k >= o.nPreParPion) continue;
+    vus.set(d, k + 1);
+    parPion.get(d).push({ ordre: t.ordre, score: valeur(resoudre(base, X, lot(t.ordre), vide, cpt), X, w) });
+  }
+  for (const [d, l] of parPion) parPion.set(d, l.sort((a, b) => b.score - a.score).slice(0, o.kParPion));
+  let poses = [];
+  if (base.reserve[X] > 0) {
+    const pp = posesLegales(base, X).map((ordre) => ({ ordre, pre: preScore(base, X, ordre, w, ctx) + (rng ? rng.reel() * 0.01 : 0) }));
+    pp.sort((a, b) => b.pre - a.pre);
+    const choix = pp.slice(0, o.nPoses).map((x) => x.ordre);
+    for (const e of extraPoses) if (!choix.some((x) => x.croisement === e.croisement) && validerOrdre(base, X, e).ok) choix.push(e);
+    poses = choix.map((ordre) => ({ ordre, score: valeur(resoudre(base, X, lot(ordre), vide, cpt), X, w) })).sort((a, b) => b.score - a.score).slice(0, o.kPoses + extraPoses.length);
+  }
+  return { v0, parPion, poses, fermants };
+}
+
+/** Lot glouton : pour chaque pion, son meilleur ordre s'il bat « rester » et reste compatible ; puis les poses. */
+function lotGlouton(base, X, u, w, rng, tirage = false) {
+  const acc = [];
+  const pions = [...u.parPion.entries()].sort((a, b) => (b[1][0]?.score ?? -1e9) - (a[1][0]?.score ?? -1e9));
+  for (const [, l] of pions) {
+    let cand = l.filter((x) => x.score > u.v0 + 0.01);
+    if (tirage && cand.length) {
+      // variante : un ordre parmi les meilleurs (softmax), ou rester
+      const t = Math.max(0.1, w.temperature);
+      const ps = cand.map((x) => Math.exp((x.score - cand[0].score) / t));
+      const tot = ps.reduce((a, b) => a + b, 0) * 1.25;
+      let r = rng.reel() * tot;
+      const i = ps.findIndex((p) => (r -= p) <= 0);
+      cand = i < 0 ? [] : [cand[i], ...cand.filter((_, j) => j !== i)];
+    }
+    for (const c of cand) if (lotValide(base, X, lot(...acc, c.ordre))) { acc.push(c.ordre); break; }
+  }
+  const max = Math.min(posesMaxParTour(base.params), base.reserve[X]);
+  let n = 0;
+  for (const p of u.poses) {
+    if (n >= max) break;
+    if (p.score < u.v0 - (base.reserve[X] - n >= 2 ? w.deploiement || 0 : 0)) break;
+    if (lotValide(base, X, lot(...acc, p.ordre))) { acc.push(p.ordre); n++; }
+  }
+  return acc;
+}
+
+const cleLot = (l) => l.map(cleOrdre).sort().join('|');
+
+/**
+ * Lot d'ordres de `joueur` en mode `ordres = pion`.
+ * @param {object} [options] { poids, budget (résolutions), msMax, stats, ... OPTIONS_PION }
+ */
+export function choisirLot(etat, joueur, rng, options = {}) {
+  if (etat.fini) return rien();
+  const definies = Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined));
+  const o = { ...OPTIONS_PION, ...(definies.pion || {}) };
+  if (definies.budgetPion !== undefined) o.budget = definies.budgetPion;
+  o.msMax = Math.min(definies.msMax ?? Infinity, o.msMax);
+  const w = { ...POIDS_BASE, ...(options.poids || poidsActifs()) };
+  const P = joueur;
+  const Q = adversaire(P);
+  const cpt = creerCompteur(o);
+  const base = { ...etat, historique: [] };
+
+  // 1. Unités de l'adversaire (pour ses réponses et nos coupures), puis les nôtres.
+  const uQ = unitesDe(base, Q, w, cpt, rng, o);
+  const coupuresP = base.reserve[P] > 0 ? ciblesDeCoupure(base, uQ.fermants, 3).map((c) => poser(c)) : [];
+  const uP = unitesDe(base, P, w, cpt, rng, o, coupuresP);
+
+  // 2. Réponses adverses.
+  const reponses = [];
+  const ajouter = (l, p) => { if (!reponses.some((r) => cleLot(r.l) === cleLot(l))) reponses.push({ l, p }); };
+  const gQ = lotGlouton(base, Q, uQ, w, rng);
+  ajouter(gQ, 0.5);
+  for (let k = 0; k < o.nVariantes; k++) ajouter(lotGlouton(base, Q, uQ, w, rng, true), 0.15);
+  if (base.reserve[Q] > 0) {
+    for (const c of ciblesDeCoupure(base, uP.fermants, 2)) {
+      const pose = poser(c);
+      if (!validerOrdre(base, Q, pose).ok) continue;
+      const l = [...gQ.filter((x) => x.type !== 'poser'), pose];
+      if (lotValide(base, Q, lot(...l))) ajouter(l, w.poids_coupe / 2);
+    }
+  }
+  ajouter([], 0.05);
+  const tot = reponses.reduce((s, r) => s + r.p, 0);
+  for (const r of reponses) r.p /= tot;
+
+  // 3. Coordination : montée par coordonnées sur notre lot.
+  const memo = new Map();
+  const noter = (l) => {
+    const k = cleLot(l);
+    if (memo.has(k)) return memo.get(k);
+    let min = Infinity, moy = 0;
+    for (const r of reponses) {
+      const v = valeur(resoudre(base, P, lot(...l), lot(...r.l), cpt), P, w);
+      if (v < min) min = v;
+      moy += r.p * v;
+    }
+    const s = w.maximin * min + (1 - w.maximin) * moy;
+    memo.set(k, s);
+    return s;
+  };
+  let courant = lotGlouton(base, P, uP, w, rng);
+  let score = noter(courant);
+  const depart = noter([]);
+  if (depart > score) { courant = []; score = depart; }
+  const slots = [...uP.parPion.keys()];
+  const maxPoses = Math.min(posesMaxParTour(base.params), base.reserve[P]);
+  for (let passe = 0; passe < o.passes && cpt.reste(); passe++) {
+    let ameliore = false;
+    for (const d of rng.melanger(slots)) {
+      if (!cpt.reste()) break;
+      const sans = courant.filter((x) => !(x.type === 'deplacer' && x.chemin[0] === d));
+      const alternatives = [sans, ...uP.parPion.get(d).map((x) => [...sans, x.ordre])];
+      for (const l of alternatives) {
+        if (!cpt.reste()) break;
+        if (cleLot(l) === cleLot(courant) || !lotValide(base, P, lot(...l))) continue;
+        const s = noter(l);
+        if (s > score + 1e-9) { courant = l; score = s; ameliore = true; }
+      }
+    }
+    // emplacement « pose » : remplacer, retirer ou ajouter une pose
+    if (maxPoses > 0 && cpt.reste()) {
+      const sansPose = courant.filter((x) => x.type !== 'poser');
+      const nbPoses = courant.length - sansPose.length;
+      const alternatives = [sansPose];
+      for (const p of uP.poses) {
+        alternatives.push([...sansPose, ...courant.filter((x) => x.type === 'poser').slice(1), p.ordre]);
+        if (nbPoses < maxPoses) alternatives.push([...courant, p.ordre]);
+      }
+      for (const l of alternatives) {
+        if (!cpt.reste()) break;
+        if (cleLot(l) === cleLot(courant) || !lotValide(base, P, lot(...l))) continue;
+        const s = noter(l);
+        if (s > score + 1e-9) { courant = l; score = s; ameliore = true; }
+      }
+    }
+    if (!ameliore) break;
+  }
+  // Marge de déploiement (comme 5 ter du mode joueur) : ajouter la meilleure pose si elle coûte moins de
+  // `deploiement` points, tant qu'il reste au moins 2 pions en réserve (1 sert de munition de coupure).
+  if ((w.deploiement || 0) > 0 && base.reserve[P] >= 2 && !courant.some((x) => x.type === 'poser')) {
+    let meilleur = null;
+    for (const p of uP.poses) {
+      const l = [...courant, p.ordre];
+      if (!lotValide(base, P, lot(...l))) continue;
+      const s = noter(l);
+      if (!meilleur || s > meilleur.s) meilleur = { l, s };
+    }
+    if (meilleur && meilleur.s >= score - w.deploiement) { courant = meilleur.l; score = meilleur.s; }
+  }
+  if (options.stats) {
+    options.stats.resolutions = cpt.n;
+    options.stats.reponses = reponses.length;
+    options.stats.score = score;
+    options.stats.lot = courant;
+  }
+  return courant.length ? lot(...courant) : passer();
 }

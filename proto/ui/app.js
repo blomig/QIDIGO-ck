@@ -3,7 +3,7 @@
 
 import {
   creerEtat, resoudreTour, validerOrdre, passer, creerRng, graineAleatoire, seuilCroisements, totalScore, uniteScore,
-  nbCroisements, adversaire, nomJoueur,
+  nbCroisements, adversaire, nomJoueur, lot, validerLotJoueur, listeOrdres, posesMaxParTour, deplacer,
 } from '../engine/index.js';
 import { demanderOrdre } from '../ai/ia.js';
 import { choisirOrdre as choisirFacile } from '../ai/ia-faible.js';
@@ -36,6 +36,26 @@ const S = {
   chrono: { fin: 0, minuteur: null },
   geo: null,
 };
+
+// ---------------------------------------------------------------------------
+// Variante « un ordre par pion » (réglage `ordres` = pion, piste à l'essai 03/11)
+// S.proposition est alors un lot { type: 'lot', ordres } (null s'il est vide).
+// ---------------------------------------------------------------------------
+
+const enPion = () => S.etat.params.ordres === 'pion';
+const ordresProp = () => listeOrdres(S.proposition);
+/** Ordres possibles ce tour : un par pion en jeu, plus les poses permises (limite et réserve). */
+function maxOrdres() {
+  const e = S.etat;
+  return e.pions[S.joueur].length + Math.min(posesMaxParTour(e.params), e.reserve[S.joueur]);
+}
+/** Remplace le lot ; retire les ordres devenus invalides (ex. : trajet qui traversait un pion qui ne part plus). */
+function fixerLot(ordres) {
+  const v = validerLotJoueur(S.etat, S.joueur, lot(...ordres));
+  S.proposition = v.ordres.length ? lot(...v.ordres) : null;
+  return v.rejets;
+}
+const echapper = (t) => String(t).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
 
 // ---------------------------------------------------------------------------
 // Partie
@@ -87,6 +107,10 @@ function consigne() {
   const e = S.etat;
   const reste = e.reserve[S.joueur];
   if (!reste && !e.pions[S.joueur].length) return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : vous n'avez plus aucun pion (${e.retires[S.joueur]} retiré${e.retires[S.joueur] > 1 ? 's' : ''} de la partie). Vous ne pouvez que passer.`;
+  if (enPion()) {
+    const pm = posesMaxParTour(e.params);
+    return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : un ordre par pion. Glissez depuis chacun de vos pions pour le déplacer, touchez un croisement pour poser (${Number.isFinite(pm) ? `${pm} pose${pm > 1 ? 's' : ''} au plus par tour` : 'poses sans limite'}${reste ? `, ${reste} en réserve` : ', réserve vide'}). Touchez un ordre pour l’annuler. Un pion sans ordre passe.`;
+  }
   return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : touchez un croisement pour poser${reste ? ` (${reste} en réserve)` : ' (réserve vide)'}, ou glissez depuis un de vos pions le long des traits.`;
 }
 
@@ -95,7 +119,11 @@ function soumettre(ordre) {
   arreterChrono();
   // choix proto (CDP 03/11) : sans ordre à la fin du chrono, « Passer » est choisi automatiquement.
   const o = ordre || passer();
-  S.ordres[S.joueur] = validerOrdre(S.etat, S.joueur, o).ok ? o : passer();
+  if (enPion()) {
+    // Seuls les ordres valides du lot partent (déjà filtrés à la saisie ; contrôle de sûreté).
+    const v = validerLotJoueur(S.etat, S.joueur, o);
+    S.ordres[S.joueur] = v.ordres.length ? lot(...v.ordres) : passer();
+  } else S.ordres[S.joueur] = validerOrdre(S.etat, S.joueur, o).ok ? o : passer();
   S.proposition = null;
   S.apercu = null;
   if (S.mode === 'ia' && S.niveau === 'facile') {
@@ -182,6 +210,15 @@ function decrireProposition() {
   const n = S.etat.params.grille;
   const nc = (c) => `(${c % n}, ${Math.floor(c / n)})`;
   if (!p) return consigne();
+  if (p.type === 'lot') {
+    const parts = p.ordres.map((x, k) => `${k + 1}) ${x.type === 'poser' ? `poser en ${nc(x.croisement)}` : `${nc(x.chemin[0])} → ${nc(x.chemin.at(-1))}`}`);
+    let t = `Vos ordres : ${parts.join(' ; ')}.`;
+    const adv = S.etat.pions[adversaire(S.joueur)];
+    if (p.ordres.some((x) => x.type === 'deplacer' && x.chemin.slice(1).some((c) => adv.includes(c)))) t += ' Un trajet vise un pion adverse : il n’aboutit que si ce pion part.';
+    if (S.apercu?.gain > 0) t += ` Aperçu (si l’autre passe) : +${S.apercu.gain} ${uniteScore(S.etat.params)}.`;
+    if (S.apercu?.captures.length) t += ` Capture prévue : ${S.apercu.captures.length}.`;
+    return t + ' Touchez un ordre pour l’annuler, « Prêt » pour valider.';
+  }
   let t;
   if (p.type === 'poser') t = `Votre ordre : poser en ${nc(p.croisement)}.`;
   else {
@@ -199,12 +236,70 @@ function decrireProposition() {
   return t + ' Touchez « Prêt » pour valider.';
 }
 
+/** Mode pion : ajoute, remplace ou annule un ordre du lot. */
+function surOrdrePion(ordre, raison, estTap) {
+  const avant = ordresProp();
+  if (estTap) {
+    // Le tap vient d'un croisement libre ou d'une pose prévue (le validerOrdre seul l'a peut-être refusé : on relit).
+    const cible = ordre?.croisement ?? null;
+    const dejaPose = cible != null && avant.some((x) => x.type === 'poser' && x.croisement === cible);
+    if (dejaPose) {
+      fixerLot(avant.filter((x) => !(x.type === 'poser' && x.croisement === cible)));
+      majApercu();
+      S.message = 'Pose annulée. ' + decrireProposition();
+      S.erreur = false;
+      rendre();
+      return;
+    }
+    if (!ordre) {
+      S.message = raison || 'Pose impossible ici.';
+      S.erreur = true;
+      rendre();
+      return;
+    }
+    // Pose : si la limite est atteinte avec une seule pose par tour, la nouvelle remplace l'ancienne.
+    let base = avant;
+    const poses = avant.filter((x) => x.type === 'poser');
+    if (poses.length >= posesMaxParTour(S.etat.params) && posesMaxParTour(S.etat.params) === 1) base = avant.filter((x) => x.type !== 'poser');
+    const v = validerLotJoueur(S.etat, S.joueur, lot(...base, ordre));
+    if (v.rejets.length) {
+      S.message = v.rejets[0].raison;
+      S.erreur = true;
+      rendre();
+      return;
+    }
+    S.proposition = lot(...v.ordres);
+  } else {
+    // Trajet (déjà validé avec le lot) : il remplace l'ordre éventuel du même pion.
+    const rej = fixerLot([...avant.filter((x) => !(x.type === 'deplacer' && x.chemin[0] === ordre.chemin[0])), ordre]);
+    if (rej.length) {
+      S.message = rej[0].raison;
+      S.erreur = true;
+      majApercu();
+      rendre();
+      return;
+    }
+  }
+  majApercu();
+  S.message = decrireProposition();
+  S.erreur = false;
+  rendre();
+}
+
 function installer() {
   installerSaisie($('plateau'), {
     etat: () => S.etat,
     joueur: () => S.joueur,
     actif: () => S.phase === 'saisie',
     geo: () => S.geo,
+    // Mode pion : un tracé se valide avec les autres ordres du lot (il remplace l'ordre éventuel du même pion).
+    validerTrace: (chemin) => {
+      if (!enPion()) return validerOrdre(S.etat, S.joueur, deplacer(chemin));
+      const autres = ordresProp().filter((x) => !(x.type === 'deplacer' && x.chemin[0] === chemin[0]));
+      const v = validerLotJoueur(S.etat, S.joueur, lot(...autres, deplacer(chemin)));
+      if (v.rejets.length) return { ok: false, raison: v.rejets[0].raison };
+      return { ok: true, ordre: v.ordres.find((x) => x.type === 'deplacer' && x.chemin[0] === chemin[0]) };
+    },
     surChemin: (chemin, doigt) => {
       S.chemin = chemin ? chemin.slice() : null;
       S.doigt = doigt;
@@ -212,6 +307,10 @@ function installer() {
       afficherCompteurPas(document.querySelector('.plateau-zone'), $('plateau'), S.etat, S.chemin, S.doigt, S.geo);
     },
     surOrdre: (ordre, raison, estTap) => {
+      if (enPion() && (ordre || estTap)) {
+        surOrdrePion(ordre, raison, estTap);
+        return;
+      }
       if (ordre) {
         // Toucher à nouveau la pose prévue l'annule.
         if (estTap && S.proposition?.type === 'poser' && S.proposition.croisement === ordre.croisement) S.proposition = null;
@@ -227,6 +326,18 @@ function installer() {
     },
     surTapPion: (c) => {
       const p = S.proposition;
+      if (enPion()) {
+        // Toucher un pion qui a un ordre annule cet ordre.
+        const avant = ordresProp();
+        if (avant.some((x) => x.type === 'deplacer' && x.chemin[0] === c)) {
+          const retires = fixerLot(avant.filter((x) => !(x.type === 'deplacer' && x.chemin[0] === c)));
+          majApercu();
+          S.message = 'Ordre annulé. ' + (retires.length ? `${retires.length} autre${retires.length > 1 ? 's' : ''} ordre${retires.length > 1 ? 's' : ''} retiré${retires.length > 1 ? 's' : ''} : ${retires[0].raison} ` : '') + decrireProposition();
+        } else S.message = 'Glissez depuis ce pion le long des traits pour le déplacer.';
+        S.erreur = false;
+        rendre();
+        return;
+      }
       // Variante soutien : toucher un pion voisin du départ le désigne (ou le retire).
       if (S.etat.params.soutien === 'oui' && p?.type === 'deplacer' && c !== p.chemin[0]) {
         const essai = { ...p, soutien: p.soutien === c ? undefined : c };
@@ -256,7 +367,7 @@ function installer() {
   $('btn-effacer').addEventListener('click', () => {
     if (S.phase !== 'saisie') return;
     if (S.proposition) {
-      S.proposition = null;
+      S.proposition = null; // mode pion : efface tous les ordres du lot
       S.apercu = null;
       S.message = consigne();
       S.erreur = false;
@@ -366,7 +477,7 @@ function rendre() {
   if (S.phase === 'saisie') {
     pret.textContent = S.proposition ? 'Prêt' : 'Prêt (sans ordre = Passer)';
     pret.dataset.etat = S.proposition ? 'actif' : 'inactif';
-    eff.textContent = S.proposition ? 'Effacer' : 'Passer';
+    eff.textContent = S.proposition ? (enPion() ? 'Tout effacer' : 'Effacer') : 'Passer';
   } else if (S.phase === 'resultat') {
     pret.textContent = 'Tour suivant';
     pret.dataset.etat = 'actif';
@@ -379,7 +490,10 @@ function rendre() {
     pret.dataset.etat = 'inactif';
   }
   pret.hidden = passage;
-  $('statut').textContent = S.phase === 'saisie' || S.phase === 'ia' ? S.message || consigne() : '';
+  const texteStatut = S.phase === 'saisie' || S.phase === 'ia' ? S.message || consigne() : '';
+  if (enPion() && S.phase === 'saisie') {
+    $('statut').innerHTML = `<span class="ui-ordres" aria-label="${ordresProp().length} ordres donnés sur ${maxOrdres()} possibles">ordres <b>${ordresProp().length}</b>/${maxOrdres()}</span>${echapper(texteStatut)}`;
+  } else $('statut').textContent = texteStatut;
   $('statut').classList.toggle('erreur', S.phase === 'saisie' && S.erreur);
 
   // Résumé du tour résolu (public).

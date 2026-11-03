@@ -16,13 +16,15 @@ export const deplacer = (chemin, soutien) =>
   soutien == null ? { type: 'deplacer', chemin: chemin.slice() } : { type: 'deplacer', chemin: chemin.slice(), soutien };
 export const rien = () => ({ type: 'rien' });
 export const passer = () => ({ type: 'passer' });
+/** Mode `ordres = pion` (piste CDP 03/11) : un lot d'ordres pour un joueur, au plus un par pion + les poses. */
+export const lot = (...ordres) => ({ type: 'lot', ordres: ordres.flat().map((o) => ({ ...o })) });
 
 /**
  * Valide un ordre de `joueur`.
  * @returns {{ok: true, ordre: object} | {ok: false, raison: string}}
  *   `ordre` est l'ordre normalisé (soutien ignoré s'il n'est pas valable).
  */
-export function validerOrdre(etat, joueur, ordre) {
+export function validerOrdre(etat, joueur, ordre, { amisPartants = null } = {}) {
   const p = etat.params;
   const n = p.grille;
   const ko = (raison) => ({ ok: false, raison });
@@ -63,7 +65,9 @@ export function validerOrdre(etat, joueur, ordre) {
       const occ = occupant(etat, ch[k]);
       // Son propre croisement de départ peut être retraversé (boucle, regles-proto.md §1).
       // Un autre pion allié ne bouge pas ce tour (un seul ordre) : il est infranchissable.
-      if (occ === joueur && ch[k] !== ch[0]) return ko('Le trajet passe par un de vos pions.');
+      // Mode `ordres = pion` : un pion ami qui part ce tour (il a lui-même un déplacement dans le lot)
+      // libère son croisement, comme un départ adverse (réglage depart_libere ; voir validerLot).
+      if (occ === joueur && ch[k] !== ch[0] && !amisPartants?.has(ch[k])) return ko('Le trajet passe par un de vos pions.');
       // regles-proto.md v0.2 : un croisement de pion ADVERSE est accepté (ordre conditionnel).
       // décision Lomig 03/11 : la résolution tranche : s'arrêter sur son départ libéré ou le traverser
       // réussit (réglage depart_libere), et un pion qui ne part pas n'est jamais traversé ni rejoint.
@@ -83,3 +87,85 @@ export function validerOrdre(etat, joueur, ordre) {
 /** Vrai si l'ordre est valide (raccourci). */
 export const estValide = (etat, joueur, ordre) => validerOrdre(etat, joueur, ordre).ok;
 
+
+// ---------------------------------------------------------------------------
+// Mode `ordres = pion` (piste « un ordre par pion », CDP 03/11, à valider par Lomig)
+// ---------------------------------------------------------------------------
+
+/** Nombre maximal de poses par tour (réglage `poses_par_tour`). */
+export const posesMaxParTour = (p) => (p.poses_par_tour === 'illimite' ? Infinity : Number(p.poses_par_tour ?? 1));
+
+/** Ordres d'un lot (un ordre seul est accepté comme lot d'un ordre ; passer / rien = aucun ordre). */
+export function ordresDuLot(o) {
+  if (!o) return [];
+  const liste = o.type === 'lot' ? o.ordres || [] : [o];
+  return liste.filter((x) => x && x.type !== 'passer' && x.type !== 'rien');
+}
+
+/**
+ * Conflit entre un ordre et les ordres DÉJÀ acceptés du même joueur (mode pion).
+ * Choix CDP 03/11 (QUESTIONS.md, « Ordres par pion ») : ce qui serait un auto-sabotage est ILLÉGAL À LA SAISIE :
+ *  - un pion ne reçoit qu'un ordre ;
+ *  - deux trajets amis ne se rencontrent pas (segment commun ou croisement commun, avec la même règle que
+ *    entre adversaires, donc le départ qu'un pion ami quitte reste rejoignable/traversable selon depart_libere) ;
+ *    cela couvre aussi deux pions amis qui visent la même arrivée ;
+ *  - pas de pose sur le trajet d'un pion ami (elle le couperait) ; deux poses ne visent pas le même croisement ;
+ *  - au plus `poses_par_tour` poses, et pas plus que la réserve ;
+ *  - (soutien) un pion qui soutient ne se déplace pas, et un pion qui se déplace ne soutient pas.
+ * @returns {string|null} raison du refus
+ */
+export function conflitDansLot(etat, joueur, acceptes, o, rencontre) {
+  const p = etat.params;
+  const traj = acceptes.filter((x) => x.type === 'deplacer');
+  const poses = acceptes.filter((x) => x.type === 'poser');
+  if (o.type === 'deplacer') {
+    if (traj.some((t) => t.chemin[0] === o.chemin[0])) return 'Ce pion a déjà un ordre ce tour.';
+    for (const t of traj) if (rencontre(t.chemin, o.chemin)) return 'Deux de vos trajets se rencontreraient (croisement ou segment commun) : interdit.';
+    for (const x of poses) if (o.chemin.includes(x.croisement)) return 'Ce trajet passe par votre propre pose de ce tour : interdit.';
+    if (o.soutien != null && traj.some((t) => t.chemin[0] === o.soutien)) return 'Le pion qui soutient se déplace déjà : interdit.';
+    if (traj.some((t) => t.soutien === o.chemin[0])) return 'Ce pion soutient déjà un autre trajet : interdit.';
+    return null;
+  }
+  if (o.type === 'poser') {
+    if (poses.length >= posesMaxParTour(p)) return `Au plus ${posesMaxParTour(p)} pose${posesMaxParTour(p) > 1 ? 's' : ''} par tour.`;
+    if (poses.length >= etat.reserve[joueur]) return 'Plus assez de pions en réserve.';
+    if (poses.some((x) => x.croisement === o.croisement)) return 'Deux poses sur le même croisement : interdit.';
+    if (traj.some((t) => t.chemin.includes(o.croisement))) return 'Cette pose couperait votre propre trajet : interdit.';
+    return null;
+  }
+  return 'Type d’ordre inconnu.';
+}
+
+/**
+ * Valide le lot d'un joueur (mode pion), sur l'état au début du tour.
+ * Les ordres sont lus dans l'ordre donné : un ordre en conflit avec un ordre déjà accepté est refusé.
+ * Puis, jusqu'à stabilité : un trajet qui passe par un pion ami doit être le départ d'un autre trajet accepté.
+ * @param rencontre (tA, tB) => bool, la règle de rencontre du moteur (injectée par resolution.js).
+ * @returns {{ordres: object[], rejets: {ordre: object, raison: string}[]}}
+ */
+export function validerLot(etat, joueur, lotOuOrdre, rencontre) {
+  const bruts = ordresDuLot(lotOuOrdre);
+  const departs = new Set(bruts.filter((o) => o?.type === 'deplacer' && Array.isArray(o.chemin)).map((o) => o.chemin[0]));
+  const acceptes = [];
+  const rejets = [];
+  for (const o of bruts) {
+    const autres = new Set([...departs].filter((c) => !(o.type === 'deplacer' && c === o.chemin?.[0])));
+    const v = validerOrdre(etat, joueur, o, { amisPartants: autres });
+    if (!v.ok) { rejets.push({ ordre: o, raison: v.raison }); continue; }
+    const r = conflitDansLot(etat, joueur, acceptes, v.ordre, rencontre);
+    if (r) rejets.push({ ordre: o, raison: r });
+    else acceptes.push(v.ordre);
+  }
+  // Un trajet qui traverse ou rejoint un pion ami n'est valable que si ce pion part (trajet accepté).
+  for (let change = true; change;) {
+    change = false;
+    const partent = new Set(acceptes.filter((x) => x.type === 'deplacer').map((x) => x.chemin[0]));
+    const i = acceptes.findIndex((x) => x.type === 'deplacer' && x.chemin.some((c, k) => k > 0 && c !== x.chemin[0] && occupant(etat, c) === joueur && !partent.has(c)));
+    if (i >= 0) {
+      rejets.push({ ordre: acceptes[i], raison: 'Le trajet passe par un de vos pions qui ne part pas.' });
+      acceptes.splice(i, 1);
+      change = true;
+    }
+  }
+  return { ordres: acceptes, rejets };
+}
