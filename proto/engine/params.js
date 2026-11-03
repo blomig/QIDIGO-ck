@@ -40,6 +40,10 @@ export const REGLAGES = [
   { id: 'traces', groupe: 'variante', libelle: 'Rôle des traces', type: 'choix', defaut: 'bord_de_zone',
     valeurs: [['bord_de_zone', 'Bords de zone'], ['decoratives', 'Décoratives']],
     description: '« Bords de zone » : murs = bord + toutes vos traces. « Décoratives » : murs = bord + votre seul trajet de ce tour (une zone se ferme en un trajet). Q11.' },
+  // demande CDP 03/11 (Q7, en attente de Lomig) : quelles régions sont des zones. « actuel » reste le défaut.
+  { id: 'zone_regle', groupe: 'variante', libelle: 'Qu’est-ce qu’une zone (Q7)', type: 'choix', defaut: 'actuel',
+    valeurs: [['actuel', 'Tout sauf la plus grande région'], ['sans_pion_adverse', 'Sans pion adverse à l’intérieur'], ['dehors_non_possede', 'Dehors = le plus de cases non possédées'], ['moitie_libre', 'Au plus la moitié des cases non possédées']],
+    description: 'Q7, en attente de Lomig. Vos murs découpent le plateau en régions. « Tout sauf la plus grande région » (défaut, règle actuelle) : toutes les autres sont des zones. « Sans pion adverse » : en plus, une région qui a un pion adverse sur un croisement intérieur (ses 4 cases dans la région, pas sur son bord) n’est pas une zone. « Dehors = le plus de cases non possédées » : le dehors est la région qui a le plus de cases que vous ne possédez pas. « Au plus la moitié » : en plus, une zone fait au plus la moitié des cases que vous ne possédez pas encore.' },
   // décision Lomig 03/11 : reprise = oui par défaut (on garde « non » dans les Réglages).
   { id: 'reprise', groupe: 'variante', desactivee: 'non', libelle: 'Reprise de territoire', type: 'choix', defaut: 'oui',
     valeurs: [['non', 'Désactivée'], ['oui', 'Activée']],
@@ -93,7 +97,7 @@ export const REGLAGES = [
   // l'ancien choix CDP « arrivée seulement » reste disponible pour le tester.
   { id: 'depart_libere', groupe: 'cdp', libelle: 'Départ libéré d’un pion adverse', type: 'choix', defaut: 'traversee',
     valeurs: [['traversee', 'On peut s’y arrêter ou le traverser'], ['arrivee_seule', 'On peut seulement s’y arrêter']],
-    description: 'Décision de Lomig (03/11). Un pion peut entrer sur le croisement qu’un pion adverse quitte pendant le même tour : s’y arrêter, ou aussi le traverser (défaut, comme regles-proto v0.2). Avec « seulement s’y arrêter », y passer est une rencontre qui coupe les deux trajets. Si le pion adverse ne part pas (il ne bouge pas ou son ordre est annulé), l’ordre qui visait ou traversait son croisement est annulé, en chaîne. Une pose sur ce départ coupe toujours les deux ordres (choix du CDP).' },
+    description: 'Décision de Lomig (03/11). Un pion peut entrer sur le croisement qu’un pion adverse quitte pendant le même tour : s’y arrêter, ou aussi le traverser (défaut, comme regles-proto v0.2). Avec « seulement s’y arrêter », y passer est une rencontre qui coupe les deux trajets. Si le pion adverse ne part pas (il ne bouge pas ou son ordre est annulé), l’ordre qui visait ou traversait son croisement est annulé, en chaîne. On ne peut pas POSER sur ce départ : une pose sur un croisement occupé est interdite (décision de Lomig 03/11, Q10).' },
   { id: 'annulations_chaine', groupe: 'cdp', libelle: 'Annulations en chaîne', type: 'choix', defaut: 'oui', fixe: true,
     valeurs: [['oui', 'Oui, jusqu’à stabilité']], description: 'Une annulation peut en entraîner une autre (ex. : le pion qui devait partir reste, l’arrivée adverse sur son croisement est annulée). On recommence jusqu’à ce que plus rien ne change.' },
 ];

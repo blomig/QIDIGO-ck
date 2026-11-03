@@ -138,12 +138,9 @@ export function resoudreCoupures(etat, ordres) {
       const c = pose(P);
       const t = trajet(Q);
       if (c == null || !t || !t.includes(c)) continue;
-      if (c === t[0]) {
-        // choix proto (CDP 03/11) : une pose sur le départ d'un pion qui bouge le coupe toujours,
-        // et les deux ordres sont annulés (l'exception du départ libéré ne vaut pas pour les poses).
-        annuler(Q, 'COUPURE', `${nomJoueur(P)} pose sur son croisement de départ ${nc(c)}.`);
-        annuler(P, 'COUPURE', `pose sur le départ ${nc(c)} d’un pion qui bouge : les deux ordres sont annulés.`);
-      } else if (soutenu(Q)) {
+      // décision Lomig 03/11 (Q10) : une pose sur le départ t[0] est illégale (croisement occupé au
+      // début du tour, refusée par validerOrdre), donc c est un croisement libre du trajet.
+      if (soutenu(Q)) {
         // Soutien (§3) : une pose sur un trajet soutenu ne le coupe pas ; la pose est annulée.
         annuler(P, 'COUPURE', `pose en ${nc(c)} sur un trajet soutenu : le trajet s’exécute.`);
       } else {
@@ -271,16 +268,46 @@ export function regions(n, estMur) {
 }
 
 /**
- * Zones de P : toutes les régions sauf la (les) plus grande(s) (choix proto `dehors_egalite`).
+ * Zones de P : toutes les régions sauf le dehors, la (les) plus grande(s) (choix proto `dehors_egalite`).
  * Réglage `traces` : « bord_de_zone » -> murs = bord + segments de couleur P ;
  * « decoratives » -> murs = bord + segments du seul trajet de P à ce tour.
+ * Réglage `zone_regle` (Q7, demande CDP 03/11, défaut « actuel » inchangé) :
+ * - actuel : dehors = plus grande(s) région(s) en nombre de cases ;
+ * - sans_pion_adverse : idem, et une région avec un pion adverse sur un croisement INTÉRIEUR
+ *   (ses 4 cases dans la région) n'est pas une zone. Choix : un pion sur le bord de la région
+ *   (sur un mur de P ou au bord du plateau) ne l'empêche pas (à confirmer) ;
+ * - dehors_non_possede : dehors = la (les) région(s) qui ont le plus de cases non possédées par P ;
+ * - moitie_libre : idem actuel, et une zone fait au plus la moitié des cases que P ne possède pas
+ *   (taille = toutes ses cases, comparée au nombre de cases du plateau non possédées par P).
+ * Les pions lus sont ceux de l'état passé (après les déplacements et poses du tour, avant captures).
  */
 export function zonesDe(etat, P, trajetP = new Set()) {
   const n = etat.params.grille;
   const estMur = etat.params.traces === 'decoratives' ? (s) => trajetP.has(s) : (s) => etat.couleurs[s] === P;
   const rs = regions(n, estMur);
+  const regle = etat.params.zone_regle || 'actuel';
+  const nonPossede = (r) => r.reduce((t, k) => t + (etat.proprietaires[k] === P ? 0 : 1), 0);
+  if (regle === 'dehors_non_possede') {
+    const tailles = rs.map(nonPossede);
+    const max = Math.max(...tailles);
+    return rs.filter((_, i) => tailles[i] < max);
+  }
   const max = Math.max(...rs.map((r) => r.length));
-  return rs.filter((r) => r.length < max);
+  let zs = rs.filter((r) => r.length < max);
+  if (regle === 'sans_pion_adverse') {
+    const Q = adversaire(P);
+    zs = zs.filter((z) => {
+      const dans = new Set(z);
+      return !etat.pions[Q].some((c) => {
+        const cases = casesAutourCroisement(n, c);
+        return cases.length === 4 && cases.every((k) => dans.has(k));
+      });
+    });
+  } else if (regle === 'moitie_libre') {
+    const libres = etat.proprietaires.reduce((t, p) => t + (p === P ? 0 : 1), 0);
+    zs = zs.filter((z) => 2 * z.length <= libres);
+  }
+  return zs;
 }
 
 /**

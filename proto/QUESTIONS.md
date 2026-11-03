@@ -9,8 +9,20 @@ Le code les marque `// A CONFIRMER (regles-proto.md)`.
    CDP) : par défaut, on peut s'arrêter sur le croisement que quitte un pion adverse, ou le traverser,
    comme dans la v0.2. Si ce pion ne part pas, l'ordre qui visait ou traversait son croisement est
    annulé, en chaîne. Réglage `depart_libere` = `traversee` (défaut) | `arrivee_seule`.
-5. **IA** : close. Pas d'IA plus forte pour l'instant. L'IA « faible » joue au hasard des ordres
-   toujours légaux, passe environ une fois sur 20 et n'utilise pas le soutien.
+5. **IA** : niveau Fort (défaut, ai/ia-forte.js) et Facile (ai/ia-faible.js : ordres légaux au hasard,
+   Passer environ une fois sur 20, pas de soutien).
+10. **Pose sur un croisement occupé (veto gratuit)** : Lomig a tranché (décision relayée par le CDP).
+    On ne peut pas poser sur un croisement occupé par un pion, à soi ou à l'adversaire. La pose sur
+    le départ d'un pion adverse est donc interdite : l'ordre est illégal, refusé à la validation et
+    remplacé par « rien » s'il arrive quand même au moteur.
+    - Cela remplace l'ordre conditionnel de regles-proto.md v0.2 (étape 2) et le choix du CDP « une pose
+      sur le départ coupe les deux ordres ».
+    - Motif : au banc, l'IA forte posait chaque tour sur le départ du seul pion adverse en jeu. La pose
+      était annulée sans coûter de pion, et 10 parties sur 12 finissaient 0–0.
+    - Interprétation retenue (la plus littérale), à confirmer : l'occupation se lit au début du tour,
+      quand on donne les ordres. Un croisement que son pion quitte pendant le tour reste interdit à la
+      pose. Seul un déplacement peut y arriver (départ libéré). Un croisement libre au début du tour
+      reste posable, même si un pion adverse y arrive pendant le tour ; c'est alors une coupure (étape 3b).
 
 ## Réglage provisoire validé par le CDP
 
@@ -65,7 +77,21 @@ Point flou, avec une interprétation provisoire mise en réglage :
         adverse n'est pas une zone. Tour 11 : +0, A reste à 58, la partie continue.
      3. **Zone plafonnée** : une zone fait au plus la moitié des cases que P ne possède pas encore.
         Tour 11 : +8, A 73.
-   Lomig tranche. Rien n'est changé dans le moteur.
+   - **Réglage `zone_regle` (demande du CDP, 03/11)** : les trois options sont maintenant dans le moteur,
+     pour les essayer. Le défaut reste `actuel` (dehors = plus grande région) : rien ne change sans
+     action dans les Réglages. Valeurs : `actuel` | `sans_pion_adverse` | `dehors_non_possede` |
+     `moitie_libre`.
+     - `sans_pion_adverse`, choix à confirmer : « contient » = un pion adverse sur un croisement
+       **intérieur** de la région (ses 4 cases dans la région). Un pion sur le bord de la région, sur
+       un mur de P ou au bord du plateau, ne l'empêche pas. Au tour 11, cela donne +8 (A 73), pas +0 :
+       le pion B en (0,2) est sur le bord du plateau, donc sur le bord du morceau de 8. Avec « touche »
+       (la simulation ci-dessus), on aurait +0.
+     - `moitie_libre`, choix à confirmer : la taille d'une zone est son nombre total de cases. On la
+       compare au nombre de cases du plateau que P ne possède pas. Le dehors (plus grande région) est
+       exclu comme dans `actuel`.
+     - `dehors_non_possede` : à égalité, toutes les régions en tête sont le dehors (comme `dehors_egalite`).
+     - Les pions lus sont ceux d'après les déplacements et les poses du tour (étape 5), avant les captures.
+   Lomig tranche.
 
 8. **Valeur par défaut de `reprise`** : le tableau de regles-proto.md §3 indique `non`, la décision
    de Lomig (03/11) donne `oui`. Le proto suit Lomig. La partie de Lomig a été jouée avec `non` (le
@@ -73,20 +99,3 @@ Point flou, avec une interprétation provisoire mise en réglage :
 
 9. **Journal de Lomig, tour 10** : le journal ne donne que le départ et l'arrivée. Sept trajets
    différents donnent le même résultat. Le test garde le premier (tests/journaux/lomig-2026-11-03-ordres.json).
-
-10. **Blocage gratuit par une pose sur le départ** (observé au banc, IA forte contre IA forte).
-    Grille 9, reprise oui, 12 parties : 10 sur 12 finissent 0–0 au tour 20, pour 38 coupures par partie.
-    Validation du tuning : 316 nuls sur 400.
-    - Le schéma : un joueur pose chaque tour sur le croisement de départ du seul pion adverse en jeu.
-      Règle (choix du CDP, réglage `depart_libere`) : « Une pose sur ce départ coupe toujours les deux ordres. »
-    - La pose est annulée, donc la réserve ne baisse pas et ce veto ne coûte rien. Il se répète à
-      l'infini : l'autre joueur ne bouge plus et personne ne marque.
-    - `pose_coupante = maintenue` ne change rien, car le départ est un cas à part.
-    - Options :
-      1. Le veto coûte un pion : la pose sur un départ est maintenue (le pion est posé) ou le pion est perdu.
-      2. La pose sur un départ ne coupe que le déplacement adverse, sans être annulée : elle a lieu sur le
-         croisement libéré.
-      3. Pas deux fois de suite sur le même pion : on ne peut pas poser sur le départ du même pion deux tours de suite.
-    Avec plusieurs pions en jeu, on ne bloque qu'un pion par tour. Le blocage total vient de l'IA, qui
-    garde ses pions en réserve. C'est un point à corriger côté IA (voir le rapport du banc). La règle,
-    elle, rend ce veto gratuit.

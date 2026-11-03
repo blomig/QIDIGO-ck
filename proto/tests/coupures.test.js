@@ -1,7 +1,7 @@
 // Coupures de base (regles-proto.md §1 et étape 3) et décisions CDP du 03/11.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resoudreTour, poser, deplacer, rien, cleSegment } from '../engine/index.js';
+import { resoudreTour, poser, deplacer, rien, cleSegment, validerOrdre, creerEtat, creerRng } from '../engine/index.js';
 import { etatAvec, ch, cr, codes } from './aide.js';
 
 const n = 9;
@@ -172,24 +172,51 @@ test('CDP : mouvement annulé, l’autre ne peut pas finir sur le croisement res
   assert.match(chaine[1].texte, /Joueur A.*\(3, 2\) ne bouge pas/);
 });
 
-test('CDP : pose adverse sur le départ d’un pion qui bouge -> les deux ordres annulés', () => {
+// décision Lomig 03/11 (Q10) : on ne pose pas sur un croisement occupé (pion à soi ou adverse).
+// L'ancien « veto » (pose sur le départ d'un pion qui bouge -> les deux ordres annulés) est impossible.
+test('Lomig Q10 : pose sur le départ d’un pion adverse qui bouge -> ordre illégal, le déplacement a lieu', () => {
   const e = etatAvec({ pions: { A: [[2, 2]] } });
+  const v = validerOrdre(e, 'B', poser(cr(n, 2, 2)));
+  assert.equal(v.ok, false);
+  assert.match(v.raison, /occupé par un pion adverse/);
   const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2], [4, 2]])), B: poser(cr(n, 2, 2)) });
-  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2)]);
+  // Occupation lue au début du tour : même si le pion part, la pose reste illégale (remplacée par « rien »).
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 4, 2)]);
   assert.deepEqual(r.etat.pions.B, []);
   assert.equal(r.etat.reserve.B, 5);
-  // Même avec pose_coupante = maintenue : l'exception ne vaut pas pour les poses.
+  assert.ok(r.journal.some((x) => x.code === 'INVALIDE' && x.joueur === 'B'));
+  // Idem avec pose_coupante = maintenue.
   const e2 = etatAvec({ pions: { A: [[2, 2]] }, params: { pose_coupante: 'maintenue' } });
   const r2 = resoudreTour(e2, { A: deplacer(ch(n, [[2, 2], [3, 2]])), B: poser(cr(n, 2, 2)) });
   assert.deepEqual(r2.etat.pions.B, []);
-  assert.deepEqual(pos(r2.etat, 'A'), [cr(n, 2, 2)]);
+  assert.deepEqual(pos(r2.etat, 'A'), [cr(n, 3, 2)]);
 });
 
-test('CDP : pose sur un pion adverse qui ne bouge pas -> pose annulée', () => {
+test('Lomig Q10 : pose sur un pion adverse immobile -> ordre illégal, rien n’est posé', () => {
   const e = etatAvec({ pions: { A: [[2, 2]] } });
+  assert.equal(validerOrdre(e, 'B', poser(cr(n, 2, 2))).ok, false);
   const r = resoudreTour(e, { A: rien(), B: poser(cr(n, 2, 2)) });
   assert.deepEqual(r.etat.pions.B, []);
-  assert.ok(r.journal.some((x) => x.code === 'CHAINE'));
+  assert.equal(r.etat.reserve.B, 5);
+  assert.ok(r.journal.some((x) => x.code === 'INVALIDE'));
+});
+
+test('Lomig Q10 : pose sur son propre pion (immobile ou qui part) -> ordre illégal', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]] } });
+  const v = validerOrdre(e, 'A', poser(cr(n, 2, 2)));
+  assert.equal(v.ok, false);
+  assert.match(v.raison, /un de vos pions/);
+  const r = resoudreTour(e, { A: poser(cr(n, 2, 2)), B: rien() });
+  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 2)]);
+  assert.equal(r.etat.reserve.A, 4);
+});
+
+test('Lomig Q10 : un croisement libre reste posable, y compris sur le trajet adverse (coupure 3b)', () => {
+  const e = etatAvec({ pions: { A: [[2, 2]] } });
+  assert.equal(validerOrdre(e, 'B', poser(cr(n, 3, 2))).ok, true);
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2], [4, 2]])), B: poser(cr(n, 3, 2)) });
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2)]);
+  assert.ok(r.journal.some((x) => x.code === 'COUPURE'));
 });
 
 test('CDP : échange par des chemins différents -> les deux réussissent', () => {
@@ -208,4 +235,31 @@ test('CDP : échange par le même segment -> les deux annulés', () => {
   assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2)]);
   assert.deepEqual(pos(r.etat, 'B'), [cr(n, 3, 2)]);
   assert.ok(r.journal.some((x) => x.code === 'RENCONTRE' && /segment/.test(x.texte)));
+});
+
+test('Q10 : les IA faible et forte ne posent jamais sur un croisement occupé', async () => {
+  const { choisirOrdre: faible } = await import('../ai/ia-faible.js');
+  const { choisirOrdre: forteIA } = await import('../ai/ia-forte.js');
+  const { occupant } = await import('../engine/etat.js');
+  let poses = 0;
+  for (const [ia, parties, budget] of [[faible, 20, null], [forteIA, 2, 150]]) {
+    for (let g = 0; g < parties; g++) {
+      let e = creerEtat({ grille: 9 });
+      const rng = creerRng(1000 + g);
+      while (!e.fini) {
+        const ordres = {};
+        for (const j of ['A', 'B']) {
+          const o = budget ? ia(e, j, rng, { budget }) : ia(e, j, rng);
+          if (o.type === 'poser') {
+            poses++;
+            assert.equal(occupant(e, o.croisement), null, `pose sur un croisement occupé (${o.croisement})`);
+          }
+          assert.ok(validerOrdre(e, j, o).ok);
+          ordres[j] = o;
+        }
+        e = resoudreTour(e, ordres).etat;
+      }
+    }
+  }
+  assert.ok(poses > 50);
 });

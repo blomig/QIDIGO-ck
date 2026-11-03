@@ -15,10 +15,10 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
 
 ## Jouer
 
-- **Poser** : touchez un croisement libre (ou un pion adverse : ordre conditionnel).
+- **Poser** : touchez un croisement **libre**. On ne pose jamais sur un croisement occupé, ni par un de ses pions ni par un pion adverse, même si ce pion part pendant le tour (décision de Lomig, 03/11, Q10). Un tap sur un pion ne pose rien.
 - **Départ libéré** (décision de Lomig, 03/11) : un pion peut s'arrêter sur le croisement que quitte un pion adverse, ou le traverser.
   Si ce pion ne part pas, l'ordre est annulé, en chaîne. Le réglage `depart_libere` permet de tester « seulement s'y arrêter ».
-  Une pose sur le départ d'un pion qui bouge coupe toujours les deux ordres (choix du CDP).
+  Seuls les déplacements peuvent viser ce départ : la pose y est interdite (croisement occupé).
 - **Déplacer** : glissez depuis un de vos pions le long des traits. Revenir en arrière efface le dernier segment.
   Un déplacement fait **au plus 5 pas** (5 segments, décision de Lomig du 03/11, réglage `trajet_max` : illimité, 3, 4, 5 ou 7).
   Près du doigt, un compteur affiche « 3/5 ». À la limite, il passe en accent (« 5/5 MAX ») et le tracé ne s'allonge plus.
@@ -31,6 +31,8 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
   On reprend donc un territoire par morceaux. Les cases reprises clignotent dans la couleur du nouveau propriétaire, puis gardent un liseré accent.
   Avec prefers-reduced-motion, elles sont seulement teintées. Le journal l'indique (« Joueur A reprend 2 cases à Joueur B. »).
   Le réglage permet de revenir à `non`. Une reprise disputée au même tour est réglée par `reprise_meme_tour` (provisoire, voir QUESTIONS.md).
+- **Qu'est-ce qu'une zone** (`zone_regle`, Q7 en attente de Lomig) : par défaut, `actuel` (le dehors est la plus grande région).
+  Trois options sont à essayer dans les Réglages : `sans_pion_adverse`, `dehors_non_possede` et `moitie_libre` (voir QUESTIONS.md).
 - Pendant votre saisie, **l'aperçu** montre en pointillé la zone fermée et le gain prévu, en supposant que l'autre passe.
 - **Modes** : contre l'IA (vous êtes A, noir) ou à deux sur le même téléphone. Dans ce mode, un écran de passage masque l'ordre de l'autre.
 - **Niveau de l'IA** (Réglages, appliqué avec Rejouer) : **Fort** par défaut (`ai/ia-forte.js`), ou **Facile** (`ai/ia-faible.js`, au hasard).

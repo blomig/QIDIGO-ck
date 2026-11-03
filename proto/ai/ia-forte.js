@@ -327,10 +327,12 @@ function preScore(etat, P, ordre, poids, ctx) {
 
 /**
  * Cibles de coupure : croisements par où passent le plus de fermetures adverses (pondérées par leur gain).
- * Le départ d'un pion compte pour tous ses trajets : une pose dessus annule les deux ordres (moteur, 3b) ;
- * un croisement intérieur coupe le trajet.
+ * décision Lomig 03/11 (Q10) : on ne pose pas sur un croisement occupé (départ d'un pion qui bouge
+ * compris). Les appelants passent chaque cible par validerOrdre, qui écarte ces poses : l'IA ne les
+ * génère jamais. On ne les retire pas ici, exprès : les retirer en amont ajoute d'autres coupures
+ * à la recherche (budget fixe) et, dans la partie de Lomig, la forte ne bloque plus le tour 9.
  */
-function ciblesDeCoupure(fermants, nb) {
+function ciblesDeCoupure(_etat, fermants, nb) {
   const poidsC = new Map();
   for (const { ordre, gain } of fermants) {
     for (const c of new Set(ordre.chemin)) poidsC.set(c, (poidsC.get(c) || 0) + gain);
@@ -412,7 +414,7 @@ export function choisirOrdre(etat, joueur, rng, options = {}) {
   const tete = nous.classes.map((x) => x.ordre);
   const coupures = [];
   if (base.reserve[P] > 0) {
-    for (const c of ciblesDeCoupure(eux.fermants, 4)) {
+    for (const c of ciblesDeCoupure(base, eux.fermants, 4)) {
       const o = poser(c);
       if (validerOrdre(base, P, o).ok && ![...tete, ...coupures].some((x) => cleOrdre(x) === cleOrdre(o))) coupures.push(o);
     }
@@ -434,7 +436,7 @@ export function choisirOrdre(etat, joueur, rng, options = {}) {
   const sommeQ = reponses.reduce((s, r) => s + r.poids, 0) || 1;
   for (const r of reponses) r.poids /= sommeQ;
   if (base.reserve[Q] > 0) {
-    for (const c of ciblesDeCoupure(nous.fermants, 3)) {
+    for (const c of ciblesDeCoupure(base, nous.fermants, 3)) {
       const o = poser(c);
       if (validerOrdre(base, Q, o).ok && !reponses.some((r) => cleOrdre(r.ordre) === cleOrdre(o))) reponses.push({ ordre: o, poids: w.poids_coupe / 3 });
     }

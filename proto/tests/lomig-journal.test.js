@@ -1,27 +1,27 @@
 // Non-régression : la partie de Lomig contre l'IA faible (03/11, graine 2761909367, 9×9).
 // Elle a été jouée avec reprise = non (défaut publié à ce moment-là ; le journal ne contient aucune
 // reprise, et avec reprise = oui la partie diverge au tour 9). On la rejoue donc avec ce réglage.
-// Les ordres de A sont reconstitués depuis le journal (tests/journaux/lomig-2026-11-03-ordres.json).
+// Les ordres de A sont reconstitués depuis le journal, ceux de B figés (tests/journaux/lomig-2026-11-03-ordres.json).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { creerEtat, resoudreTour, creerRng, passer } from '../engine/index.js';
-import { choisirOrdre as faible } from '../ai/ia-faible.js';
+import { creerEtat, resoudreTour, creerRng, passer, validerOrdre } from '../engine/index.js';
+
 import { choisirOrdre as forte } from '../ai/ia-forte.js';
 
 const L = JSON.parse(fs.readFileSync(new URL('./journaux/lomig-2026-11-03-ordres.json', import.meta.url)));
 const TXT = fs.readFileSync(new URL('./journaux/lomig-2026-11-03-graine-2761909367.txt', import.meta.url), 'utf8');
 const casesA = (e) => e.proprietaires.filter((p) => p === 'A').length;
 
-/** Positions réelles de la partie (début de chaque tour) et ordres de B de l'IA faible. */
+/** Positions réelles de la partie (début de chaque tour), avec les ordres de B figés (IA faible d'alors). */
 function rejouer() {
   let e = creerEtat(L.params);
-  const rng = creerRng(L.graine);
   const etats = [];
   const journaux = [];
-  for (const oA of L.ordresA) {
+  for (const [t, oA] of L.ordresA.entries()) {
     etats.push(e);
-    const r = resoudreTour(e, { A: oA, B: faible(e, 'B', rng) });
+    assert.ok(validerOrdre(e, 'B', L.ordresB[t]).ok, `ordre figé de B illégal au tour ${t + 1}`);
+    const r = resoudreTour(e, { A: oA, B: L.ordresB[t] });
     journaux.push(r.journal);
     e = r.etat;
   }

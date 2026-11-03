@@ -35,11 +35,12 @@ export function validerOrdre(etat, joueur, ordre) {
     if (!estCroisementValide(n, c)) return ko('Croisement hors grille.');
     if (etat.reserve[joueur] <= 0) return ko('Plus de pion en réserve.');
     const occ = occupant(etat, c);
+    // décision Lomig 03/11 (Q10) : on ne pose pas sur un croisement occupé par un pion, à soi ou à
+    // l'adversaire. L'occupation se lit au début du tour, quand les ordres sont donnés : un croisement
+    // que son pion quitte pendant ce tour reste interdit à la pose (lecture littérale, voir QUESTIONS.md).
+    // (Remplace l'ordre conditionnel de regles-proto.md v0.2 étape 2 et le « veto » sur un départ.)
     if (occ === joueur) return ko('Croisement occupé par un de vos pions.');
-    // regles-proto.md v0.2 étape 2 : c vide, ou occupé par un pion ADVERSE (ordre conditionnel).
-    // choix proto (CDP 03/11) : une telle pose n'aboutit jamais : soit le pion part et la pose
-    // coupe son trajet (les deux ordres sont annulés), soit il reste et la pose est annulée.
-    // (v0.2 la faisait aboutir si le pion part : voir la résolution.)
+    if (occ) return ko('Croisement occupé par un pion adverse : on ne pose que sur un croisement libre.');
     return { ok: true, ordre: poser(c) };
   }
 
