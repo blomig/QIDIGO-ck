@@ -1,6 +1,6 @@
-# QIDIGO — base de K (tour 1)
+# QIDIGO — base de K (tour 2)
 
-Date : 2026-11-03. 166 K : 92 reprises du Jeu du siècle, 74 propres à QIDIGO (dépôt, Lomig via CDP, externes, déductions).
+Date : 2026-11-03. 203 K : 92 reprises du Jeu du siècle, 111 propres à QIDIGO (dépôt, Lomig via CDP, externes, déductions), dont 37 ajoutées au tour 2 (K167 et suivantes).
 Statuts : sûre (source vérifiée ou décision), à creuser (source secondaire ou partielle), évoquée (opinion).
 Vocabulaire du dépôt : pion, trajet, croisement.
 
@@ -92,6 +92,30 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : règles du JdS. Sources : /workspace/jds-patch-out/regles-v0.3-recharge.patch, R-5.2b (JdS)
 - **K110 — JdS : bouton « Prêt » pour finir sa planification avant le chrono (proposition)** [à creuser] : Règles v0.3 du JdS, R-5.3, PROPOSITION P-19 (pas une décision) : un bouton « Prêt » met fin à la planification ; contre l'IA, la résolution démarre aussitôt.
   - Origine : règles du JdS. Sources : /workspace/jds-patch-out/regles-v0.3-recharge.patch, R-5.3 (JdS)
+- **K167 — Q1 a : on gagne du terrain en fermant des zones avec ses trajets, comme dans Qix** [sûre] : Réponse de Lomig à Q1 : a). Le terrain se gagne par fermeture de zones par les trajets.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K168 — Q2 a : deux trajets se coupent s'ils passent par un même croisement ou un même segment, quel que soit le moment** [sûre] : Réponse de Lomig à Q2 : a). Pas de résolution pas à pas : le moment du passage ne compte pas.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K169 — Q3 a : poser un pion sur le trajet adverse le coupe** [sûre] : Réponse de Lomig à Q3 : a). Ce que devient la pose elle-même (a-t-elle lieu ?) n'est pas dit.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K170 — Q4 a : on capture un pion en l'enfermant dans une zone fermée** [sûre] : Réponse de Lomig à Q4 : a). Le pion capturé retourne dans la réserve de son propriétaire (décision du tour 1).
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K171 — Q5 a : un pion capturé se rejoue dès le tour suivant** [sûre] : Réponse de Lomig à Q5 : a). Raison donnée : le joueur choisit déjà entre poser et bouger, donc reposer un pion coûte l'ordre du tour.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K172 — Q6 a : fin au premier des deux, N tours ou X %** [sûre] : Réponse de Lomig à Q6 : a).
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K173 — Q7 a : X % se compte en croisements contrôlés, sur 81 ; seuil de test 75 %, soit 61 croisements** [sûre] : Réponse de Lomig à Q7 : a). Ce qui compte comme « contrôlé » (frontière de la zone ou non) reste à préciser.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K174 — Q8 : 20 tours de 20 s, soit environ 6 min 40 s hors résolution** [sûre] : Réponse de Lomig à Q8 : 20 tours de 20 s. CDP a remplacé les 15 s de l'option proposée, parce que Lomig avait trouvé 15 s trop rapide dans le Jeu du siècle (voir la K suivante).
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K175 — Lomig a trouvé 15 s par tour trop rapide dans le Jeu du siècle** [sûre] : Selon CDP (03/11/2026) : Lomig avait trouvé 15 s trop rapide au JdS. Cohérent avec le Jeu du siècle, où le chrono est passé de 15 s (K32, « 15s? ») à 30 s (R-5.2b des règles v0.3 du JdS, décision de Lomig du 31/10/2026 relayée par CDP). Provenance : CDP, pas un écrit de Lomig.
+  - Origine : Lomig via CDP (tour 2). Sources : CDP, 03/11/2026, à propos de la réponse de Lomig à Q8 ; règles v0.3 du JdS, R-5.2b (/workspace/jds-patch-out/regles-v0.3-recharge.patch)
+- **K176 — Q9 : 5 pions ; la réflexion sur les zones reste ouverte** [sûre] : Réponse de Lomig à Q9 : 5 pions. Mais il veut laisser ouverte la réflexion sur les zones : qu'est-ce qu'une zone, peut-on en créer à plusieurs pions, etc. C'est un axe d'exploration C important.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K177 — Q10 b : on déplace en glissant le doigt le long des traits** [sûre] : Réponse de Lomig à Q10 : b), en tenant compte de la taille des croisements (43,7 pt) : aimantation aux traits, tolérance, etc.
+  - Origine : Lomig via CDP (tour 2). Sources : décision de Lomig du 03/11/2026 (entre 7 h 18 et 7 h 26), relayée par CDP dans sa formulation (pas une citation)
+- **K178 — Le C-K est public et commenté (giscus), un fil par C, K et Q** [sûre] : Selon CDP (03/11/2026) : le C-K est publié sur https://blomig.github.io/QIDIGO-ck/ (dépôt public blomig/QIDIGO-ck), avec un fil GitHub Discussions par C, par K et par Q. Au 03/11/2026 à 7 h 30, le dépôt n'a encore aucune discussion.
+  - Origine : Lomig via CDP (tour 2). Sources : CDP, 03/11/2026 ; https://github.com/blomig/QIDIGO-ck/discussions
 
 ## S — Simultanéité et ordres (Diplomacy)
 
@@ -167,6 +191,12 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : externe. Sources : https://en.wikipedia.org/wiki/Volfied
 - **K125 — JezzBall : capturer en divisant l'espace par des lignes** [sûre] : JezzBall (Windows, 1992) : on capture des parties d'un rectangle en le divisant par des lignes horizontales ou verticales.
   - Origine : externe. Sources : https://en.wikipedia.org/wiki/JezzBall
+- **K179 — Qix : le marqueur est à l'abri sur les bords et les zones prises ; seul le trait en cours est exposé** [sûre] : Le Qix ne blesse pas le marqueur quand il longe le bord du terrain ou d'une zone capturée ; il lui coûte une vie s'il le touche, ou touche le Stix exposé, pendant un tracé, avant que la zone soit fermée. Les zones capturées se remplissent de couleur et rapportent des points selon leur aire.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Qix
+- **K180 — Qix : séparer deux Qix dans deux régions finit le niveau** [sûre] : À partir du niveau 3, il y a deux Qix ; partager le terrain en deux régions contenant chacune un Qix termine le niveau. Au-delà du seuil (75 %, réglable de 50 à 90 %), chaque point de pourcentage en plus rapporte un bonus.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Qix
+- **K181 — Volfied : le côté qui contient l'ennemi principal est « l'extérieur »** [sûre] : Quand le joueur réclame une partie du niveau, le côté qui contient l'ennemi principal est pris comme « l'extérieur » ; les petits ennemis qui se retrouvent « à l'intérieur » sont tués. C'est la règle qui décide quel côté d'une coupure est pris.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Volfied
 
 ## T — Tracés, territoire et capture
 
@@ -206,6 +236,16 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : externe. Sources : https://en.wikipedia.org/wiki/Ludo
 - **K143 — Shogi : les pièces prises sont parachutées par le preneur** [sûre] : Au shogi, les pièces capturées restent en main du preneur, qui peut les reposer plus tard. Contraste avec QIDIGO, où le pion revient à son propriétaire.
   - Origine : externe. Sources : https://en.wikipedia.org/wiki/Shogi
+- **K182 — Paper.io 2 : sortir de son territoire trace une traînée ; y revenir capture tout ce qu'elle entoure** [sûre] : Règles officielles : on quitte son territoire pour tracer une traînée, on y revient pour capturer tout ce qu'elle entoure ; la traînée est le point faible : si un autre joueur la touche avant qu'elle soit fermée, on est éliminé. On n'est à l'abri que dans son territoire. Victoire : 100 % de la carte, ou éliminer les rivaux.
+  - Origine : externe (tour 2). Sources : https://support.paper.io/support/solutions/articles/202000095752-what-are-the-basic-rules-of-paper-io-2-
+- **K183 — Paper.io 2 : le bord de l'arène est l'endroit le plus sûr** [à creuser] : Article de Game Developer (un joueur-auteur) : longer le bord est le plus sûr, aucun ennemi n'y vient ; dans Paper.io 2, toucher le mur ne tue plus (contrairement au premier). Témoignage, d'où « à creuser ».
+  - Origine : externe (tour 2). Sources : https://www.gamedeveloper.com/design/paper-io-2-a-natural-difficulty-curve
+- **K184 — Dots : la chaîne se forme aussi en diagonale ; on ne peut pas entourer une zone vide** [sûre] : Une chaîne de points se forme entre points voisins horizontalement, verticalement ou en diagonale. On ne peut entourer qu'une zone contenant au moins un point adverse ; la zone entourée est exclue du jeu ; les points propres enfermés ne comptent pas.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Dots_(paper-and-pencil_game)
+- **K185 — Dots sur ordinateur : on entoure automatiquement la plus petite zone** [sûre] : Quand plusieurs chaînes sont possibles, les programmes entourent automatiquement la zone minimale pour simplifier la saisie, ce qui peut être exploité tactiquement.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Dots_(paper-and-pencil_game)
+- **K186 — Dots : règle d'ancrage au bord (« grounding »)** [sûre] : En compétition, un groupe de points qui touche le bord ne peut plus être entouré ni capturé. Un joueur peut arrêter la partie : l'autre joue alors autant qu'il veut pour capturer ce qui n'est pas ancré.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Dots_(paper-and-pencil_game)
 
 ## V — Déjà-vu (jeux proches)
 
@@ -235,6 +275,8 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : externe. Sources : https://yorimichi-games.com/en/jintori/
 - **K156 — AtCoder AHC061 (2026) : jeu de territoire simultané, conflits = pièces renvoyées** [sûre] : Concours de programmation : tous les joueurs choisissent leur destination en même temps ; plusieurs pièces sur une case sans propriétaire : toutes renvoyées à leur case de départ ; score après T = 100 tours.
   - Origine : externe. Sources : https://atcoder.jp/contests/ahc061/tasks/ahc061_a?lang=en
+- **K190 — Flow Free : relier des paires de points en traçant des tuyaux sur une grille ; les tuyaux ne se croisent pas** [sûre] : Puzzle mobile : une grille de cases avec des paires de points de couleur ; on trace des tuyaux pour relier chaque paire, de façon à remplir toute la grille ; les tuyaux ne peuvent pas se croiser (sauf ponts dans une extension). Précédent populaire de saisie d'un chemin au doigt sur une grille.
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Flow_Free
 
 ## C — Classement
 
@@ -273,6 +315,14 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : dépôt QIDIGO. Sources : AGENTS.md (dépôt blomig/QIDIGO, commit e88023f)
 - **K109 — JdS : ordres par appui direct sur les cases surlignées, sans mini-menu** [sûre] : Règles v0.3 du JdS, R-13.2 : décision de Lomig du 31/10/2026, relayée par CDP : on donne un ordre en appuyant sur l'unité puis sur une case surlignée, sans mini-menu (JdS-K420 remplacée). Principe transposable : geste direct, pas de menu.
   - Origine : règles du JdS. Sources : /workspace/jds-patch-out/regles-v0.3-recharge.patch, R-13.2, R-5.7 (JdS)
+- **K191 — Parhi et al. (2006) : cibles d'au moins 9,2 mm au pouce, à une main** [sûre] : Étude MobileHCI 2006 : pour un pouce, à une main, des cibles de 9,2 mm (appui isolé) et 9,6 mm (appuis en série) suffisent ; au-delà de 9,6 mm (isolé) et 7,7 mm (série), le taux d'erreur ne baisse plus de façon significative. Ce sont des appuis, pas des glissés.
+  - Origine : externe (tour 2). Sources : https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/parhi-mobileHCI06.pdf ; https://dl.acm.org/doi/10.1145/1152215.1152260
+- **K192 — Vogel et Baudisch (2007) : Shift, une loupe décalée contre l'occlusion du doigt** [sûre] : Les erreurs au doigt viennent surtout de l'occlusion de la cible et du point de sélection ambigu. Shift affiche une copie de la zone cachée à côté du doigt, avec un pointeur ; on ajuste en glissant, on valide en levant le doigt. Le curseur décalé (offset cursor) place un pointeur au-dessus du doigt, avec sélection au lever.
+  - Origine : externe (tour 2). Sources : https://dl.acm.org/doi/10.1145/1240624.1240727 ; https://www.dgp.toronto.edu/papers/dvogel_CHI2007.pdf
+- **K193 — Apple HIG : gestes standard, et contrôles agrandis pour les cibles denses** [sûre] : Apple : toutes les plateformes ont tap, swipe et drag ; ne pas détourner un geste familier. Pour des contrôles petits ou denses, envisager une variante agrandie temporaire qui apparaît au toucher et reste un court instant après le lever du doigt. Signaler clairement pourquoi un geste ne marche pas (objet verrouillé…).
+  - Origine : externe (tour 2). Sources : https://developer.apple.com/design/human-interface-guidelines/gestures
+- **K194 — iPhone 16 : 1179 px de large à 460 ppi** [sûre] : Fiche technique Apple : écran de 2556 × 1179 pixels à 460 ppi.
+  - Origine : externe (tour 2). Sources : https://support.apple.com/en-us/121029
 
 ## M — Marché et monétisation
 
@@ -350,6 +400,12 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : reprise JdS K130 (CK/base-K.md du JdS, § Décomposition d'objets existants). Sources : piste : https://blog.gemserk.com/2016/09/05/analyzing-clash-royale-multiplayer-solution/
 - **K111 — JdS : une IA faible simple (proposition P-43, ai_idle_prob = 0,25)** [à creuser] : Règles v0.2 du JdS, R-12.1 (PROPOSITION P-43) : l'IA ne lit que l'état public du début du tour, donne ses ordres au début de la planification, et avec une probabilité ai_idle_prob = 0,25 une unité ne fait rien. Modèle direct pour une IA de prototype QIDIGO.
   - Origine : règles du JdS. Sources : /workspace/JeuDuSiecle/CK/regles-v0.md, R-12.1 (JdS)
+- **K187 — Remplissage par diffusion : 4-connexité ou 8-connexité** [sûre] : L'algorithme de flood fill a deux variantes, selon que des nœuds qui se touchent par un coin sont connectés (8 directions) ou non (4 directions).
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Flood_fill
+- **K188 — Théorème de Jordan : une courbe fermée simple a un intérieur et un extérieur** [sûre] : Toute courbe fermée simple du plan le divise en deux régions : un intérieur borné et un extérieur non borné. Fondement de « une boucle de trajets ferme une zone ».
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Jordan_curve_theorem
+- **K189 — Point dans un polygone : la règle pair-impair (lancer de rayon)** [sûre] : Un point est dans un polygone si une demi-droite issue de ce point coupe ses côtés un nombre impair de fois (algorithme connu dès 1962).
+  - Origine : externe (tour 2). Sources : https://en.wikipedia.org/wiki/Point_in_polygon
 
 ## D — Déductions (K→K)
 
@@ -371,3 +427,21 @@ Vocabulaire du dépôt : pion, trajet, croisement.
   - Origine : déduction. Sources : déduction (K151, K138, K105)
 - **K165 — Durée maximale = tours × (chrono + résolution)** [sûre] : Avec 5 s de résolution (valeur du JdS, K32, et ordre de grandeur de Frozen Synapse, K83) : 10 tours × 15 s → 3 min 20 s ; 15 × 15 s → 5 min ; 20 × 15 s → 6 min 40 s ; 20 × 10 s → 5 min ; 15 × 30 s → 8 min 45 s (JdS). Repères : Clash Royale 3 min + jusqu'à 2 min de prolongation (K47) ; Hearthstone 7–10 min (K48).
   - Origine : déduction. Sources : calcul (K108, K32, K83, K47)
+- **K195 — Un croisement de 43,7 pt mesure environ 7,2 mm, sous les 9,2 mm de Parhi** [sûre] : Calcul : 1179 px / 460 ppi = 2,56 pouces = 65,1 mm pour 393 pt, soit 0,166 mm par point ; 43,7 pt ≈ 7,2 mm (44 pt ≈ 7,3 mm). Avec des cibles de 9,2 mm (55,5 pt), il n'en tiendrait que 7 sur la largeur. Mais un glissé aimanté n'a pas à viser un croisement : il suffit de distinguer une direction, d'où l'aimantation.
+  - Origine : déduction (tour 2). Sources : calcul (K194, K60, K191, K158)
+- **K196 — Une case 1×1 fermée a 4 croisements de frontière et aucun croisement intérieur** [sûre] : Un rectangle de a × b cases a (a+1)(b+1) croisements, dont (a−1)(b−1) intérieurs. 1×1 : 4 et 0 ; 2×2 : 9 et 1 ; 7×7 : 64 et 36. Si seuls les croisements intérieurs comptent, une petite zone ne vaut rien ; si la frontière compte, 61 croisements tiennent dans un bloc de 7×7 cases (64).
+  - Origine : déduction (tour 2). Sources : calcul (K157, K173)
+- **K197 — Une coupure droite bord à bord laisse au plus 45 croisements à la plus petite part** [sûre] : Si le bord sert de mur et qu'on prend la plus petite part : une coupure droite donne au mieux 4 × 8 cases, soit 5 × 9 = 45 croisements avec la frontière, sous les 61. Le seuil demande plusieurs zones ou des coupures non droites.
+  - Origine : déduction (tour 2). Sources : calcul (K157, K173)
+- **K198 — 5 pions en diagonale dans un coin enferment 10 croisements (15 contrôlés, 18,5 %)** [sûre] : Calcul par remplissage (bord = mur) : les pions en (0,4), (1,3), (2,2), (3,1), (4,0) enferment les 10 croisements x + y ≤ 3 ; avec les 5 pions, 15 croisements, soit 18,5 % de 81. Sans le bord, 4 pions en losange n'enferment qu'un croisement. Les zones de pions seuls restent petites avec 5 pions.
+  - Origine : déduction (tour 2). Sources : calcul (K96, K176, K184)
+- **K199 — Sur une grille de traits, la zone se calcule sur les 64 cases en 4-connexité** [sûre] : Les trajets suivent les traits : une boucle de trajets est un polygone à angles droits (théorème de Jordan). On remplit les 64 cases : deux cases voisines communiquent si le segment qui les sépare n'est pas un mur. La 8-connexité ne sert que si des pions isolés forment la frontière (Dots).
+  - Origine : déduction (tour 2). Sources : déduction (K188, K187, K157, K184)
+- **K200 — 20 tours × 20 s : 6 min 40 s sans résolution, 8 min 20 s avec 5 s** [sûre] : Durée maximale = 20 × (20 s + résolution) : 6 min 40 s avec 0 s, 7 min 20 s avec 2 s, 7 min 40 s avec 3 s, 8 min 20 s avec 5 s (valeur du JdS). 8 min 20 s approche les 8 min 45 s du JdS ; le bouton « Prêt » et une résolution courte raccourcissent la partie réelle.
+  - Origine : déduction (tour 2). Sources : calcul (K174, K108, K165)
+- **K201 — Avec Q1 a, poser ne gagne aucun terrain : seul le déplacement ferme des zones** [sûre] : Le terrain se gagne en fermant des zones avec ses trajets (K167) ; une pose n'en trace pas. Poser sert à faire entrer un pion, à couper un trajet (K169) ou à reprendre un pion capturé (K171). La crainte « poser domine déplacer » (K164) tombe en grande partie.
+  - Origine : déduction (tour 2). Sources : déduction (K167, K169, K171, K164)
+- **K202 — Avec rejeu immédiat, la limite de 20 tours garantit la fin** [sûre] : Q5 a : le pion capturé revient dès le tour suivant ; des positions peuvent se répéter. Mais Q6 a fixe une limite de N tours (20, Q8) : la partie finit toujours. Le risque n'est plus l'absence de fin, mais des fins plates (cycles stériles) : à mesurer en papier.
+  - Origine : déduction (tour 2). Sources : déduction (K171, K172, K174, K160)
+- **K203 — Si l'adversaire peut reposer dans ma zone, la capture ne sert presque à rien** [sûre] : Q4 a + Q5 a : un pion capturé revient dès le tour suivant. S'il peut être reposé dans la zone d'où il vient d'être chassé, la capture ne coûte qu'un ordre. Dots exclut du jeu les zones entourées (K184) : c'est la piste qui donne du poids à la capture.
+  - Origine : déduction (tour 2). Sources : déduction (K170, K171, K184)

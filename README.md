@@ -10,10 +10,11 @@ Page publique du C-K de **QIDIGO** (jeu iPhone en conception, nom de travail) : 
 | Fichier | Contenu |
 |---|---|
 | `index.html` | La page C-K (autonome, sans CDN hors giscus) |
-| `base-K.md` | Base K (166 K) |
-| `arbre-C.md` | C0, évaluation, arbre C (60 C), fiches, tensions |
-| `operateurs.md` | 188 opérateurs C-K |
-| `questions-lomig.md` | 10 questions a) / b) |
+| `base-K.md` | Base K (203 K, dont 37 du tour 2) |
+| `arbre-C.md` | C0, évaluation, arbre C (103 C, décisions choisie / écartée / ouverte), fiches, tensions |
+| `operateurs.md` | 317 opérateurs C-K |
+| `questions-lomig.md` | 18 questions a) / b) : Q1–Q10 répondues, Q11–Q18 nouvelles |
 | `synthese-tour-1.md` | Synthèse du tour 1 |
+| `synthese-tour-2.md` | Synthèse du tour 2 : zones, tensions, ordre de résolution |
 
 Tout ce qui est ici est une **piste de conception**, pas une règle du jeu. Projet propriétaire, tous droits réservés.

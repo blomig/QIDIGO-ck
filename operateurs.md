@@ -1,6 +1,6 @@
-# QIDIGO — opérateurs (tour 1)
+# QIDIGO — opérateurs (tour 2)
 
-188 opérateurs : 9 K→K, 59 C→C, 60 K→C, 60 C→K.
+317 opérateurs : 9 K→K, 102 C→C, 103 K→C, 103 C→K.
 
 ## K→K
 
@@ -75,10 +75,53 @@
 - C0 → C15a : partition « Où poser un pion » : Pose ancrée.
 - C0 → C16 : partition « Geste pour donner un ordre » : Deux appuis, comme R-13.2 du JdS.
 - C0 → C16a : partition « Geste pour donner un ordre » : Dessin du trajet.
+- C2 → C17 : partition « Zones : ce qu'est une zone (géométrie) » : Deux cases voisines communiquent si le segment entre elles n'est pas un de mes murs ; une région séparée du reste est une zone.
+- C2 → C18 : partition « Zones : ce qu'est une zone (géométrie) » : Pions voisins, y compris en diagonale, font mur.
+- C2 → C19 : partition « Zones : ce qu'est une zone (géométrie) » : Une boucle dans un seul ordre.
+- C2 → C20 : partition « Zones : le bord de la grille » : Comme Dots sur ordinateur (zone minimale).
+- C2 → C21 : partition « Zones : le bord de la grille » : La part qui contient des pions adverses reste « l'extérieur ».
+- C2 → C22 : partition « Zones : le bord de la grille » : Pas d'appui sur le bord.
+- C2 → C23 : partition « Zones : comment on la ferme » : Chaque trajet réussi ajoute des murs.
+- C2 → C24 : partition « Zones : comment on la ferme » : Le retour au territoire ferme la boucle.
+- C2 → C25 : partition « Zones : comment on la ferme » : Pions et traces font frontière ensemble.
+- C2 → C26 : partition « Zones : comment on la ferme » : Sans trajet.
+- C2 → C27 : partition « Zones : ce qui reste sur la grille » : Mémoire courte de la grille.
+- C2 → C28 : partition « Zones : zones mixtes, partagées, emboîtées » : Murs mêlés = zone neutre.
+- C2 → C29 : partition « Zones : zones mixtes, partagées, emboîtées » : Le dernier mur l'emporte.
+- C2 → C30 : partition « Zones : zones mixtes, partagées, emboîtées » : La zone est exclue du jeu adverse.
+- C2 → C31 : partition « Zones : zones mixtes, partagées, emboîtées » : Les zones changent de main.
+- C2 → C32 : partition « Zones : zones mixtes, partagées, emboîtées » : Application de Q4 a.
+- C2 → C33 : partition « Zones : zones mixtes, partagées, emboîtées » : Possible seulement si ma zone est reprenable (C31).
+- C2 → C34 : partition « Zones : taille minimale » : Plus petite zone = une case.
+- C2 → C35 : partition « Zones : taille minimale » : Pas de micro-zones.
+- C2 → C36 : partition « Zones : une zone gagnée se perd-elle ? » : Comme Dots.
+- C2 → C37 : partition « Zones : une zone gagnée se perd-elle ? » : La zone vit avec ses murs.
+- C2 → C38 : partition « Zones : fermetures au même tour » : Calcul simultané des zones.
+- C2 → C39 : partition « Zones : fermetures au même tour » : Comme une coupure.
+- C11c → C40 : partition « Comptage des croisements contrôlés (Q7 a) » : Comme l'aire au go (pierres + territoire).
+- C11c → C41 : partition « Comptage des croisements contrôlés (Q7 a) » : Frontière exclue.
+- C11c → C42 : partition « Comptage des croisements contrôlés (Q7 a) » : Pas de double compte.
+- C7 → C43 : partition « Contre le blocage par annulation mutuelle (tour 2) » : La pose est un barrage réel.
+- C7 → C44 : partition « Contre le blocage par annulation mutuelle (tour 2) » : Zone refuge, comme le territoire de Paper.io.
+- C7 → C45 : partition « Contre le blocage par annulation mutuelle (tour 2) » : Couper devient risqué.
+- C7 → C46 : partition « Contre le blocage par annulation mutuelle (tour 2) » : Une partie du trajet compte.
+- C16a → C47 : partition « Saisie par glissement (Q10 b) » : Pas besoin de viser 7,2 mm.
+- C16a → C48 : partition « Saisie par glissement (Q10 b) » : Évite le tremblement aux croisements.
+- C16a → C49 : partition « Saisie par glissement (Q10 b) » : Le croisement caché reste visible.
+- C16a → C50 : partition « Saisie par glissement (Q10 b) » : On voit la tête du trajet.
+- C16a → C51 : partition « Saisie par glissement (Q10 b) » : Agrandir la grille.
+- C16a → C52 : partition « Saisie par glissement (Q10 b) » : Correction sans menu.
+- C16a → C53 : partition « Saisie par glissement (Q10 b) » : Respecte les 9,2 mm de Parhi.
+- C16a → C54 : partition « Saisie par glissement (Q10 b) » : 852 / 9 ≈ 94,7 pt par croisement.
+- C16a → C55 : partition « Saisie par glissement (Q10 b) » : Retour sans regarder sous le doigt.
+- C9 → C56 : partition « Ordre de résolution d'un tour (tour 2) » : Les sept étapes de synthese-tour-2.md.
+- C10 → C57 : partition « Boucles avec rejeu immédiat (Q5 a) » : Conséquence de C30.
+- C10 → C58 : partition « Boucles avec rejeu immédiat (Q5 a) » : Comme le ko simple.
+- C14 → C59 : partition « Durée (Q8) » : Décision de Lomig relayée par CDP.
 
 ## K→C
 
-- K93, K94, K95, K96, K97, K98, K99, K105, K106, K103, K1, K26 → C0 : K mobilisées pour Chapeau QIDIGO
+- K93, K94, K95, K96, K97, K98, K99, K105, K106, K103, K1, K26 → C0 : K mobilisées pour Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur les 81 croisements d'une grille de traits 9×9 : chaque joueur a 5 pions ; à chaque tour (20 tours de 20 s), les deux joueurs donnent un ordre résolu en même temps — poser un pion, ou déplacer un pion par un trajet glissé au doigt le long des traits ; deux trajets qui passent par un même croisement ou un même segment se coupent, et une pose sur un trajet le coupe ; un trajet coupé est annulé, ainsi que l'ordre adverse (BRIEF) ; on gagne du terrain en fermant des zones avec ses trajets ; un pion adverse enfermé dans une zone est capturé, retourne dans la réserve de son propriétaire et peut être rejoué dès le tour suivant ; la partie finit après 20 tours, ou dès qu'un joueur contrôle 75 % des croisements (61 sur 81) ; ce qu'est une zone reste à explorer ; simple, rapide, profond.
 - K113, K86, K112 → C1 : K mobilisées pour Terrain = croisements contrôlés (aire à la Go)
 - K122, K90, K124, K130, K135, K125 → C2 : K mobilisées pour Terrain = zones fermées par des trajets (à la Qix)
 - K73 → C2a : K mobilisées pour Le trajet s'efface après le tour ; seules les zones fermées restent
@@ -138,6 +181,49 @@
 - K12, K149 → C15a : K mobilisées pour Seulement sur ou à côté de son terrain
 - K109, K58, K59, K158 → C16 : K mobilisées pour Toucher le pion puis l'arrivée ; trajet le plus court proposé, ajustable
 - K98, K158, K60 → C16a : K mobilisées pour Glisser le doigt le long des traits
+- K199, K188, K187, K157 → C17 : K mobilisées pour Zone = cases entourées par ses traces (remplissage des 64 cases en 4-connexité)
+- K184, K176, K198 → C18 : K mobilisées pour Zone = croisements entourés par une chaîne de pions et de traces (8-connexité, comme Dots)
+- K188, K122 → C19 : K mobilisées pour Zone = l'intérieur d'un seul trajet qui se referme sur lui-même
+- K185, K122, K183, K197 → C20 : K mobilisées pour Le bord est un mur ; une coupure bord à bord donne la plus petite des deux parts
+- K181, K180 → C21 : K mobilisées pour Le bord est un mur ; on prend la part sans pion adverse (Qix, Volfied : le côté sans le monstre)
+- K188 → C22 : K mobilisées pour Le bord ne compte pas : seule une boucle complète de ses traces ferme
+- K122, K167, K199 → C23 : K mobilisées pour Avec plusieurs trajets successifs : les traces restent et se rejoignent
+- K182, K179 → C24 : K mobilisées pour Un trajet qui rejoint son territoire ou ses traces ferme (Paper.io)
+- K184, K176 → C25 : K mobilisées pour Un de ses pions compte comme mur : un trajet qui rejoint un pion ferme
+- K184, K198, K176 → C26 : K mobilisées pour Une chaîne de pions seule ferme une zone (Dots)
+- K122, K182 → C27 : K mobilisées pour Les traces décroissent : un segment s'efface après 3 tours s'il ne borde pas de zone
+- K199 → C28 : K mobilisées pour Zone fermée par des murs des deux joueurs : à personne
+- K182 → C29 : K mobilisées pour Zone fermée par des murs des deux joueurs : à celui qui l'a fermée
+- K184, K203 → C30 : K mobilisées pour Ma zone est fermée au jeu adverse : ni pose ni trajet adverse (comme Dots)
+- K182 → C31 : K mobilisées pour Ma zone est reprenable : l'adversaire la traverse et la referme (Paper.io)
+- K170, K184 → C32 : K mobilisées pour Zone avec des pions des deux joueurs : les adverses sont capturés, les miens restent
+- K117, K112 → C33 : K mobilisées pour Zone dans une zone : l'adversaire ferme une zone à l'intérieur de la mienne
+- K196, K131 → C34 : K mobilisées pour Toute case fermée compte (1×1 = 4 croisements de frontière)
+- K196 → C35 : K mobilisées pour Il faut au moins un croisement intérieur (2×2 cases, 9 croisements)
+- K184 → C36 : K mobilisées pour Une zone gagnée est définitive
+- K182 → C37 : K mobilisées pour Une zone se perd si une de ses frontières disparaît (pion parti, trace effacée)
+- K199, K13 → C38 : K mobilisées pour Deux fermetures au même tour sans coupure comptent toutes les deux ; zone emboîtée : l'intérieure à son auteur
+- K99 → C39 : K mobilisées pour Deux fermetures qui se recouvrent : les deux sont annulées
+- K196, K113, K173 → C40 : K mobilisées pour Contrôlés = mes pions + croisements de mes zones, frontière comprise
+- K196 → C41 : K mobilisées pour Contrôlés = mes pions + croisements intérieurs seulement
+- K157 → C42 : K mobilisées pour Un croisement de frontière commune aux deux joueurs : à personne
+- K169, K99, K201 → C43 : K mobilisées pour Pose coupante : seul le trajet est annulé, la pose a lieu
+- K182, K179, K161 → C44 : K mobilisées pour Un trajet qui reste sur mes traces ou dans ma zone ne peut pas être coupé
+- K99, K169 → C45 : K mobilisées pour Seul l'ordre coupant est annulé (le coupé passe)
+- K78, K161 → C46 : K mobilisées pour Rebond : les deux pions s'arrêtent au croisement d'avant la coupure
+- K195, K177, K190 → C47 : K mobilisées pour Aimantation : le geste est projeté sur l'axe dominant, le trajet avance croisement par croisement
+- K195, K191 → C48 : K mobilisées pour Tolérance et hystérésis : on passe au croisement suivant au-delà de 60 % de l'écart
+- K192, K193 → C49 : K mobilisées pour Loupe décalée au-dessus du doigt (Shift)
+- K192 → C50 : K mobilisées pour Curseur décalé au-dessus du doigt
+- K193 → C51 : K mobilisées pour Zoom (pincer) avant de tracer
+- K193, K190 → C52 : K mobilisées pour Revenir en arrière sur son trajet l'efface ; lever le doigt valide ; bouton annuler
+- K191, K195 → C53 : K mobilisées pour Grille 7×7 (55,5 pt par croisement)
+- K60 → C54 : K mobilisées pour Mode paysage
+- K192 → C55 : K mobilisées pour Vibration légère à chaque croisement franchi
+- K168, K169, K170, K171, K172, K173, K199, K85 → C56 : K mobilisées pour PROPOSITION : poses → coupures → déplacements → fermetures → captures → comptage → fin
+- K203, K184 → C57 : K mobilisées pour Le pion capturé ne peut pas être reposé dans une zone adverse
+- K116 → C58 : K mobilisées pour Ko local : pas de pose pendant un tour sur le croisement où un pion vient d'être capturé
+- K174, K175, K200 → C59 : K mobilisées pour 20 tours de 20 s ; 6 min 40 s hors résolution, 8 min 20 s au plus avec 5 s
 
 ## C→K
 
@@ -201,3 +287,46 @@
 - C15a → (test) : Le joueur en retard peut-il revenir ?
 - C16 → (test) : Test d'utilisabilité : 10 ordres sur iPhone.
 - C16a → (test) : Taux d'erreur à 43,7 pt par croisement.
+- C17 → (test) : Papier : 10 positions ; deux joueurs trouvent-ils la même zone ?
+- C18 → (test) : Les diagonales sont-elles lisibles sur 7,2 mm ?
+- C19 → (test) : Combien de segments faut-il ? (2×2 cases = 8 segments)
+- C20 → (test) : Les joueurs se ruent-ils tous au bord ?
+- C21 → (test) : Contredit-il Q4 a au bord ?
+- C22 → (test) : Combien de tours pour une première zone ?
+- C23 → (test) : Avec 5 pions et 20 tours, combien de zones par partie ?
+- C24 → (test) : Le joueur voit-il d'avance ce qu'il va fermer ? (aperçu pendant le glissé)
+- C25 → (test) : Un pion qui part ouvre-t-il la zone ? (cf. C37)
+- C26 → (test) : Écart possible avec Q1 a (terrain par les trajets) : à valider par Lomig.
+- C27 → (test) : 3 tours : trop court pour fermer en plusieurs trajets ?
+- C28 → (test) : Fréquence des zones neutres en papier.
+- C29 → (test) : Ambigu si les deux ferment au même tour (C39).
+- C30 → (test) : Le meneur devient-il intouchable ?
+- C31 → (test) : Le comptage bouge-t-il trop pour être lu ?
+- C32 → (test) : Cas d'école en 3 schémas.
+- C33 → (test) : Dépend de C30/C31.
+- C34 → (test) : Les parties se jouent-elles en petites cases ?
+- C35 → (test) : Combien de tours pour une 2×2 ?
+- C36 → (test) : Le meneur verrouille-t-il trop tôt ?
+- C37 → (test) : Lisibilité de la perte.
+- C38 → (test) : Cas d'école : zone A autour de la zone B.
+- C39 → (test) : Fréquence du cas.
+- C40 → (test) : Le seuil de 61 est-il atteint en 20 tours ?
+- C41 → (test) : Une case 1×1 vaut 0 : décourage-t-il ?
+- C42 → (test) : Cas des murs mêlés.
+- C43 → (test) : Lecture du BRIEF 7 à valider par Lomig (Q16).
+- C44 → (test) : Le défenseur reste-t-il chez lui ?
+- C45 → (test) : Contredit Q3 a ?
+- C46 → (test) : S'écarte du BRIEF (annulation).
+- C47 → (test) : Taux d'erreur sur 20 trajets.
+- C48 → (test) : Tester 50 / 60 / 70 %.
+- C49 → (test) : Gêne-t-elle la vue de la grille ?
+- C50 → (test) : Compare C49.
+- C51 → (test) : Coûte du temps dans un chrono de 20 s.
+- C52 → (test) : Combien d'annulations par partie ?
+- C53 → (test) : Contredit le BRIEF (9×9).
+- C54 → (test) : Contredit AGENTS (portrait).
+- C55 → (test) : Gênant à la longue ?
+- C56 → (test) : Dérouler 10 tours papier avec cet ordre.
+- C57 → (test) : Mesurer les captures « utiles ».
+- C58 → (test) : Utile si C57 est écartée.
+- C59 → (test) : Mesurer le temps réel avec « Prêt ».
