@@ -1,6 +1,6 @@
-# QIDIGO — opérateurs (tour 2)
+# QIDIGO — opérateurs (tour 3)
 
-317 opérateurs : 9 K→K, 102 C→C, 103 K→C, 103 C→K.
+376 opérateurs : 17 K→K, 119 C→C, 120 K→C, 120 C→K.
 
 ## K→K
 
@@ -13,6 +13,14 @@
 - K126, K36 → K163 : déduction
 - K151, K138, K105 → K164 : déduction
 - K108, K32, K83, K166 → K165 : déduction
+- K221, K222, K216 → K231 : déduction
+- K209, K202, K215 → K230 : déduction
+- K209, K176, K174 → K229 : déduction
+- K158, K195, K191, K218 → K232 : déduction
+- K223, K224, K13 → K233 : déduction
+- K219, K225, K107 → K234 : déduction
+- K208, K168, K214 → K235 : déduction
+- K1, K226, K227, K228, K220 → K236 : déduction
 
 ## C→C
 
@@ -118,10 +126,27 @@
 - C10 → C57 : partition « Boucles avec rejeu immédiat (Q5 a) » : Conséquence de C30.
 - C10 → C58 : partition « Boucles avec rejeu immédiat (Q5 a) » : Comme le ko simple.
 - C14 → C59 : partition « Durée (Q8) » : Décision de Lomig relayée par CDP.
+- C0 → C60 : partition « Taille de la grille (tour 3) » : 81 croisements, 64 cases.
+- C0 → C61 : partition « Taille de la grille (tour 3) » : 64 croisements, 49 cases, ≈ 8,1 mm par croisement.
+- C0 → C62 : partition « Comment se fait la capture » : Le terrain est le seul enjeu.
+- C8c → C63 : partition « Que devient le pion capturé (tour 3) » : Le matériel diminue.
+- C7 → C64 : partition « Soutien façon Diplomacy (tour 3) » : Un trajet soutenu n'est coupé que par un trajet soutenu ; une pose ne le coupe pas.
+- C7 → C65 : partition « Soutien façon Diplomacy (tour 3) » : Plus proche de Diplomacy (standoff).
+- C2 → C66 : partition « Zones : une zone gagnée se perd-elle ? » : La zone fermée prend aussi les cases adverses.
+- C7 → C67 : partition « Contre le blocage par annulation mutuelle (tour 2) » : Couper par une pose coûte la pose.
+- C2 → C68 : partition « Zones : ce qui reste sur la grille » : Le dernier passage l'emporte.
+- C2 → C69 : partition « Zones : ce qui reste sur la grille » : Murs stables.
+- C6 → C70 : partition « Croisement quitté au même tour (tour 3) » : Départ exclu du test de coupure ; ordre conditionnel, annulé si le pion adverse reste.
+- C6 → C71 : partition « Croisement quitté au même tour (tour 3) » : Règle du proto v0.1.
+- C6 → C72 : partition « Le face-à-face » : Annulation par rencontre, pas seulement par coupure.
+- C15 → C73 : partition « Poser sur un croisement quitté (tour 3) » : Extension de la décision du 03/11 à 11 h 52 à la pose.
+- C13a → C74 : partition « Longueur maximale (tour 3) » : Ordres courts.
+- C13a → C75 : partition « Longueur maximale (tour 3) » : Compromis.
+- C20 → C76 : partition « Égalité de taille (tour 3) » : Une coupure en deux parts égales ne donne rien.
 
 ## K→C
 
-- K93, K94, K95, K96, K97, K98, K99, K105, K106, K103, K1, K26 → C0 : K mobilisées pour Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur les 81 croisements d'une grille de traits 9×9 : chaque joueur a 5 pions ; à chaque tour (20 tours de 20 s), les deux joueurs donnent un ordre résolu en même temps — poser un pion, ou déplacer un pion par un trajet glissé au doigt le long des traits ; deux trajets qui passent par un même croisement ou un même segment se coupent, et une pose sur un trajet le coupe ; un trajet coupé est annulé, ainsi que l'ordre adverse (BRIEF) ; on gagne du terrain en fermant des zones avec ses trajets ; un pion adverse enfermé dans une zone est capturé, retourne dans la réserve de son propriétaire et peut être rejoué dès le tour suivant ; la partie finit après 20 tours, ou dès qu'un joueur contrôle 75 % des croisements (61 sur 81) ; ce qu'est une zone reste à explorer ; simple, rapide, profond.
+- K93, K94, K95, K96, K97, K98, K99, K105, K106, K103, K1, K26 → C0 : K mobilisées pour Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur une grille de traits de 9×9 croisements (7×7 et 8×8 non exclus) : chaque joueur a 5 pions identiques ; 20 tours de 20 s ; à chaque tour, chaque joueur donne un ordre secret, résolu en même temps que l'autre — poser un pion, ou déplacer un pion par un trajet glissé le long des traits ; un pion peut entrer sur un croisement qu'un pion adverse quitte au même tour ; deux trajets qui se rencontrent (même croisement, départ exclu, ou même segment) se coupent, comme une pose sur un trajet ; un trajet coupé est annulé, ainsi que l'ordre adverse ; le trajet réussi laisse une trace colorée, visible, qui ne bloque pas les déplacements ; on gagne du terrain en fermant une zone — un pion qui revient sur sa trace ou boucle avec le bord, le bord servant de mur et la plus petite part étant prise ; la partie finit après 20 tours ou à 75 % des croisements contrôlés ; ouverts : rôle des traces comme bord de zone, reprise de zone (par morceaux ?), capture (aucune, avec ou sans retour), soutien façon Diplomacy, longueur maximale du trajet ; simple, rapide, profond.
 - K113, K86, K112 → C1 : K mobilisées pour Terrain = croisements contrôlés (aire à la Go)
 - K122, K90, K124, K130, K135, K125 → C2 : K mobilisées pour Terrain = zones fermées par des trajets (à la Qix)
 - K73 → C2a : K mobilisées pour Le trajet s'efface après le tour ; seules les zones fermées restent
@@ -224,6 +249,23 @@
 - K203, K184 → C57 : K mobilisées pour Le pion capturé ne peut pas être reposé dans une zone adverse
 - K116 → C58 : K mobilisées pour Ko local : pas de pose pendant un tour sur le croisement où un pion vient d'être capturé
 - K174, K175, K200 → C59 : K mobilisées pour 20 tours de 20 s ; 6 min 40 s hors résolution, 8 min 20 s au plus avec 5 s
+- K157, K232 → C60 : K mobilisées pour Grille de 9×9 croisements (BRIEF)
+- K232, K218 → C61 : K mobilisées pour Grille de 8×8 croisements
+- K209, K215, K230, K229 → C62 : K mobilisées pour Pas de capture : enfermer un pion adverse ne fait rien
+- K215, K160 → C63 : K mobilisées pour Capture sans retour : le pion enfermé quitte la partie
+- K221, K231, K216 → C64 : K mobilisées pour Soutien positionnel : un pion allié voisin du départ protège le trajet
+- K221, K78 → C65 : K mobilisées pour Soutien par comptage : le trajet le plus soutenu passe ; égalité = les deux annulés
+- K212, K211, K182 → C66 : K mobilisées pour Reprise par morceaux : fermer une zone qui couvre une partie du territoire adverse la reprend
+- K99, K169 → C67 : K mobilisées pour Pose coupante annulée aussi (BRIEF au pied de la lettre)
+- K204 → C68 : K mobilisées pour Passer sur une trace adverse la recolore à sa couleur
+- K204 → C69 : K mobilisées pour Une trace adverse garde sa couleur
+- K208, K235 → C70 : K mobilisées pour Un pion peut entrer sur un croisement qu'un pion adverse quitte au même tour
+- K37 → C71 : K mobilisées pour Un trajet ne passe par aucun croisement occupé au début du tour
+- K214, K168 → C72 : K mobilisées pour Rencontre de pions qui bougent ou qui arrivent : même arrivée, ou sens inverse sur un segment
+- K208, K235 → C73 : K mobilisées pour Une pose peut viser le croisement d'un pion adverse qui part au même tour (conditionnelle)
+- K213 → C74 : K mobilisées pour Trajet limité à 3 segments
+- K213, K196 → C75 : K mobilisées pour Trajet limité à 5 segments
+- K205, K197 → C76 : K mobilisées pour Si plusieurs régions ont la plus grande taille, aucune n'est une zone
 
 ## C→K
 
@@ -330,3 +372,20 @@
 - C57 → (test) : Mesurer les captures « utiles ».
 - C58 → (test) : Utile si C57 est écartée.
 - C59 → (test) : Mesurer le temps réel avec « Prêt ».
+- C60 → (test) : Comparer la durée des parties en 7, 8, 9.
+- C61 → (test) : Même test.
+- C62 → (test) : Les parties sans capture sont-elles assez tendues ?
+- C63 → (test) : Combien de captures par partie ?
+- C64 → (test) : Les joueurs bougent-ils toujours en paire ?
+- C65 → (test) : Avec 5 pions, combien de soutiens au mieux ?
+- C66 → (test) : Le meneur peut-il encore être rattrapé ?
+- C67 → (test) : Comparer avec la pose maintenue.
+- C68 → (test) : Les murs adverses tiennent-ils ?
+- C69 → (test) : Comparer avec C68.
+- C70 → (test) : Fréquence des ordres conditionnels annulés.
+- C71 → (test) : —
+- C72 → (test) : Cas d'école en 3 schémas.
+- C73 → (test) : Utile en partie ?
+- C74 → (test) : Durée et taux de coupure.
+- C75 → (test) : Même test.
+- C76 → (test) : Fréquence du cas.

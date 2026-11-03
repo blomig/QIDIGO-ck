@@ -1,7 +1,7 @@
-# QIDIGO — questions à Lomig (tour 2)
+# QIDIGO — questions à Lomig (tour 3)
 
 Format AGENTS.md : courtes, numérotées, options a) / b). Ordre : la plus structurante d'abord.
-Déjà décidé, donc non redemandé : il y a des captures ; un pion capturé retourne dans la réserve de son propriétaire (tour 1) ; Q1 à Q10 ont reçu les réponses de Lomig du 03/11/2026, relayées par CDP (formulation de CDP).
+Réponses de Lomig du 03/11/2026 relayées par CDP (formulation de CDP) : Q1 à Q12. Q4 et Q5 sont remises en question par Lomig. Q13 à Q18 sont suspendues : ne pas y répondre. Nouvelles questions du tour 3 : Q19 à Q22.
 Sur le site public, chaque question a son fil giscus (terme = Q1, Q2…) : répondre « REPONSE LOMIG : a) ».
 
 ## Tour 1 — répondues
@@ -29,13 +29,13 @@ Sur le site public, chaque question a son fil giscus (terme = Q1, Q2…) : répo
    b) par libertés, comme au go (C8)
    c) en tenaille entre deux pions (C8d)
    Recommandation : a) si Q1 = a) ; sinon b).
-   REPONSE LOMIG : a) — capture par enfermement dans une zone fermée (réponse de Lomig du 03/11 relayée par CDP)
+   REPONSE LOMIG : a) — capture par enfermement dans une zone fermée (réponse de Lomig du 03/11 relayée par CDP) — remise en question par Lomig le 03/11 à 11 h 45 (relayé par CDP)
 
 5. Un pion capturé, revenu en réserve, est-il rejouable tout de suite ? (fil giscus Q5)
    a) oui, dès le tour suivant (C10)
    b) après un délai d'un tour (C10a)
    Recommandation : b) : la capture garde un coût, et les cycles sont freinés ; la limite de tours garantit de toute façon la fin (C10d).
-   REPONSE LOMIG : a) — rejouable dès le tour suivant ; reposer coûte l'ordre du tour (réponse de Lomig du 03/11 relayée par CDP)
+   REPONSE LOMIG : a) — rejouable dès le tour suivant ; reposer coûte l'ordre du tour (réponse de Lomig du 03/11 relayée par CDP) — remise en question par Lomig le 03/11 à 11 h 45 (relayé par CDP)
 
 6. Quand la partie finit-elle ? (fil giscus Q6)
    a) au premier des deux : N tours ou X % (C11b)
@@ -67,55 +67,84 @@ Sur le site public, chaque question a son fil giscus (terme = Q1, Q2…) : répo
    Recommandation : a) : 43,7 pt par croisement, sous les 44 pt ; et cohérent avec la décision R-13.2 du JdS.
    REPONSE LOMIG : b) — glisser le doigt le long des traits, avec aimantation et tolérance (43,7 pt par croisement) (réponse de Lomig du 03/11 relayée par CDP)
 
-## Tour 2 — nouvelles questions (zones d'abord)
+## Tour 2 — Q11 et Q12 répondues, Q13 à Q18 suspendues
 
 11. Les traces de trajets restent-elles sur la grille ? (fil giscus Q11)
    a) oui, elles restent comme murs (C23)
    b) elles s'effacent après 3 tours sauf si elles bordent une zone (C27)
    c) non, seule la zone fermée reste
    Recommandation : a) : avec 5 pions et 20 tours, il faut construire sur plusieurs tours.
-   REPONSE LOMIG : 
+   REPONSE LOMIG : ni a, ni b, ni c : les traces restent visibles, mais elles ne bloquent pas les déplacements ; à voir si elles servent de bord de zone (réponse de Lomig du 03/11 à 11 h 45, relayée par CDP)
 
 12. Le bord de la grille sert-il de mur ? (fil giscus Q12)
    a) oui ; une coupure bord à bord donne la plus petite part (C20)
    b) oui ; on prend la part sans pion adverse, comme Qix (C21)
    c) non, il faut une boucle complète (C22)
    Recommandation : a) : zones rapides au bord, capture possible au bord, comme Dots sur ordinateur.
-   REPONSE LOMIG : 
+   REPONSE LOMIG : a) — le bord sert de mur, on prend la plus petite part (réponse de Lomig du 03/11 à 11 h 45, relayée par CDP)
 
 13. Dans les 61 croisements, la frontière d'une zone compte-t-elle ? (fil giscus Q13)
    a) oui, frontière + intérieur (C40)
    b) non, l'intérieur seulement (C41)
    Recommandation : a) : sinon une case 1×1 vaut 0 (K196).
-   REPONSE LOMIG : 
+   REPONSE LOMIG : suspendue par Lomig le 03/11 à 11 h 45 (relayé par CDP) : ne pas répondre pour l'instant
 
 14. L'adversaire peut-il jouer dans ma zone ? (fil giscus Q14)
    a) non : ni pose ni trajet, la zone est à moi (C30)
    b) oui, il peut la traverser et la reprendre (C31)
    Recommandation : a) : sinon le pion capturé se repose aussitôt dans ma zone (K203).
-   REPONSE LOMIG : 
+   REPONSE LOMIG : suspendue par Lomig le 03/11 à 11 h 45 (relayé par CDP) : ne pas répondre pour l'instant
 
 15. Une zone peut-elle se fermer avec ses pions ? (fil giscus Q15)
    a) oui, un trajet peut s'appuyer sur un de ses pions (C25)
    b) oui, une chaîne de pions seule suffit, comme Dots (C26)
    c) non, seules les traces ferment
    Recommandation : a) : garde « fermer avec ses trajets » (Q1 a) tout en ouvrant les zones à plusieurs pions.
-   REPONSE LOMIG : 
+   REPONSE LOMIG : suspendue par Lomig le 03/11 à 11 h 45 (relayé par CDP) : ne pas répondre pour l'instant
 
 16. Une pose qui coupe un trajet : la pose a-t-elle lieu ? (fil giscus Q16)
    a) oui, seul le trajet est annulé (C43)
    b) non, les deux ordres sont annulés (BRIEF au pied de la lettre)
    Recommandation : a) : sinon couper par une pose sacrifie son tour et nourrit le blocage.
-   REPONSE LOMIG : 
+   REPONSE LOMIG : suspendue par Lomig le 03/11 à 11 h 45 (relayé par CDP) : ne pas répondre pour l'instant
 
 17. Un trajet qui reste sur ses traces ou dans sa zone peut-il être coupé ? (fil giscus Q17)
    a) non, c'est un refuge (C44)
    b) oui, comme partout
    Recommandation : a) : contre le blocage, comme le territoire de Paper.io.
-   REPONSE LOMIG : 
+   REPONSE LOMIG : suspendue par Lomig le 03/11 à 11 h 45 (relayé par CDP) : ne pas répondre pour l'instant
 
 18. Au 20e tour, à égalité de croisements contrôlés : (fil giscus Q18)
    a) nul (C11e)
    b) départage par le nombre de captures (C11f)
    Recommandation : b) : moins de nuls en partie classée Elo.
+   REPONSE LOMIG : suspendue par Lomig le 03/11 à 11 h 45 (relayé par CDP) : ne pas répondre pour l'instant
+
+## Tour 3 — nouvelles questions (gain et perte de zones)
+
+19. La capture de pion : on la garde ? (fil giscus Q19)
+   a) non, pas de capture : seul le terrain compte
+   b) oui, le pion enfermé retourne dans la réserve
+   c) oui, le pion enfermé est perdu
+   Recommandation : a) pour commencer les tests (défaut du proto), puis c) en variante.
+   REPONSE LOMIG : 
+
+20. L'adversaire peut-il reprendre une de mes zones ? (fil giscus Q20)
+   a) non, une zone fermée est acquise
+   b) oui, par morceaux, en fermant une zone qui en couvre une partie
+   Recommandation : b) : c'est ton idée, et sans reprise la partie risque de se figer.
+   REPONSE LOMIG : 
+
+21. Un soutien façon Diplomacy ? (fil giscus Q21)
+   a) non
+   b) oui : un pion allié voisin du départ protège le trajet ; seul un trajet soutenu le coupe
+   c) oui : le trajet le plus soutenu passe, égalité = les deux annulés
+   Recommandation : b) en variante de test ; a) par défaut.
+   REPONSE LOMIG : 
+
+22. Longueur maximale d'un trajet ? (fil giscus Q22)
+   a) illimitée
+   b) 3 segments
+   c) 5 segments
+   Recommandation : a) : un long trajet risque déjà plus la coupure ; trancher après tests.
    REPONSE LOMIG : 

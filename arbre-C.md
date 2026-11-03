@@ -1,42 +1,41 @@
-# QIDIGO — arbre C (tour 2)
+# QIDIGO — arbre C (tour 3)
 
-Toutes ces branches sont des PISTES (AGENTS.md : pas de DOCS/RULES.md figé). ★ = recommandée. Tour 2 : [choisie] = retenue par une réponse de Lomig, [écartée] = rejetée mais conservée, [ouverte] = à trancher. Les C17 et suivantes sont nouvelles.
+Toutes ces branches sont des PISTES (AGENTS.md : pas de DOCS/RULES.md figé). ★ = recommandée. [choisie] = retenue par une décision de Lomig relayée par CDP, [écartée] = rejetée mais conservée, [ouverte] = à trancher. C17–C59 : tour 2 ; C60 et suivantes : tour 3. « Paramètre du prototype » = valeur du paramètre de proto/regles-proto.md (v0.2) qui teste cette C.
 
 ## C0
 
-> Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur les 81 croisements d'une grille de traits 9×9 : chaque joueur a 5 pions ; à chaque tour (20 tours de 20 s), les deux joueurs donnent un ordre résolu en même temps — poser un pion, ou déplacer un pion par un trajet glissé au doigt le long des traits ; deux trajets qui passent par un même croisement ou un même segment se coupent, et une pose sur un trajet le coupe ; un trajet coupé est annulé, ainsi que l'ordre adverse (BRIEF) ; on gagne du terrain en fermant des zones avec ses trajets ; un pion adverse enfermé dans une zone est capturé, retourne dans la réserve de son propriétaire et peut être rejoué dès le tour suivant ; la partie finit après 20 tours, ou dès qu'un joueur contrôle 75 % des croisements (61 sur 81) ; ce qu'est une zone reste à explorer ; simple, rapide, profond.
+> Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur une grille de traits de 9×9 croisements (7×7 et 8×8 non exclus) : chaque joueur a 5 pions identiques ; 20 tours de 20 s ; à chaque tour, chaque joueur donne un ordre secret, résolu en même temps que l'autre — poser un pion, ou déplacer un pion par un trajet glissé le long des traits ; un pion peut entrer sur un croisement qu'un pion adverse quitte au même tour ; deux trajets qui se rencontrent (même croisement, départ exclu, ou même segment) se coupent, comme une pose sur un trajet ; un trajet coupé est annulé, ainsi que l'ordre adverse ; le trajet réussi laisse une trace colorée, visible, qui ne bloque pas les déplacements ; on gagne du terrain en fermant une zone — un pion qui revient sur sa trace ou boucle avec le bord, le bord servant de mur et la plus petite part étant prise ; la partie finit après 20 tours ou à 75 % des croisements contrôlés ; ouverts : rôle des traces comme bord de zone, reprise de zone (par morceaux ?), capture (aucune, avec ou sans retour), soutien façon Diplomacy, longueur maximale du trajet ; simple, rapide, profond.
 
 ### Évaluation du C0
 
 **Forces**
-- Les dix réponses de Lomig ferment les trous du tour 1 : le C0 décrit maintenant un jeu presque jouable sur papier.
-- Le geste (glisser), le gain (fermer) et la capture (enfermer) sont un seul et même mouvement : très bon pour « simple ».
-- La limite de 20 tours garantit la fin malgré le rejeu immédiat (K202).
-- Poser ne gagne pas de terrain (K201) : la tension poser/déplacer s'efface en grande partie.
+- Le cœur est nommé par Lomig : gagner et perdre des zones (commentaire sur la K du théorème de Jordan).
+- Le prototype (regles-proto.md v0.2) rend chaque option testable : 10 paramètres, une résolution en 9 étapes.
+- Sans capture (défaut du proto), la tension des boucles disparaît et la règle raccourcit.
+- Pions identiques : un seul geste, une lecture par positions (commentaire de Lomig, K234).
 
 **Faiblesses**
-- Ce qu'est une zone n'est pas défini (choix volontaire de Lomig) : bord, frontière, traces persistantes, zones mixtes.
-- Si l'adversaire peut reposer dans ma zone, la capture ne vaut presque rien (K203).
-- L'annulation mutuelle peut toujours bloquer ; une pose qui coupe : a-t-elle lieu ?
-- 20 × (20 s + 5 s) = 8 min 20 s au plus, proche des 8 min 45 s du JdS (K200).
-- 43,7 pt ≈ 7,2 mm par croisement, sous les 9,2 mm de Parhi (K195) : la saisie par glissement doit être aimantée.
+- Sans capture, enfermer un pion adverse ne sert à rien : le seul enjeu est le terrain.
+- Reprise de zone non tranchée : sans reprise, le territoire acquis ne bouge plus, et la partie peut se figer.
+- Les ordres conditionnels (entrée sur un croisement quitté) ajoutent une étape de résolution.
+- Le BRIEF fixe 9×9 ; Lomig ne veut pas exclure 7×7 ou 8×8 : écart à trancher après tests.
 
-**Verdict** : C0 de tour 2 recevable : l'axe ZONES (C17–C42) et l'ordre de résolution proposé (C56) sont les prochains à trancher ; une maquette papier est possible dès les réponses à Q11–Q14.
+**Verdict** : C0 de tour 3 jouable en prototype ; les tests doivent trancher capture, reprise, soutien et longueur du trajet (questions Q19–Q22).
 
 ## Arbre
 
 ```mermaid
 graph LR
-  C0["C0 Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur les 81 croisement"]
+  C0["C0 Duel classé 1 contre 1 pour iPhone (portrait), freemium sans pub, sur une grille de tra"]
   C1["C1 ✘ Terrain = croisements contrôlés (aire à la Go)"]
   C0 --> C1
   C2["C2 ✔ ★ Terrain = zones fermées par des trajets (à la Qix)"]
   C0 --> C2
-  C2a["C2a Le trajet s'efface après le tour ; seules les zones fermées restent"]
+  C2a["C2a ✘ Le trajet s'efface après le tour ; seules les zones fermées restent"]
   C2 --> C2a
   C2b["C2b ★ Le trajet reste peint et devient frontière"]
   C2 --> C2b
-  C2c["C2c ✔ Une zone fermée qui contient un pion adverse capture ce pion"]
+  C2c["C2c Une zone fermée qui contient un pion adverse capture ce pion"]
   C2 --> C2c
   C2d["C2d ✘ Une zone qui contient un pion adverse n'est pas fermée"]
   C2 --> C2d
@@ -72,7 +71,7 @@ graph LR
   C8 --> C8a
   C8b["C8b ✘ Pion seul (pas de groupes)"]
   C8 --> C8b
-  C8c["C8c ✔ ★ Capture par encerclement de trajets (à la Qix / Dots)"]
+  C8c["C8c ★ Capture par encerclement de trajets (à la Qix / Dots)"]
   C0 --> C8c
   C8d["C8d ✘ Capture en tenaille (Hasami shogi)"]
   C0 --> C8d
@@ -90,7 +89,7 @@ graph LR
   C0 --> C9c
   C9d["C9d Suicide interdit"]
   C0 --> C9d
-  C10["C10 ✔ Rejouable dès le tour suivant"]
+  C10["C10 Rejouable dès le tour suivant"]
   C0 --> C10
   C10a["C10a ✘ ★ Délai d'un ou deux tours avant de rejouer un pion capturé"]
   C0 --> C10a
@@ -152,11 +151,11 @@ graph LR
   C2 --> C18
   C19["C19 Zone = l'intérieur d'un seul trajet qui se referme sur lui-même"]
   C2 --> C19
-  C20["C20 ★ Le bord est un mur ; une coupure bord à bord donne la plus petite des deux parts"]
+  C20["C20 ✔ ★ Le bord est un mur ; une coupure bord à bord donne la plus petite des deux parts"]
   C2 --> C20
-  C21["C21 Le bord est un mur ; on prend la part sans pion adverse (Qix, Volfied : le côté sans l"]
+  C21["C21 ✘ Le bord est un mur ; on prend la part sans pion adverse (Qix, Volfied : le côté sans"]
   C2 --> C21
-  C22["C22 Le bord ne compte pas : seule une boucle complète de ses traces ferme"]
+  C22["C22 ✘ Le bord ne compte pas : seule une boucle complète de ses traces ferme"]
   C2 --> C22
   C23["C23 ★ Avec plusieurs trajets successifs : les traces restent et se rejoignent"]
   C2 --> C23
@@ -166,7 +165,7 @@ graph LR
   C2 --> C25
   C26["C26 Une chaîne de pions seule ferme une zone (Dots)"]
   C2 --> C26
-  C27["C27 Les traces décroissent : un segment s'efface après 3 tours s'il ne borde pas de zone"]
+  C27["C27 ✘ Les traces décroissent : un segment s'efface après 3 tours s'il ne borde pas de zone"]
   C2 --> C27
   C28["C28 ★ Zone fermée par des murs des deux joueurs : à personne"]
   C2 --> C28
@@ -176,7 +175,7 @@ graph LR
   C2 --> C30
   C31["C31 Ma zone est reprenable : l'adversaire la traverse et la referme (Paper.io)"]
   C2 --> C31
-  C32["C32 ✔ ★ Zone avec des pions des deux joueurs : les adverses sont capturés, les miens reste"]
+  C32["C32 ★ Zone avec des pions des deux joueurs : les adverses sont capturés, les miens restent"]
   C2 --> C32
   C33["C33 Zone dans une zone : l'adversaire ferme une zone à l'intérieur de la mienne"]
   C2 --> C33
@@ -218,7 +217,7 @@ graph LR
   C16a --> C51
   C52["C52 ★ Revenir en arrière sur son trajet l'efface ; lever le doigt valide ; bouton annuler"]
   C16a --> C52
-  C53["C53 ✘ Grille 7×7 (55,5 pt par croisement)"]
+  C53["C53 Grille 7×7 (55,5 pt par croisement)"]
   C16a --> C53
   C54["C54 ✘ Mode paysage"]
   C16a --> C54
@@ -232,6 +231,40 @@ graph LR
   C10 --> C58
   C59["C59 ✔ ★ 20 tours de 20 s ; 6 min 40 s hors résolution, 8 min 20 s au plus avec 5 s"]
   C14 --> C59
+  C60["C60 ✔ ★ Grille de 9×9 croisements (BRIEF)"]
+  C0 --> C60
+  C61["C61 Grille de 8×8 croisements"]
+  C0 --> C61
+  C62["C62 ★ Pas de capture : enfermer un pion adverse ne fait rien"]
+  C0 --> C62
+  C63["C63 Capture sans retour : le pion enfermé quitte la partie"]
+  C8c --> C63
+  C64["C64 ★ Soutien positionnel : un pion allié voisin du départ protège le trajet"]
+  C7 --> C64
+  C65["C65 Soutien par comptage : le trajet le plus soutenu passe ; égalité = les deux annulés"]
+  C7 --> C65
+  C66["C66 ★ Reprise par morceaux : fermer une zone qui couvre une partie du territoire adverse l"]
+  C2 --> C66
+  C67["C67 Pose coupante annulée aussi (BRIEF au pied de la lettre)"]
+  C7 --> C67
+  C68["C68 ★ Passer sur une trace adverse la recolore à sa couleur"]
+  C2 --> C68
+  C69["C69 Une trace adverse garde sa couleur"]
+  C2 --> C69
+  C70["C70 ✔ ★ Un pion peut entrer sur un croisement qu'un pion adverse quitte au même tour"]
+  C6 --> C70
+  C71["C71 ✘ Un trajet ne passe par aucun croisement occupé au début du tour"]
+  C6 --> C71
+  C72["C72 ✔ ★ Rencontre de pions qui bougent ou qui arrivent : même arrivée, ou sens inverse sur"]
+  C6 --> C72
+  C73["C73 ★ Une pose peut viser le croisement d'un pion adverse qui part au même tour (condition"]
+  C15 --> C73
+  C74["C74 Trajet limité à 3 segments"]
+  C13a --> C74
+  C75["C75 Trajet limité à 5 segments"]
+  C13a --> C75
+  C76["C76 ★ Si plusieurs régions ont la plus grande taille, aucune n'est une zone"]
+  C20 --> C76
 ```
 
 ## Fiches
@@ -256,8 +289,8 @@ graph LR
 - Test C→K : Papier : 5 parties ; les zones fermées se lisent-elles d'un coup d'œil ?
 - Tensions : T-DEJAVU
 
-### C2a Le trajet s'efface après le tour ; seules les zones fermées restent [ouverte]
-- Décision : ouverte — piste non tranchée
+### C2a Le trajet s'efface après le tour ; seules les zones fermées restent [écartée]
+- Décision : écartée — Q11 (réponse de Lomig du 03/11 à 11 h 45, relayée par CDP) : les traces restent visibles
 - Parent : C2 — partition : Que reste-t-il du trajet
 - Propriété ajoutée : Le trajet sert à fermer, puis disparaît.
 - Valeur : simple — éval simple + / rapide 0 / profond -
@@ -266,7 +299,8 @@ graph LR
 - Test C→K : Comparer lisibilité C2a/C2b sur 3 parties.
 
 ### C2b ★ Le trajet reste peint et devient frontière [ouverte]
-- Décision : ouverte — piste non tranchée
+- Décision : ouverte — Q11 (réponse de Lomig du 03/11 à 11 h 45, relayée par CDP) : traces visibles, ne bloquent pas ; rôle de frontière ouvert
+- Paramètre du prototype : traces = bord_de_zone (défaut)
 - Parent : C2 — partition : Que reste-t-il du trajet
 - Propriété ajoutée : Les trajets réussis restent tracés (murs) et servent à fermer plus tard.
 - Valeur : profond — éval simple 0 / rapide + / profond +
@@ -274,8 +308,8 @@ graph LR
 - K : K122 (Qix : tracer pour fermer des zones ; le trait non fini est vulnérable), K130 (Dots (Kropki) : capturer les points adverses en les entourant), K133 (TwixT : des liens qui ne se croisent pas ; règle du gâteau)
 - Test C→K : Compter combien de tours il faut pour fermer une première zone.
 
-### C2c Une zone fermée qui contient un pion adverse capture ce pion [choisie]
-- Décision : choisie — Q4 a — réponse de Lomig du 03/11 relayée par CDP
+### C2c Une zone fermée qui contient un pion adverse capture ce pion [ouverte]
+- Décision : ouverte — choisie au tour 2 (Q4 a), remise en question par Lomig le 03/11 à 11 h 45
 - Parent : C2 — partition : Zone contenant un pion adverse
 - Propriété ajoutée : Fermer autour d'un pion adverse le renvoie dans sa réserve.
 - Valeur : rapide, profond — éval simple + / rapide + / profond +
@@ -322,6 +356,7 @@ graph LR
 
 ### C6 ★ Couper = deux trajets passent par un même croisement (à n'importe quel moment) [choisie]
 - Décision : choisie — Q2 a — réponse de Lomig du 03/11 relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C0 — partition : Ce qui compte comme « couper »
 - Propriété ajoutée : Toute intersection commune des trajets des deux ordres.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -332,6 +367,7 @@ graph LR
 
 ### C6a ★ Le face-à-face sur un même segment compte aussi [choisie]
 - Décision : choisie — Q2 a — réponse de Lomig du 03/11 relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C6 — partition : Le face-à-face
 - Propriété ajoutée : Deux trajets qui empruntent le même segment en sens inverse se coupent.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -351,6 +387,7 @@ graph LR
 
 ### C6c ★ Couper = arriver sur le trajet adverse, ou poser dessus [choisie]
 - Décision : choisie — Q3 a — réponse de Lomig du 03/11 relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C0 — partition : Ce qui compte comme « couper »
 - Propriété ajoutée : Pose ou arrivée sur un croisement du trajet adverse coupe ce trajet (exemple du BRIEF).
 - Valeur : profond — éval simple 0 / rapide + / profond +
@@ -369,6 +406,7 @@ graph LR
 
 ### C7 ★ Les deux déplacements sont annulés (pitch) [ouverte]
 - Décision : ouverte — BRIEF point 7 ; contre-mesures du tour 2 sous C7 (C43–C46)
+- Paramètre du prototype : soutien = non (défaut)
 - Parent : C0 — partition : Effet de la coupure
 - Propriété ajoutée : Comme le BRIEF.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -444,8 +482,9 @@ graph LR
 - K : K74 (Cowan (2001) : environ quatre éléments en mémoire de travail)
 - Test C→K : Compare C8a sur 3 parties.
 
-### C8c ★ Capture par encerclement de trajets (à la Qix / Dots) [choisie]
-- Décision : choisie — Q4 a — réponse de Lomig du 03/11 relayée par CDP
+### C8c ★ Capture par encerclement de trajets (à la Qix / Dots) [ouverte]
+- Décision : ouverte — choisie au tour 2 (Q4 a), remise en question par Lomig le 03/11 à 11 h 45 ; proto : capture désactivée par défaut
+- Paramètre du prototype : capture = retour ou sans_retour (mode de capture : enfermement)
 - Parent : C0 — partition : Comment se fait la capture
 - Propriété ajoutée : Un pion adverse dans une zone que je ferme retourne dans sa réserve.
 - Valeur : rapide, profond — éval simple + / rapide + / profond +
@@ -528,8 +567,9 @@ graph LR
 - Test C→K : En simultané, le suicide dépend de l'ordre adverse : invérifiable à la saisie.
 - Tensions : T-SIMUL
 
-### C10 Rejouable dès le tour suivant [choisie]
-- Décision : choisie — Q5 a — réponse de Lomig du 03/11 relayée par CDP (reposer coûte l'ordre du tour)
+### C10 Rejouable dès le tour suivant [ouverte]
+- Décision : ouverte — choisie au tour 2 (Q5 a), remise en question par Lomig le 03/11 à 11 h 45
+- Paramètre du prototype : capture = retour
 - Parent : C0 — partition : Retour en réserve et répétition (fin garantie)
 - Propriété ajoutée : Le pion capturé revient en réserve et peut être reposé tout de suite.
 - Valeur : simple — éval simple + / rapide 0 / profond 0
@@ -596,6 +636,7 @@ graph LR
 
 ### C11b ★ Fin au premier des deux : N tours ou X % [choisie]
 - Décision : choisie — Q6 a — réponse de Lomig du 03/11 relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C0 — partition : Critère de fin (décision ouverte de Lomig)
 - Propriété ajoutée : Le seuil permet une victoire anticipée ; la limite garantit la fin.
 - Valeur : simple, rapide, profond — éval simple + / rapide + / profond +
@@ -605,6 +646,7 @@ graph LR
 
 ### C11c ★ Seuil fixe (PROPOSITION : 75 % de l'aire, soit 61 croisements sur 81) [choisie]
 - Décision : choisie — Q7 a — réponse de Lomig du 03/11 relayée par CDP (75 %, 61 croisements, valeur de test)
+- Paramètre du prototype : seuil = 75 (défaut, réglable)
 - Parent : C11b — partition : Seuil
 - Propriété ajoutée : Valeur de Qix ; Volfied 80 %, Super Qix 70 %.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -662,6 +704,7 @@ graph LR
 
 ### C12 ★ X = 5 [choisie]
 - Décision : choisie — Q9 — réponse de Lomig du 03/11 relayée par CDP (5 pions)
+- Paramètre du prototype : règle de base
 - Parent : C0 — partition : Nombre de pions X
 - Propriété ajoutée : Réserve courte.
 - Valeur : simple, rapide — éval simple + / rapide + / profond 0
@@ -690,6 +733,7 @@ graph LR
 
 ### C13 ★ Trajet libre, sans traverser de pion [ouverte]
 - Décision : ouverte — piste non tranchée
+- Paramètre du prototype : trajet_max = illimite (défaut) ; le proto permet de passer par le croisement d'un pion adverse qui part
 - Parent : C0 — partition : Longueur du trajet
 - Propriété ajoutée : Longueur libre ; un long trajet s'expose plus.
 - Valeur : profond — éval simple 0 / rapide + / profond +
@@ -699,6 +743,7 @@ graph LR
 
 ### C13a Trajet limité à N segments (ex. 4) [ouverte]
 - Décision : ouverte — piste non tranchée
+- Paramètre du prototype : trajet_max = 3 ou 5
 - Parent : C0 — partition : Longueur du trajet
 - Propriété ajoutée : Bornage simple.
 - Valeur : simple — éval simple + / rapide 0 / profond 0
@@ -782,6 +827,7 @@ graph LR
 
 ### C16a Glisser le doigt le long des traits [choisie]
 - Décision : choisie — Q10 b — réponse de Lomig du 03/11 relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C0 — partition : Geste pour donner un ordre
 - Propriété ajoutée : Dessin du trajet.
 - Valeur : profond — éval simple - / rapide 0 / profond +
@@ -792,6 +838,7 @@ graph LR
 
 ### C17 ★ Zone = cases entourées par ses traces (remplissage des 64 cases en 4-connexité) [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : règle de base
 - Parent : C2 — partition : Zones : ce qu'est une zone (géométrie)
 - Propriété ajoutée : Deux cases voisines communiquent si le segment entre elles n'est pas un de mes murs ; une région séparée du reste est une zone.
 - Valeur : simple — éval simple + / rapide + / profond 0
@@ -811,6 +858,7 @@ graph LR
 
 ### C19 Zone = l'intérieur d'un seul trajet qui se referme sur lui-même [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : traces = decoratives
 - Parent : C2 — partition : Zones : ce qu'est une zone (géométrie)
 - Propriété ajoutée : Une boucle dans un seul ordre.
 - Valeur : simple — éval simple + / rapide 0 / profond -
@@ -819,8 +867,9 @@ graph LR
 - Test C→K : Combien de segments faut-il ? (2×2 cases = 8 segments)
 - Tensions : T-DUREE
 
-### C20 ★ Le bord est un mur ; une coupure bord à bord donne la plus petite des deux parts [ouverte]
-- Décision : ouverte — PROPOSITION du tour 2
+### C20 ★ Le bord est un mur ; une coupure bord à bord donne la plus petite des deux parts [choisie]
+- Décision : choisie — Q12 a — réponse de Lomig du 03/11 à 11 h 45, relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C2 — partition : Zones : le bord de la grille
 - Propriété ajoutée : Comme Dots sur ordinateur (zone minimale).
 - Valeur : rapide, profond — éval simple + / rapide + / profond +
@@ -828,8 +877,8 @@ graph LR
 - K : K185 (Dots sur ordinateur : on entoure automatiquement la plus petite zone), K122 (Qix : tracer pour fermer des zones ; le trait non fini est vulnérable), K183 (Paper.io 2 : le bord de l'arène est l'endroit le plus sûr), K197 (Une coupure droite bord à bord laisse au plus 45 croisements à la plus petite part)
 - Test C→K : Les joueurs se ruent-ils tous au bord ?
 
-### C21 Le bord est un mur ; on prend la part sans pion adverse (Qix, Volfied : le côté sans le monstre) [ouverte]
-- Décision : ouverte — PROPOSITION du tour 2
+### C21 Le bord est un mur ; on prend la part sans pion adverse (Qix, Volfied : le côté sans le monstre) [écartée]
+- Décision : écartée — Q12 a
 - Parent : C2 — partition : Zones : le bord de la grille
 - Propriété ajoutée : La part qui contient des pions adverses reste « l'extérieur ».
 - Valeur : profond — éval simple 0 / rapide - / profond +
@@ -838,8 +887,8 @@ graph LR
 - Test C→K : Contredit-il Q4 a au bord ?
 - Tensions : T-BRIEF
 
-### C22 Le bord ne compte pas : seule une boucle complète de ses traces ferme [ouverte]
-- Décision : ouverte — PROPOSITION du tour 2
+### C22 Le bord ne compte pas : seule une boucle complète de ses traces ferme [écartée]
+- Décision : écartée — Q12 a
 - Parent : C2 — partition : Zones : le bord de la grille
 - Propriété ajoutée : Pas d'appui sur le bord.
 - Valeur : simple — éval simple + / rapide - / profond 0
@@ -850,6 +899,7 @@ graph LR
 
 ### C23 ★ Avec plusieurs trajets successifs : les traces restent et se rejoignent [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : règle de base (avec traces = bord_de_zone)
 - Parent : C2 — partition : Zones : comment on la ferme
 - Propriété ajoutée : Chaque trajet réussi ajoute des murs.
 - Valeur : profond — éval simple 0 / rapide + / profond +
@@ -859,6 +909,7 @@ graph LR
 
 ### C24 ★ Un trajet qui rejoint son territoire ou ses traces ferme (Paper.io) [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : règle de base
 - Parent : C2 — partition : Zones : comment on la ferme
 - Propriété ajoutée : Le retour au territoire ferme la boucle.
 - Valeur : rapide — éval simple + / rapide + / profond +
@@ -886,8 +937,8 @@ graph LR
 - Test C→K : Écart possible avec Q1 a (terrain par les trajets) : à valider par Lomig.
 - Tensions : T-BRIEF
 
-### C27 Les traces décroissent : un segment s'efface après 3 tours s'il ne borde pas de zone [ouverte]
-- Décision : ouverte — PROPOSITION du tour 2
+### C27 Les traces décroissent : un segment s'efface après 3 tours s'il ne borde pas de zone [écartée]
+- Décision : écartée — Q11 : les traces restent visibles
 - Parent : C2 — partition : Zones : ce qui reste sur la grille
 - Propriété ajoutée : Mémoire courte de la grille.
 - Valeur : profond — éval simple - / rapide + / profond +
@@ -898,6 +949,7 @@ graph LR
 
 ### C28 ★ Zone fermée par des murs des deux joueurs : à personne [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : règle de base
 - Parent : C2 — partition : Zones : zones mixtes, partagées, emboîtées
 - Propriété ajoutée : Murs mêlés = zone neutre.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -935,8 +987,8 @@ graph LR
 - Test C→K : Le comptage bouge-t-il trop pour être lu ?
 - Tensions : T-SIMPLE
 
-### C32 ★ Zone avec des pions des deux joueurs : les adverses sont capturés, les miens restent [choisie]
-- Décision : choisie — implicite : Q4 a
+### C32 ★ Zone avec des pions des deux joueurs : les adverses sont capturés, les miens restent [ouverte]
+- Décision : ouverte — dépend de la capture, remise en question
 - Parent : C2 — partition : Zones : zones mixtes, partagées, emboîtées
 - Propriété ajoutée : Application de Q4 a.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -962,8 +1014,8 @@ graph LR
 - K : K196 (Une case 1×1 fermée a 4 croisements de frontière et aucun croisement intérieur), K131 (Pipopipette (Dots and Boxes) : fermer une case donne un point et un coup de plus)
 - Test C→K : Les parties se jouent-elles en petites cases ?
 
-### C35 Il faut au moins un croisement intérieur (2×2 cases, 9 croisements)
-- Décision : None — 
+### C35 Il faut au moins un croisement intérieur (2×2 cases, 9 croisements) [ouverte]
+- Décision : ouverte — piste non tranchée
 - Parent : C2 — partition : Zones : taille minimale
 - Propriété ajoutée : Pas de micro-zones.
 - Valeur : profond — éval simple 0 / rapide - / profond +
@@ -973,6 +1025,7 @@ graph LR
 
 ### C36 ★ Une zone gagnée est définitive [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : reprise = non (défaut)
 - Parent : C2 — partition : Zones : une zone gagnée se perd-elle ?
 - Propriété ajoutée : Comme Dots.
 - Valeur : simple — éval simple + / rapide + / profond 0
@@ -993,6 +1046,7 @@ graph LR
 
 ### C38 ★ Deux fermetures au même tour sans coupure comptent toutes les deux ; zone emboîtée : l'intérieure à son auteur [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : règle de base
 - Parent : C2 — partition : Zones : fermetures au même tour
 - Propriété ajoutée : Calcul simultané des zones.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -1012,6 +1066,7 @@ graph LR
 
 ### C40 ★ Contrôlés = mes pions + croisements de mes zones, frontière comprise [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : comptage = frontiere (défaut)
 - Parent : C11c — partition : Comptage des croisements contrôlés (Q7 a)
 - Propriété ajoutée : Comme l'aire au go (pierres + territoire).
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -1019,8 +1074,9 @@ graph LR
 - K : K196 (Une case 1×1 fermée a 4 croisements de frontière et aucun croisement intérieur), K113 (Go : décompte par aire ou par territoire), K173 (Q7 a : X % se compte en croisements contrôlés, sur 81 ; seuil de test 75 %, soit 61 croisements)
 - Test C→K : Le seuil de 61 est-il atteint en 20 tours ?
 
-### C41 Contrôlés = mes pions + croisements intérieurs seulement
-- Décision : None — 
+### C41 Contrôlés = mes pions + croisements intérieurs seulement [ouverte]
+- Décision : ouverte — piste non tranchée
+- Paramètre du prototype : comptage = interieur
 - Parent : C11c — partition : Comptage des croisements contrôlés (Q7 a)
 - Propriété ajoutée : Frontière exclue.
 - Valeur : profond — éval simple - / rapide 0 / profond +
@@ -1030,6 +1086,7 @@ graph LR
 
 ### C42 ★ Un croisement de frontière commune aux deux joueurs : à personne [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : règle de base
 - Parent : C11c — partition : Comptage des croisements contrôlés (Q7 a)
 - Propriété ajoutée : Pas de double compte.
 - Valeur : simple — éval simple + / rapide 0 / profond 0
@@ -1039,6 +1096,7 @@ graph LR
 
 ### C43 ★ Pose coupante : seul le trajet est annulé, la pose a lieu [ouverte]
 - Décision : ouverte — PROPOSITION du tour 2
+- Paramètre du prototype : pose_coupante = maintenue
 - Parent : C7 — partition : Contre le blocage par annulation mutuelle (tour 2)
 - Propriété ajoutée : La pose est un barrage réel.
 - Valeur : simple — éval simple + / rapide 0 / profond +
@@ -1103,8 +1161,8 @@ graph LR
 - K : K192 (Vogel et Baudisch (2007) : Shift, une loupe décalée contre l'occlusion du doigt), K193 (Apple HIG : gestes standard, et contrôles agrandis pour les cibles denses)
 - Test C→K : Gêne-t-elle la vue de la grille ?
 
-### C50 Curseur décalé au-dessus du doigt
-- Décision : None — 
+### C50 Curseur décalé au-dessus du doigt [ouverte]
+- Décision : ouverte — piste non tranchée
 - Parent : C16a — partition : Saisie par glissement (Q10 b)
 - Propriété ajoutée : On voit la tête du trajet.
 - Valeur : simple — éval simple + / rapide 0 / profond 0
@@ -1112,8 +1170,8 @@ graph LR
 - K : K192 (Vogel et Baudisch (2007) : Shift, une loupe décalée contre l'occlusion du doigt)
 - Test C→K : Compare C49.
 
-### C51 Zoom (pincer) avant de tracer
-- Décision : None — 
+### C51 Zoom (pincer) avant de tracer [ouverte]
+- Décision : ouverte — piste non tranchée
 - Parent : C16a — partition : Saisie par glissement (Q10 b)
 - Propriété ajoutée : Agrandir la grille.
 - Valeur : profond — éval simple - / rapide - / profond 0
@@ -1131,8 +1189,9 @@ graph LR
 - K : K193 (Apple HIG : gestes standard, et contrôles agrandis pour les cibles denses), K190 (Flow Free : relier des paires de points en traçant des tuyaux sur une grille ; les tuyaux ne se croisent pas)
 - Test C→K : Combien d'annulations par partie ?
 
-### C53 Grille 7×7 (55,5 pt par croisement) [écartée]
-- Décision : écartée — BRIEF point 1 (9×9)
+### C53 Grille 7×7 (55,5 pt par croisement) [ouverte]
+- Décision : ouverte — rouverte : Lomig ne veut pas exclure le 7×7 (commentaire giscus) ; le BRIEF dit 9×9
+- Paramètre du prototype : grille = 7
 - Parent : C16a — partition : Saisie par glissement (Q10 b)
 - Propriété ajoutée : Respecte les 9,2 mm de Parhi.
 - Valeur : simple — éval simple + / rapide + / profond -
@@ -1151,8 +1210,8 @@ graph LR
 - Test C→K : Contredit AGENTS (portrait).
 - Tensions : T-BRIEF
 
-### C55 Vibration légère à chaque croisement franchi
-- Décision : None — 
+### C55 Vibration légère à chaque croisement franchi [ouverte]
+- Décision : ouverte — piste non tranchée
 - Parent : C16a — partition : Saisie par glissement (Q10 b)
 - Propriété ajoutée : Retour sans regarder sous le doigt.
 - Valeur : simple — éval simple + / rapide 0 / profond 0
@@ -1179,8 +1238,8 @@ graph LR
 - K : K203 (Si l'adversaire peut reposer dans ma zone, la capture ne sert presque à rien), K184 (Dots : la chaîne se forme aussi en diagonale ; on ne peut pas entourer une zone vide)
 - Test C→K : Mesurer les captures « utiles ».
 
-### C58 Ko local : pas de pose pendant un tour sur le croisement où un pion vient d'être capturé
-- Décision : None — 
+### C58 Ko local : pas de pose pendant un tour sur le croisement où un pion vient d'être capturé [ouverte]
+- Décision : ouverte — piste non tranchée
 - Parent : C10 — partition : Boucles avec rejeu immédiat (Q5 a)
 - Propriété ajoutée : Comme le ko simple.
 - Valeur : profond — éval simple - / rapide 0 / profond +
@@ -1190,6 +1249,7 @@ graph LR
 
 ### C59 ★ 20 tours de 20 s ; 6 min 40 s hors résolution, 8 min 20 s au plus avec 5 s [choisie]
 - Décision : choisie — Q8 — réponse de Lomig du 03/11 relayée par CDP
+- Paramètre du prototype : règle de base
 - Parent : C14 — partition : Durée (Q8)
 - Propriété ajoutée : Décision de Lomig relayée par CDP.
 - Valeur : rapide — éval simple + / rapide 0 / profond 0
@@ -1198,15 +1258,189 @@ graph LR
 - Test C→K : Mesurer le temps réel avec « Prêt ».
 - Tensions : T-DUREE
 
+### C60 ★ Grille de 9×9 croisements (BRIEF) [choisie]
+- Décision : choisie — BRIEF ; défaut du proto
+- Paramètre du prototype : grille = 9 (défaut)
+- Parent : C0 — partition : Taille de la grille (tour 3)
+- Propriété ajoutée : 81 croisements, 64 cases.
+- Valeur : profond — éval simple 0 / rapide - / profond +
+- Promesse : Le plus de place pour les zones.
+- K : K157 (Grille 9×9 traits : 81 croisements, 64 cases, 144 segments), K232 (Grilles 7, 8, 9 : 49, 64, 81 croisements ; seuil 75 % = 37, 48, 61 ; pas de 56, 49, 44 pt)
+- Test C→K : Comparer la durée des parties en 7, 8, 9.
+
+### C61 Grille de 8×8 croisements [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : grille = 8
+- Parent : C0 — partition : Taille de la grille (tour 3)
+- Propriété ajoutée : 64 croisements, 49 cases, ≈ 8,1 mm par croisement.
+- Valeur : simple, rapide — éval simple + / rapide + / profond 0
+- Promesse : Compromis lisibilité / place.
+- K : K232 (Grilles 7, 8, 9 : 49, 64, 81 croisements ; seuil 75 % = 37, 48, 61 ; pas de 56, 49, 44 pt), K218 (Lomig : ne pas exclure le 8×8 ou le 7×7)
+- Test C→K : Même test.
+- Tensions : T-BRIEF
+
+### C62 ★ Pas de capture : enfermer un pion adverse ne fait rien [ouverte]
+- Décision : ouverte — défaut du proto (choix de CDP en attendant Lomig)
+- Paramètre du prototype : capture = aucune (défaut)
+- Parent : C0 — partition : Comment se fait la capture
+- Propriété ajoutée : Le terrain est le seul enjeu.
+- Valeur : simple, rapide — éval simple + / rapide + / profond -
+- Promesse : Plus de boucle capture/repose ; règle plus courte.
+- K : K209 (Prototype : pas de capture par défaut (choix de CDP en attendant Lomig)), K215 (Lomig : ne pas capturer, ou capturer sans retour ?), K230 (Sans capture, la tension des boucles de capture disparaît), K229 (Sans capture, chaque joueur pose au plus 5 fois : au moins 15 de ses 20 ordres sont des déplacements ou « rien »)
+- Test C→K : Les parties sans capture sont-elles assez tendues ?
+
+### C63 Capture sans retour : le pion enfermé quitte la partie [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : capture = sans_retour
+- Parent : C8c — partition : Que devient le pion capturé (tour 3)
+- Propriété ajoutée : Le matériel diminue.
+- Valeur : profond — éval simple 0 / rapide + / profond +
+- Promesse : Capturer pèse lourd ; fin naturelle.
+- K : K215 (Lomig : ne pas capturer, ou capturer sans retour ?), K160 (Avec retour en réserve, le matériel ne diminue jamais : la fin doit venir d'une règle)
+- Test C→K : Combien de captures par partie ?
+
+### C64 ★ Soutien positionnel : un pion allié voisin du départ protège le trajet [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : soutien = oui
+- Parent : C7 — partition : Soutien façon Diplomacy (tour 3)
+- Propriété ajoutée : Un trajet soutenu n'est coupé que par un trajet soutenu ; une pose ne le coupe pas.
+- Valeur : profond — éval simple 0 / rapide + / profond +
+- Promesse : Formations de pions ; moins de blocage gratuit.
+- K : K221 (Diplomacy : une unité peut soutenir une unité voisine qui tient ou qui attaque ; le plus soutenu l'emporte), K231 (En QIDIGO, soutenir ne coûte pas d'ordre : un seul pion bouge par tour), K216 (Lomig : l'annulation mutuelle est un choix lié à Diplomacy ; transposer le SOUTIEN ?)
+- Test C→K : Les joueurs bougent-ils toujours en paire ?
+- Tensions : T-SIMPLE
+
+### C65 Soutien par comptage : le trajet le plus soutenu passe ; égalité = les deux annulés [ouverte]
+- Décision : ouverte — variante non codée dans le proto
+- Parent : C7 — partition : Soutien façon Diplomacy (tour 3)
+- Propriété ajoutée : Plus proche de Diplomacy (standoff).
+- Valeur : profond — éval simple - / rapide 0 / profond +
+- Promesse : Gradation des soutiens.
+- K : K221 (Diplomacy : une unité peut soutenir une unité voisine qui tient ou qui attaque ; le plus soutenu l'emporte), K78 (Diplomacy : à force égale, personne n'avance (standoff))
+- Test C→K : Avec 5 pions, combien de soutiens au mieux ?
+- Tensions : T-SIMPLE
+
+### C66 ★ Reprise par morceaux : fermer une zone qui couvre une partie du territoire adverse la reprend [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : reprise = oui
+- Parent : C2 — partition : Zones : une zone gagnée se perd-elle ?
+- Propriété ajoutée : La zone fermée prend aussi les cases adverses.
+- Valeur : profond — éval simple 0 / rapide + / profond +
+- Promesse : Le territoire vit jusqu'à la fin ; c'est l'idée de Lomig.
+- K : K212 (Lomig : fermer une zone en rebougeant un pion ; reprise par morceaux ?), K211 (Lomig : le cœur du jeu est le gain et la perte de zones), K182 (Paper.io 2 : sortir de son territoire trace une traînée ; y revenir capture tout ce qu'elle entoure)
+- Test C→K : Le meneur peut-il encore être rattrapé ?
+- Tensions : T-SIMPLE
+
+### C67 Pose coupante annulée aussi (BRIEF au pied de la lettre) [ouverte]
+- Décision : ouverte — défaut du proto
+- Paramètre du prototype : pose_coupante = annulee (défaut)
+- Parent : C7 — partition : Contre le blocage par annulation mutuelle (tour 2)
+- Propriété ajoutée : Couper par une pose coûte la pose.
+- Valeur : simple — éval simple + / rapide 0 / profond -
+- Promesse : Fidèle au BRIEF.
+- K : K99 (Trajet non coupé : le déplacement a lieu ; coupé : les deux déplacements sont annulés), K169 (Q3 a : poser un pion sur le trajet adverse le coupe)
+- Test C→K : Comparer avec la pose maintenue.
+
+### C68 ★ Passer sur une trace adverse la recolore à sa couleur [ouverte]
+- Décision : ouverte — défaut du proto
+- Paramètre du prototype : trace_adverse = recolore (défaut)
+- Parent : C2 — partition : Zones : ce qui reste sur la grille
+- Propriété ajoutée : Le dernier passage l'emporte.
+- Valeur : profond — éval simple 0 / rapide + / profond +
+- Promesse : On peut ouvrir un mur adverse.
+- K : K204 (Q11 : les traces restent visibles mais ne bloquent pas les déplacements)
+- Test C→K : Les murs adverses tiennent-ils ?
+
+### C69 Une trace adverse garde sa couleur [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : trace_adverse = garde
+- Parent : C2 — partition : Zones : ce qui reste sur la grille
+- Propriété ajoutée : Murs stables.
+- Valeur : simple — éval simple + / rapide 0 / profond 0
+- Promesse : Zones plus faciles à bâtir.
+- K : K204 (Q11 : les traces restent visibles mais ne bloquent pas les déplacements)
+- Test C→K : Comparer avec C68.
+
+### C70 ★ Un pion peut entrer sur un croisement qu'un pion adverse quitte au même tour [choisie]
+- Décision : choisie — décision de Lomig du 03/11 à 11 h 52, relayée par CDP
+- Paramètre du prototype : règle de base
+- Parent : C6 — partition : Croisement quitté au même tour (tour 3)
+- Propriété ajoutée : Départ exclu du test de coupure ; ordre conditionnel, annulé si le pion adverse reste.
+- Valeur : rapide, profond — éval simple 0 / rapide + / profond +
+- Promesse : On peut suivre ou chasser un pion.
+- K : K208 (Un pion peut entrer sur un croisement qu'un pion adverse quitte pendant ce même tour), K235 (Entrer sur un croisement quitté crée des ordres conditionnels, résolus en cascade)
+- Test C→K : Fréquence des ordres conditionnels annulés.
+- Tensions : T-SIMUL
+
+### C71 Un trajet ne passe par aucun croisement occupé au début du tour [écartée]
+- Décision : écartée — décision de Lomig du 03/11 à 11 h 52
+- Parent : C6 — partition : Croisement quitté au même tour (tour 3)
+- Propriété ajoutée : Règle du proto v0.1.
+- Valeur : simple — éval simple + / rapide 0 / profond -
+- Promesse : Plus simple.
+- K : K37 (Pas de mouvement vers une case occupée)
+- Test C→K : —
+
+### C72 ★ Rencontre de pions qui bougent ou qui arrivent : même arrivée, ou sens inverse sur un segment [choisie]
+- Décision : choisie — implicite : Q2 a + commentaire de Lomig sur la K99
+- Paramètre du prototype : règle de base
+- Parent : C6 — partition : Le face-à-face
+- Propriété ajoutée : Annulation par rencontre, pas seulement par coupure.
+- Valeur : simple — éval simple + / rapide 0 / profond +
+- Promesse : Une seule règle : partage d'un croisement (départ exclu) ou d'un segment.
+- K : K214 (Lomig : annulation aussi par rencontre de pions qui bougent ou arrivent), K168 (Q2 a : deux trajets se coupent s'ils passent par un même croisement ou un même segment, quel que soit le moment)
+- Test C→K : Cas d'école en 3 schémas.
+
+### C73 ★ Une pose peut viser le croisement d'un pion adverse qui part au même tour (conditionnelle) [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : règle de base (choix proto)
+- Parent : C15 — partition : Poser sur un croisement quitté (tour 3)
+- Propriété ajoutée : Extension de la décision du 03/11 à 11 h 52 à la pose.
+- Valeur : profond — éval simple 0 / rapide - / profond +
+- Promesse : Cohérent avec C70.
+- K : K208 (Un pion peut entrer sur un croisement qu'un pion adverse quitte pendant ce même tour), K235 (Entrer sur un croisement quitté crée des ordres conditionnels, résolus en cascade)
+- Test C→K : Utile en partie ?
+
+### C74 Trajet limité à 3 segments [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : trajet_max = 3
+- Parent : C13a — partition : Longueur maximale (tour 3)
+- Propriété ajoutée : Ordres courts.
+- Valeur : simple, rapide — éval simple + / rapide + / profond -
+- Promesse : Moins de grands trajets imprévisibles.
+- K : K213 (Lomig : faut-il une longueur maximale de déplacement ?)
+- Test C→K : Durée et taux de coupure.
+
+### C75 Trajet limité à 5 segments [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : trajet_max = 5
+- Parent : C13a — partition : Longueur maximale (tour 3)
+- Propriété ajoutée : Compromis.
+- Valeur : rapide — éval simple + / rapide 0 / profond +
+- Promesse : Laisse fermer une case en un trajet (4 segments).
+- K : K213 (Lomig : faut-il une longueur maximale de déplacement ?), K196 (Une case 1×1 fermée a 4 croisements de frontière et aucun croisement intérieur)
+- Test C→K : Même test.
+
+### C76 ★ Si plusieurs régions ont la plus grande taille, aucune n'est une zone [ouverte]
+- Décision : ouverte — choix proto, à tester (tour 3)
+- Paramètre du prototype : règle de base (choix proto)
+- Parent : C20 — partition : Égalité de taille (tour 3)
+- Propriété ajoutée : Une coupure en deux parts égales ne donne rien.
+- Valeur : simple — éval simple + / rapide 0 / profond 0
+- Promesse : Évite d'avoir à choisir.
+- K : K205 (Q12 a : le bord sert de mur ; on prend la plus petite part), K197 (Une coupure droite bord à bord laisse au plus 45 croisements à la plus petite part)
+- Test C→K : Fréquence du cas.
+
 ## Tensions
 
-- **T-BLOCAGE — Annulation mutuelle → blocage** : Si toute coupure annule les deux ordres, le joueur en tête peut couper pour figer la partie ; les variantes simultanées du go ont eu des amas d'annulations. Pistes du tour 2 : C43 (la pose coupante a lieu), C44 (pas de coupure sur ses traces ou dans sa zone), C45 (seul l'ordre coupant est annulé), C46 (rebond). Recommandation : C43 + C44. (K : K99, K145, K161)
+- **T-BLOCAGE — Annulation mutuelle → blocage** : Si toute coupure annule les deux ordres, le joueur en tête peut couper pour figer la partie ; les variantes simultanées du go ont eu des amas d'annulations. Pistes du tour 2 : C43 (la pose coupante a lieu), C44 (pas de coupure sur ses traces ou dans sa zone), C45 (seul l'ordre coupant est annulé), C46 (rebond). Recommandation : C43 + C44. Tour 3 : Lomig rappelle que l'annulation mutuelle est un choix lié à Diplomacy (« cela force la réflexion ») ; piste du soutien (C64, C65). (K : K99, K145, K161)
 - **T-POSE — Poser domine déplacer** : Poser ne se coupe pas (sauf C6c) : tant qu'il reste des pions en réserve, déplacer semble faible ; le retour en réserve remplit la réserve. Tour 2 : avec Q1 a, poser ne gagne aucun terrain (K201) ; poser sert à entrer, couper ou reprendre un pion capturé, et coûte l'ordre du tour (Q5 a). Tension largement levée ; à vérifier en papier. (K : K151, K164, K105)
-- **T-SIMPLE — Simple contre profond** : Go + Qix + Diplomacy = trois systèmes : la leçon du JdS est « compliqué et lent ». (K : K107, K16, K74, K70)
+- **T-SIMPLE — Simple contre profond** : Go + Qix + Diplomacy = trois systèmes : la leçon du JdS est « compliqué et lent ». Tour 3 : les ordres conditionnels (C70) ajoutent une étape, bornée à deux passes (K235) ; les pions identiques simplifient (K234). (K : K107, K16, K74, K70)
 - **T-DUREE — Chrono × tours contre partie courte** : 15 tours × (30 + 5 s) = 8 min 45 s au plus, durée du JdS, jeu jugé « compliqué et lent » (K107) ; Clash Royale tient en 3 à 5 min. Tour 2 : 20 × (20 s + résolution) = 6 min 40 s à 8 min 20 s (K200), proche des 8 min 45 s du JdS ; résolution courte (2–3 s) et bouton « Prêt » à tester. (K : K108, K165, K166, K47)
 - **T-ECRAN — 9×9 en portrait** : 393 / 9 ≈ 43,7 pt par croisement, sous les 44 pt : dessiner au doigt est serré. Tour 2 : 43,7 pt ≈ 7,2 mm (K195), sous les 9,2 mm de Parhi. Pistes : aimantation (C47), hystérésis (C48), loupe (C49), retour arrière (C52) ; grille 7×7 et paysage écartés par le BRIEF et AGENTS. (K : K158, K60)
 - **T-SIMUL — Simultané = information imparfaite et cas ambigus** : Captures mutuelles, suicide, double franchissement du seuil : il faut une règle pour chaque cas. (K : K75, K146, K129)
-- **T-BOUCLE — Retour en réserve → cycles, fin menacée** : Le matériel ne diminue jamais ; des positions se répètent (ko) ; un seuil seul ne garantit pas la fin. Tour 2 : rejeu immédiat (Q5 a), mais la limite de 20 tours garantit la fin (K202). Reste le risque de cycles stériles : C57 (pas de pose dans une zone adverse), C58 (ko local). (K : K160, K116, K105)
+- **T-BOUCLE — Retour en réserve → cycles, fin menacée** : Le matériel ne diminue jamais ; des positions se répètent (ko) ; un seuil seul ne garantit pas la fin. Tour 2 : rejeu immédiat (Q5 a), mais la limite de 20 tours garantit la fin (K202). Reste le risque de cycles stériles : C57 (pas de pose dans une zone adverse), C58 (ko local). Tour 3 : Lomig remet capture et retour en question (commentaire : « Peut-être faut-il imaginer de ne pas pouvoir capturer les pions adverses ? Ou alors sans retour ? ») ; proto : pas de capture par défaut, la boucle disparaît (K230) ; variantes C63 (sans retour) et C10 (retour). (K : K160, K116, K105)
 - **T-NUL — Pas de premier coup, mais plus de nuls** : Le simultané supprime l'avantage du premier joueur (pas de komi), mais un comptage sur 81 donne des égalités. (K : K118, K12)
 - **T-DEJAVU — Déjà-vu** : Go simultané, Qix et clones, jeux de territoire : chaque morceau existe ; seule la combinaison semble neuve. (K : K144, K146, K123, K153, K155)
-- **T-BRIEF — Écart avec le BRIEF** : Toute variante où la coupure ne fait pas annuler les deux ordres s'écarte du point 7 du BRIEF : à valider par Lomig. (K : K99)
+- **T-BRIEF — Écart avec le BRIEF** : Toute variante où la coupure ne fait pas annuler les deux ordres s'écarte du point 7 du BRIEF : à valider par Lomig. Tour 3 : Lomig ne veut pas exclure 7×7 ou 8×8, le BRIEF dit 9×9 (C53, C61). (K : K99)
+- **T-ZONE — Gain et perte de zones : acquis contre reprise** : Sans reprise (défaut du proto), un territoire fermé ne bouge plus et la partie peut se figer ; avec reprise par morceaux (C66), le territoire vit, mais le comptage bouge. Lomig en fait le cœur du jeu. (K : K211, K212, K197)
