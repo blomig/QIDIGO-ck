@@ -24,6 +24,16 @@ Le code les marque `// A CONFIRMER (regles-proto.md)`.
       pose. Seul un déplacement peut y arriver (départ libéré). Un croisement libre au début du tour
       reste posable, même si un pion adverse y arrive pendant le tour ; c'est alors une coupure (étape 3b).
 
+14. **Comptage du territoire en CASES** : Lomig a tranché (décision relayée par le CDP, 03/11). C'est
+    le nouveau défaut (`comptage = cases`), le seul défaut changé ce jour-là.
+    - Seuil : ⌈75 × (N−1)² / 100⌉ cases, calcul entier puis arrondi au supérieur : 48/64 (9×9),
+      37/49 (8×8, 36,75 → 37), 27/36 (7×7). `engine/params.js` (`seuilScore`, `totalScore`).
+    - L'ancien comptage reste en réglage : `frontiere` (croisements, frontière comprise ; 61/81,
+      48/64, 37/49) et `interieur`. Les tests de la logique des croisements y sont épinglés.
+    - Conséquence à confirmer : au dernier tour, l'égalité se départageait « aux cases ». En cases,
+      ce départage est identique au score, donc une égalité de cases donne un nul (pas de
+      départage aux croisements : ce serait une règle inventée).
+
 ## Réglage provisoire validé par le CDP
 
 2. **Segment de sa couleur reparcouru** (étape 5, nouveaux(P)) : il compte comme « nouveau »
@@ -99,3 +109,35 @@ Point flou, avec une interprétation provisoire mise en réglage :
 
 9. **Journal de Lomig, tour 10** : le journal ne donne que le départ et l'arrivée. Sept trajets
    différents donnent le même résultat. Le test garde le premier (tests/journaux/lomig-2026-11-03-ordres.json).
+
+## Q4 : capture des pions enfermés (demande du CDP, 03/11 ; défaut inchangé : `capture = aucune`)
+
+- **La valeur `retour` existante fait exactement ce qui est proposé.** Aucune nouvelle valeur.
+  regles-proto.md §Capture (l. 84–89) et étape 7 (l. 141–143) : un pion adverse est capturé si toutes
+  les cases qui touchent son croisement sont dans une zone que P ferme à ce tour et deviennent ou restent
+  à P. Avec `retour`, il revient dans la réserve de son propriétaire et peut être reposé dès le tour
+  suivant. Un pion sur la frontière de la zone n'est pas capturé, et on ne capture jamais ses propres
+  pions. On capture seulement au tour de la fermeture (l. 195).
+- **« Enfermé »** : croisement intérieur (4 cases), mais aussi au bord du plateau (2 cases) ou dans un
+  coin (1 case), si toutes ses cases sont dans la zone. Un pion posé sur le mur de P n'est pas pris.
+  Couvert par tests/capture-q4.test.js.
+- **Interaction avec `zone_regle = sans_pion_adverse`** : une région qui a un pion adverse sur un
+  croisement intérieur n'est pas une zone. Un pion intérieur n'est donc jamais capturé. Un pion au bord
+  ou dans un coin ne compte pas pour cette règle et peut encore être capturé. Au banc, les 49 captures
+  sur 49 sont au bord. À trancher : faut-il que l'option compte aussi les croisements du bord ?
+- **IA forte** : poids dédié `capture` (2,0 par capture faite, −2,0 par capture subie), lu seulement
+  si capture ≠ aucune. Sans ce poids, une capture `retour` rend un pion à la réserve adverse, et
+  l'évaluation la jugeait légèrement négative.
+
+## Capture définitive (demande du CDP, 03/11 ; défaut inchangé : `capture = aucune`)
+
+- **`definitive` = alias de `sans_retour`.** regles-proto.md (étape 7) dit déjà « avec `sans_retour`, il
+  est retiré de la partie » : c'est exactement la capture définitive. Les deux valeurs donnent le
+  même état et le même journal (test `capture-definitive.test.js`) ; `sans_retour` est gardé.
+- **À confirmer par Lomig : un joueur sans aucun pion** (plus rien en jeu ni en réserve). Les règles
+  ne disent rien. Choix neutre du proto : il continue, ne peut que passer et garde son territoire ;
+  la partie va au seuil ou au dernier tour. Le journal l'annonce (« … n'a plus aucun pion : il ne
+  pourra plus que passer. »). Alternative possible : défaite immédiate, ou fin de partie.
+- **Poids de l'IA forte** : `capture_definitive = 8` (contre 4 pour `retour`, relevé de 2 à 4 avec le
+  comptage en cases). À 4, la forte entrait encore dans 3 des pièges réels relevés au banc ; à 8,
+  aucun. Voir banc/def-tableau.md pour les résultats en cases.

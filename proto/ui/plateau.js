@@ -42,8 +42,9 @@ export function optionsPlateau(etat, vue, geo) {
   });
   o.zones = ['A', 'B'].filter((j) => zones[j].length).map((j) => ({ c: CAMP[j], cells: zones[j] }));
 
-  // Croisements contrôlés (petits marqueurs).
-  const ctrl = croisementsControles(etat);
+  // Croisements contrôlés (petits marqueurs), seulement si le score se compte en croisements :
+  // en cases (défaut, décision Lomig 03/11), le territoire hachuré suffit.
+  const ctrl = etat.params.comptage === 'cases' ? { A: [], B: [] } : croisementsControles(etat);
   o.controles = ['A', 'B'].flatMap((j) => ctrl[j].map((c) => ({ c: CAMP[j], ...coord(n, c) })));
 
   // Traces : chaque segment coloré.

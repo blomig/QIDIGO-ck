@@ -2,10 +2,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  resoudreTour, validerOrdre, passer, poser, deplacer, creerEtat, copier, geler, indiceCase, indice,
+  resoudreTour, validerOrdre, passer, poser, deplacer, creerEtat as creerEtatBase, copier, geler, indiceCase, indice,
   croisementsControles, compter, seuilCroisements,
 } from '../engine/index.js';
-import { etatAvec, ch, cr, codes } from './aide.js';
+import { etatAvec as etatAvecBase, ch, cr, codes } from './aide.js';
+
+// Comptage en cases par défaut depuis la décision Lomig du 03/11 : ces tests vérifient le décompte des
+// CROISEMENTS (regles-proto.md), on les épingle donc à comptage = frontiere. Variante en cases à la fin.
+const etatAvec = (o = {}) => etatAvecBase({ ...o, params: { comptage: 'frontiere', ...(o.params || {}) } });
+const creerEtat = (p = {}) => creerEtatBase({ comptage: 'frontiere', ...p });
 
 const n = 9;
 
@@ -69,4 +74,15 @@ test('ctrl est mis à jour après chaque tour (étape 8)', () => {
   const e = etatAvec({ pions: { A: [[4, 4]] } });
   const r = resoudreTour(e, { A: deplacer(ch(n, [[4, 4], [5, 4], [5, 5], [4, 5], [4, 4]])), B: passer() });
   assert.deepEqual(r.etat.ctrl, { A: 4, B: 0 });
+});
+
+test('comptage = cases (défaut) : ctrl compte les cases possédées, grille pleine = 64 >= 48', () => {
+  const e = etatAvecBase({ pions: { A: [[4, 4]] } });
+  assert.equal(e.params.comptage, 'cases');
+  const r = resoudreTour(e, { A: deplacer(ch(n, [[4, 4], [5, 4], [5, 5], [4, 5], [4, 4]])), B: passer() });
+  assert.deepEqual(r.etat.ctrl, { A: 1, B: 0 });
+  const p = copier(creerEtatBase());
+  p.proprietaires.fill('A');
+  assert.equal(compter(geler(p)).A, 64);
+  assert.equal(seuilCroisements(p.params), 48);
 });

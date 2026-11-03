@@ -18,19 +18,29 @@ import {
   voisins, cleSegment, nbCroisements, nbCases, cotesCase, casesAutourCroisement, estSurBord,
 } from '../engine/grille.js';
 import { adversaire, occupant } from '../engine/etat.js';
-import { longueurMax, seuilCroisements } from '../engine/params.js';
+import { longueurMax, seuilCroisements, compteEnCases } from '../engine/params.js';
 import { validerOrdre, poser, deplacer, passer, rien } from '../engine/ordres.js';
 import { resoudreTour, executer, fermeturesDe } from '../engine/resolution.js';
 
 /** Poids « forte de base » (choisis à la main avant tuning). Les noms sont ceux du rapport. */
 export const POIDS_BASE = Object.freeze({
   // évaluation
-  croisements: 1.0, // croisements contrôlés (différence)
+  croisements: 1.0, // score (différence) : croisements contrôlés, ou cases avec comptage = cases
+  // décision Lomig 03/11 : comptage = cases par défaut. Une case gagnée vaut environ 2 croisements
+  // contrôlés (zones de 4 à 12 cases) : on multiplie le terme de score par ce facteur en cases, pour
+  // garder l'équilibre avec potentiel, exposition, etc., calibrés en croisements. Seuil : ratio, inchangé.
+  echelle_cases: 2.0,
   cases: 0.3, // cases possédées (départage au tour 20)
   potentiel: 1.2, // territoire potentiel : cases presque fermées par ses murs
   exposition: 0.4, // murs exposés à la recoloration, cases exposées à la reprise
   coupure: 0.5, // risque de coupure : pions coincés ou collés à un pion adverse
   reserve: 0.2, // pions en réserve
+  // demande CDP 03/11 (Q4) : avec la capture activée, chaque pion capturé à ce tour (différence entre
+  // les deux camps). Sans capture (défaut), ce terme vaut toujours 0 : l'IA par défaut ne change pas.
+  capture: 4.0, // 2.0 au banc Q4 (croisements) ; 4.0 depuis le comptage en cases (piège 1 : 9/20 à 2, 20/20 à 4)
+  // demande CDP 03/11 : capture `definitive` (alias `sans_retour`) : le pion pris est perdu pour de bon.
+  // Poids par pion capturé à ce tour, utilisé à la place de `capture` dans ce mode (calibré au banc).
+  capture_definitive: 8.0,
   seuil: 15, // distance au seuil : (ctrl / seuil)²
   tours_restants: 1.0, // exposant : le potentiel compte moins quand il reste peu de tours
   // recherche
@@ -236,7 +246,7 @@ export function caracteristiques(etat, X) {
 export function evaluer(etat, P, poids = POIDS_BASE) {
   const Q = adversaire(P);
   if (etat.fini) {
-    const marge = etat.ctrl[P] - etat.ctrl[Q];
+    const marge = (etat.ctrl[P] - etat.ctrl[Q]) * (compteEnCases(etat.params) ? 2 : 1);
     if (etat.vainqueur === P) return 1000 + marge;
     if (etat.vainqueur === Q) return -1000 + marge;
     return marge;
@@ -246,8 +256,9 @@ export function evaluer(etat, P, poids = POIDS_BASE) {
   const S = seuilCroisements(etat.params);
   const restant = Math.max(0, etat.params.nbTours - etat.tour + 1) / etat.params.nbTours;
   const ft = Math.pow(restant, Math.max(0, poids.tours_restants));
+  const k = compteEnCases(etat.params) ? poids.echelle_cases ?? POIDS_BASE.echelle_cases : 1;
   return (
-    poids.croisements * (a.ctrl - b.ctrl) +
+    poids.croisements * k * (a.ctrl - b.ctrl) +
     poids.cases * (a.cases - b.cases) +
     poids.potentiel * ft * (a.potentiel - b.potentiel) -
     poids.exposition * ft * (a.exposition - b.exposition) -
@@ -354,10 +365,30 @@ function creerCompteur(opts) {
   };
 }
 
+// Pions capturés pendant la résolution qui a produit un état (par victime). Les états sont gelés :
+// on garde l'information à côté, dans une WeakMap.
+const CAPTURES = new WeakMap();
+
 function resoudre(etat, P, oP, oQ, cpt) {
   cpt.n++;
   const Q = adversaire(P);
-  return resoudreTour(etat, { [P]: oP, [Q]: oQ }).etat;
+  const r = resoudreTour(etat, { [P]: oP, [Q]: oQ });
+  if (etat.params.capture && etat.params.capture !== 'aucune') {
+    const c = { A: 0, B: 0 };
+    for (const x of r.journal) if (x.code === 'CAPTURE') c[x.joueur]++;
+    if (c.A || c.B) CAPTURES.set(r.etat, c);
+  }
+  return r.etat;
+}
+
+/** Évaluation d'un état issu de `resoudre` : evaluer + pions capturés à ce tour (poids `capture`). */
+function valeur(apres, P, poids) {
+  const v = evaluer(apres, P, poids);
+  const c = CAPTURES.get(apres);
+  if (!c) return v;
+  const def = apres.params.capture === 'definitive' || apres.params.capture === 'sans_retour';
+  const w = def ? poids.capture_definitive ?? POIDS_BASE.capture_definitive : poids.capture ?? POIDS_BASE.capture;
+  return v + w * (c[adversaire(P)] - c[P]);
 }
 
 /** Ordres de P classés : pré-tri puis évaluation à 1 tour contre « Passer ». */
@@ -379,7 +410,7 @@ function meilleursOrdres(etat, P, poids, cpt, { nPre, nGarde, rng }) {
   const res = [];
   for (const t of tete) {
     const apres = resoudre(etat, P, t.ordre, passer(), cpt);
-    res.push({ ordre: t.ordre, score: evaluer(apres, P, poids), etat: apres });
+    res.push({ ordre: t.ordre, score: valeur(apres, P, poids), etat: apres });
   }
   res.sort((a, b) => b.score - a.score);
   return { classes: res.slice(0, nGarde), nb: tous.length, fermants };
@@ -452,7 +483,7 @@ export function choisirOrdre(etat, joueur, rng, options = {}) {
     const vals = [];
     for (const r of reponses) {
       const apres = resoudre(base, P, o, r.ordre, cpt);
-      vals.push({ v: evaluer(apres, P, w), etat: apres, p: r.poids });
+      vals.push({ v: valeur(apres, P, w), etat: apres, p: r.poids });
     }
     const min = Math.min(...vals.map((x) => x.v));
     const moy = vals.reduce((s, x) => s + x.v * x.p, 0);

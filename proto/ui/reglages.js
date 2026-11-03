@@ -2,7 +2,7 @@
 // état bien visible, valeur par défaut), bouton « Réglages par défaut ».
 // Les réglages enregistrés s'appliquent à la PARTIE SUIVANTE (bouton Rejouer).
 
-import { REGLAGES, parametresParDefaut, normaliserParametres, seuilCroisements } from '../engine/index.js';
+import { REGLAGES, parametresParDefaut, normaliserParametres, seuilScore, totalScore, uniteScore } from '../engine/index.js';
 
 const CLE = 'qidigo-proto:reglages';
 
@@ -43,6 +43,7 @@ export function enregistrerReglages(r) {
 }
 
 let grilleCourante = 9;
+let comptageCourant = 'cases';
 const echapper = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const libelleValeur = (r, v) => (r.valeurs ? (r.valeurs.find(([x]) => x === v) || [v, String(v)])[1] : String(v));
 
@@ -71,7 +72,7 @@ function carte(r, v, prefixe) {
   return `<fieldset class="r-carte" data-id="${r.id}" data-prefixe="${prefixe}">
     <legend><div class="r-tete"><span class="r-titre">${echapper(r.libelle)}</span><span class="r-badges">${badges(r, v)}</span></div></legend>
     <p class="r-desc">${echapper(r.description)}</p>
-    <p class="r-defaut">Défaut : ${echapper(libelleValeur(r, r.defaut))}${r.id === 'seuil' ? ` — actuellement ${v} % → ${seuilCroisements({ seuil: Number(v) || 75, grille: grilleCourante })} / ${grilleCourante * grilleCourante} croisements en ${grilleCourante}×${grilleCourante}` : ''}</p>
+    <p class="r-defaut">Défaut : ${echapper(libelleValeur(r, r.defaut))}${r.id === 'seuil' ? (() => { const q = { seuil: Number(v) || 75, grille: grilleCourante, comptage: comptageCourant }; return ` — actuellement ${v} % → ${seuilScore(q)} / ${totalScore(q)} ${uniteScore(q)} en ${grilleCourante}×${grilleCourante}`; })() : ''}</p>
     ${fixe}${ctrl}
   </fieldset>`;
 }
@@ -88,6 +89,7 @@ const GROUPES = [
  */
 export function rendreReglages(conteneur, brouillon, actuels, actions) {
   grilleCourante = brouillon.params.grille;
+  comptageCourant = brouillon.params.comptage;
   const differe = JSON.stringify(brouillon.params) !== JSON.stringify(actuels.params) || JSON.stringify(brouillon.ui) !== JSON.stringify(actuels.ui);
   let html = `<p class="r-note">Les réglages s’appliquent à la <strong>partie suivante</strong> : touchez « Enregistrer et rejouer », ou plus tard « Rejouer ».</p>`;
   if (differe) html += `<p class="r-note"><strong>Des réglages diffèrent de la partie en cours.</strong></p>`;

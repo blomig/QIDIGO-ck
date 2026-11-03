@@ -33,6 +33,13 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
   Le réglage permet de revenir à `non`. Une reprise disputée au même tour est réglée par `reprise_meme_tour` (provisoire, voir QUESTIONS.md).
 - **Qu'est-ce qu'une zone** (`zone_regle`, Q7 en attente de Lomig) : par défaut, `actuel` (le dehors est la plus grande région).
   Trois options sont à essayer dans les Réglages : `sans_pion_adverse`, `dehors_non_possede` et `moitie_libre` (voir QUESTIONS.md).
+- **Score en cases** (décision de Lomig, 03/11 : `comptage = cases` par défaut) : on compte les **cases possédées**.
+  Le seuil de victoire est 75 % des (N−1)² cases, arrondi au supérieur : **48/64** en 9×9, **37/49** en 8×8 (36,75 → 37), **27/36** en 7×7.
+  Les compteurs (« 25/48 cases »), le repère de seuil, le journal (« Cases possédées : A 25, B 0. ») et l'écran de fin (« seuil : 48 sur 64 ») parlent en cases.
+  L'ancien comptage en croisements reste dans les Réglages pour tester : `frontiere` (61/81, 48/64, 37/49) ou `interieur`.
+- **Capture** (`capture`, défaut `aucune`, Q4) : `retour` (le pion pris revient dans la réserve de son camp), `sans_retour`, ou `definitive`.
+  `definitive` est un alias de `sans_retour` : le pion pris quitte la partie pour de bon (pastille barrée dans la réserve).
+  Un joueur qui n'a plus aucun pion continue et ne peut que passer ; il garde son territoire (choix proto, à confirmer par Lomig).
 - Pendant votre saisie, **l'aperçu** montre en pointillé la zone fermée et le gain prévu, en supposant que l'autre passe.
 - **Modes** : contre l'IA (vous êtes A, noir) ou à deux sur le même téléphone. Dans ce mode, un écran de passage masque l'ordre de l'autre.
 - **Niveau de l'IA** (Réglages, appliqué avec Rejouer) : **Fort** par défaut (`ai/ia-forte.js`), ou **Facile** (`ai/ia-faible.js`, au hasard).
@@ -85,7 +92,9 @@ QUESTIONS.md                 points encore ouverts
 4. retient le coup robuste (mélange maximin et moyenne pondérée) et ajoute une recherche d'un tour de plus sur les meilleurs coups ;
 5. tire au hasard (à graine) parmi les coups proches.
 
-Les poids d'évaluation sont nommés dans `POIDS_BASE` : croisements, cases, potentiel, exposition, coupure, réserve, seuil et tours_restants.
+Les poids d'évaluation sont nommés dans `POIDS_BASE` : croisements (le score, quel que soit le comptage), echelle_cases, cases, potentiel, exposition, coupure, réserve, seuil, tours_restants, capture et capture_definitive.
+L'IA suit `comptage` : en cases, le terme de score est multiplié par `echelle_cases` (2, une case vaut à peu près deux croisements) et le seuil est lu dans la bonne unité.
+Les captures valent `capture` (4, mode `retour`) ou `capture_definitive` (8, modes `definitive` et `sans_retour`) par pion pris ou perdu.
 Le budget compte les résolutions, donc un coup est reproductible. `msMax` plafonne le temps dans le navigateur.
 
 ```sh
@@ -107,4 +116,5 @@ node tools/arena.js expansion --parties 60                                   # v
   Les parties de validation (tunée contre base, graines séparées) écrivent `ai/poids-tunes.json` seulement si la borne basse de l'IC dépasse 50 %.
   Sinon, elles écrivent `ai/poids-tunes.rejet.json`. `--forcer` passe outre.
 
-Résultats du 03/11 : banc/ à la racine du dépôt local (forte-faible.txt, tuning.txt, expansion.txt, forte-forte.txt).
+Résultats du 03/11 : banc/ à la racine du dépôt local (forte-faible.txt, tuning.txt, expansion.txt, forte-forte.txt ; en croisements).
+Depuis le comptage en cases : cases-forte-faible.json (forte bat faible 200 à 0) et def-*.json / def-tableau.md (banc de la capture définitive).

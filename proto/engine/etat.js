@@ -18,7 +18,7 @@ export function creerEtat(parametres = {}) {
     retires: { A: 0, B: 0 }, // pions capturés sans retour
     couleurs: {}, // clé de segment -> 'A' | 'B' (les traces)
     proprietaires: new Array(nbCases(params.grille)).fill(null), // case -> null | 'A' | 'B'
-    ctrl: { A: 0, B: 0 }, // croisements contrôlés (étape 8)
+    ctrl: { A: 0, B: 0 }, // score (étape 8) : cases possédées par défaut (décision Lomig 03/11), ou croisements contrôlés
     fini: false,
     vainqueur: null, // 'A' | 'B' | 'nul'
     raisonFin: null, // 'seuil' | 'tours'

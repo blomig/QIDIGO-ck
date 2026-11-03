@@ -28,8 +28,8 @@ export const REGLAGES = [
   // --- Variantes activables (§3) ---
   // `capture` vaut `aucune` par défaut (décision CDP 03/11, reprise par regles-proto.md v0.2).
   { id: 'capture', groupe: 'variante', desactivee: 'aucune', libelle: 'Capture', type: 'choix', defaut: 'aucune',
-    valeurs: [['aucune', 'Aucune'], ['retour', 'Retour en réserve'], ['sans_retour', 'Sans retour']],
-    description: 'Un pion adverse dont toutes les cases voisines sont dans une zone fermée à ce tour est capturé. « Retour » : il revient en réserve (Q4 a, Q5 a). « Sans retour » : il quitte la partie. Lomig remet Q4 et Q5 en question (K160).' },
+    valeurs: [['aucune', 'Aucune'], ['retour', 'Retour en réserve'], ['sans_retour', 'Sans retour'], ['definitive', 'Définitive (= sans retour)']],
+    description: 'Un pion adverse dont toutes les cases voisines sont dans une zone fermée à ce tour est capturé. « Retour » : il revient en réserve (Q4 a, Q5 a). « Sans retour » : il quitte la partie. « Définitive » (demande CDP 03/11) : alias de « Sans retour », le pion quitte la partie pour de bon. Un joueur sans aucun pion (en jeu ni en réserve) continue et ne peut que passer (choix proto, à confirmer par Lomig). Lomig remet Q4 et Q5 en question (K160).' },
   // décision Lomig 03/11 : un déplacement fait au plus 5 pas (5 segments) par défaut.
   { id: 'trajet_max', groupe: 'variante', desactivee: 'illimite', libelle: 'Longueur max. d’un trajet', type: 'choix', defaut: 5,
     valeurs: [['illimite', 'Illimitée'], [3, '3 segments'], [4, '4 segments'], [5, '5 segments'], [7, '7 segments']],
@@ -55,7 +55,7 @@ export const REGLAGES = [
     valeurs: [['defense', 'Le propriétaire qui referme aussi la garde'], ['attaque', 'L’attaquant la prend']],
     description: 'Provisoire (QUESTIONS.md). Avec la reprise : A ferme une zone qui couvre une case de B, et B ferme au même tour une zone qui couvre aussi cette case. « Garde » : la case est dans les deux gains (étape 5 : toutes les cases de la zone), elle reste à B (étape 6). « Prend » : le gain de B ne contient pas ses propres cases, A la prend.' },
   { id: 'seuil', groupe: 'variante', libelle: 'Seuil de victoire (%)', type: 'nombre', defaut: 75, min: 1, max: 100,
-    description: 'Contrôler ce pourcentage des croisements, arrondi au supérieur : 75 % = 61/81, 48/64, 37/49 (Q7 a).' },
+    description: 'Posséder ce pourcentage du territoire, arrondi au supérieur. En cases (défaut, décision de Lomig 03/11) : 75 % = 48/64 en 9×9, 37/49 en 8×8, 27/36 en 7×7. En croisements : 61/81, 48/64, 37/49 (Q7 a).' },
 
   // --- Choix proto réglables (§3, 2e tableau) ---
   { id: 'pose_coupante', groupe: 'choix', libelle: 'Pose qui coupe un trajet', type: 'choix', defaut: 'annulee',
@@ -64,9 +64,10 @@ export const REGLAGES = [
   { id: 'trace_adverse', groupe: 'choix', libelle: 'Passage sur une trace adverse', type: 'choix', defaut: 'recolore',
     valeurs: [['recolore', 'La recolore'], ['garde', 'Elle garde sa couleur']],
     description: 'Passer sur un segment adverse le recolore à votre couleur, ou bien il garde la sienne.' },
-  { id: 'comptage', groupe: 'choix', libelle: 'Comptage des croisements', type: 'choix', defaut: 'frontiere',
-    valeurs: [['frontiere', 'Frontière comprise'], ['interieur', 'Intérieur seul']],
-    description: '« Frontière » : un croisement est à vous si une case voisine est à vous et aucune à l’adversaire. « Intérieur » : toutes ses cases voisines sont à vous. Q13 est suspendue.' },
+  // décision Lomig (relayée par le CDP, 03/11) : le territoire se compte en CASES par défaut.
+  { id: 'comptage', groupe: 'choix', libelle: 'Comptage du territoire', type: 'choix', defaut: 'cases',
+    valeurs: [['cases', 'Cases possédées'], ['frontiere', 'Croisements, frontière comprise'], ['interieur', 'Croisements, intérieur seul']],
+    description: 'Décision de Lomig (03/11) : on compte les cases possédées (défaut), et le seuil se calcule sur les (N−1)² cases. Ancien comptage en croisements, gardé pour tester : « Frontière » : un croisement est à vous si une case voisine est à vous et aucune à l’adversaire. « Intérieur » : toutes ses cases voisines sont à vous. Q13 est suspendue.' },
   { id: 'repasser_croisement', groupe: 'choix', libelle: 'Repasser par un croisement', type: 'choix', defaut: 'oui',
     valeurs: [['oui', 'Permis'], ['non', 'Interdit']],
     description: 'Un trajet peut repasser par un croisement déjà traversé, départ compris (jamais deux fois par le même segment).' },
@@ -107,8 +108,19 @@ export function parametresParDefaut() {
   return Object.fromEntries(REGLAGES.map((r) => [r.id, r.defaut]));
 }
 
-/** Seuil en croisements : S = ⌈seuil × N² / 100⌉ (regles-proto.md §3). */
-export const seuilCroisements = (p) => Math.ceil((p.seuil * p.grille * p.grille) / 100);
+/** Le score compte-t-il des cases (défaut, décision Lomig 03/11) ou des croisements ? */
+export const compteEnCases = (p) => (p.comptage ?? 'cases') === 'cases';
+/** Unité du score, pour les libellés : « cases » ou « croisements ». */
+export const uniteScore = (p) => (compteEnCases(p) ? 'cases' : 'croisements');
+/** Total possible : (N−1)² cases, ou N² croisements. */
+export const totalScore = (p) => (compteEnCases(p) ? (p.grille - 1) ** 2 : p.grille ** 2);
+/**
+ * Seuil : S = ⌈seuil × total / 100⌉ (regles-proto.md §3), calcul entier puis arrondi au supérieur.
+ * Cases (défaut) : 48/64 (9×9), 37/49 (8×8), 27/36 (7×7). Croisements : 61/81, 48/64, 37/49.
+ */
+export const seuilScore = (p) => Math.ceil((p.seuil * totalScore(p)) / 100);
+/** Ancien nom, gardé : c'est le seuil dans l'unité du réglage `comptage` (cases par défaut). */
+export const seuilCroisements = seuilScore;
 
 /** Longueur max d'un trajet en segments (Infinity si illimitée). */
 export const longueurMax = (p) => (p.trajet_max === 'illimite' ? Infinity : Number(p.trajet_max));

@@ -2,7 +2,7 @@
 // Le moteur (engine/) est pur ; ici on ne fait que l'appeler et afficher.
 
 import {
-  creerEtat, resoudreTour, validerOrdre, passer, creerRng, graineAleatoire, seuilCroisements,
+  creerEtat, resoudreTour, validerOrdre, passer, creerRng, graineAleatoire, seuilCroisements, totalScore, uniteScore,
   nbCroisements, adversaire, nomJoueur,
 } from '../engine/index.js';
 import { demanderOrdre } from '../ai/ia.js';
@@ -86,6 +86,7 @@ function debutSaisie() {
 function consigne() {
   const e = S.etat;
   const reste = e.reserve[S.joueur];
+  if (!reste && !e.pions[S.joueur].length) return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : vous n'avez plus aucun pion (${e.retires[S.joueur]} retiré${e.retires[S.joueur] > 1 ? 's' : ''} de la partie). Vous ne pouvez que passer.`;
   return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : touchez un croisement pour poser${reste ? ` (${reste} en réserve)` : ' (réserve vide)'}, ou glissez depuis un de vos pions le long des traits.`;
 }
 
@@ -193,7 +194,7 @@ function decrireProposition() {
       : ' Ordre conditionnel : il n’aboutit que si le pion adverse part.';
     else if (S.etat.params.soutien === 'oui' && p.soutien == null) t += ' Touchez un de vos pions voisin du départ pour le soutenir.';
   }
-  if (S.apercu?.gain > 0) t += ` Aperçu (si l’autre passe) : +${S.apercu.gain} croisements.`;
+  if (S.apercu?.gain > 0) t += ` Aperçu (si l’autre passe) : +${S.apercu.gain} ${uniteScore(S.etat.params)}.`;
   if (S.apercu?.captures.length) t += ` Capture prévue : ${S.apercu.captures.length}.`;
   return t + ' Touchez « Prêt » pour valider.';
 }
@@ -322,17 +323,19 @@ function dessiner() {
 }
 
 function compteur(j) {
-  // choix proto (CDP 03/11) : compteur de croisements contrôlés par joueur, sur le seuil.
+  // Compteur par joueur, sur le seuil, dans l'unité du réglage `comptage` : cases par défaut
+  // (décision Lomig 03/11), croisements contrôlés sinon.
   const e = S.etat;
-  const total = nbCroisements(e.params.grille);
+  const total = totalScore(e.params);
+  const unite = uniteScore(e.params);
   const seuil = seuilCroisements(e.params);
   const g = S.phase === 'saisie' && S.joueur === j && S.apercu ? S.apercu.gain : 0;
-  const reserve = Array.from({ length: e.params.nbPions }, (_, k) => `<i class="q-chip q-chip--${k < e.reserve[j] ? CAMP[j] : 'vide'}"></i>`).join('');
+  const reserve = Array.from({ length: e.params.nbPions }, (_, k) => `<i class="q-chip q-chip--${k < e.reserve[j] ? CAMP[j] : 'vide'}${k >= e.params.nbPions - (e.retires?.[j] || 0) ? ' q-chip--retire' : ''}"></i>`).join('');
   const qui = S.mode === 'ia' ? (j === 'A' ? 'Vous' : 'IA') : `Joueur ${j}`;
   return `<div class="q-counter-label"><i class="q-chip q-chip--${CAMP[j]}"></i>${qui}</div>
-    <div class="q-counter-val q-num">${e.ctrl[j]}<small>/${seuil}</small>${g > 0 ? `<span class="q-gain">+${g}</span>` : ''}</div>
+    <div class="q-counter-val q-num" aria-label="${e.ctrl[j]} ${unite} sur ${seuil} pour gagner">${e.ctrl[j]}<small>/${seuil} ${unite}</small>${g > 0 ? `<span class="q-gain">+${g}</span>` : ''}</div>
     <div class="q-counter-bar" style="--v:${e.ctrl[j]};--g:${g};--q-total:${total};--q-seuil:${seuil}"><i></i><b></b><em></em></div>
-    <div class="q-reserve" aria-label="Réserve">${reserve}</div>`;
+    <div class="q-reserve" aria-label="Réserve${e.retires?.[j] ? ` (${e.retires[j]} retiré${e.retires[j] > 1 ? 's' : ''} de la partie)` : ''}">${reserve}</div>`;
 }
 
 function rendre() {
@@ -383,7 +386,8 @@ function rendre() {
   const resume = $('resume');
   if ((S.phase === 'resultat' || S.phase === 'fin') && e.historique.length) {
     const h = e.historique[e.historique.length - 1];
-    resume.innerHTML = `<h3>${S.phase === 'fin' ? 'Partie terminée' : `Tour ${h.tour} résolu`}</h3><ul>${lignes(h.journal)}</ul>`;
+    const final = S.phase === 'fin' ? `<p class="q-score-final">Score final : ${nomJoueur('A')} ${e.ctrl.A} ${uniteScore(e.params)}, ${nomJoueur('B')} ${e.ctrl.B} ${uniteScore(e.params)} (seuil : ${seuilCroisements(e.params)} sur ${totalScore(e.params)}).</p>` : '';
+    resume.innerHTML = `<h3>${S.phase === 'fin' ? 'Partie terminée' : `Tour ${h.tour} résolu`}</h3>${final}<ul>${lignes(h.journal)}</ul>`;
     resume.hidden = false;
   } else resume.hidden = true;
 

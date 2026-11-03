@@ -2,7 +2,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resoudreTour, deplacer, poser, rien, indiceCase, cleSegment, zonesDe } from '../engine/index.js';
-import { etatAvec, ch, cr, codes } from './aide.js';
+import { etatAvec as etatAvecBase, ch, cr, codes } from './aide.js';
+
+// Comptage en cases par défaut depuis la décision Lomig du 03/11 : ces tests vérifient la logique des CROISEMENTS
+// (regles-proto.md), on les épingle donc à comptage = frontiere.
+const etatAvec = (o = {}) => etatAvecBase({ ...o, params: { comptage: 'frontiere', ...(o.params || {}) } });
+
 
 const n = 9;
 

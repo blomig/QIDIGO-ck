@@ -64,7 +64,7 @@ test('zone_regle : moitié libre, une zone fait au plus la moitié des cases que
 test('zone_regle : partie de Lomig, tour 11 (24 cases avec « actuel », 8 avec les trois autres options)', () => {
   const L = JSON.parse(fs.readFileSync(new URL('./journaux/lomig-2026-11-03-ordres.json', import.meta.url)));
   const casesA = (e) => e.proprietaires.filter((p) => p === 'A').length;
-  let e = creerEtat(L.params);
+  let e = creerEtat({ comptage: 'frontiere', ...L.params }); // partie jouée en croisements
   for (let t = 0; t < 10; t++) e = resoudreTour(e, { A: L.ordresA[t], B: L.ordresB[t] }).etat;
   const attendu = { actuel: [24, 81], sans_pion_adverse: [8, 73], dehors_non_possede: [8, 73], moitie_libre: [8, 73] };
   for (const z of OPTIONS) {

@@ -2,10 +2,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  creerEtat, longueurMax, resoudreTour, validerOrdre, deplacer, rien, creerRng, indiceCase, compter, copier, geler, nbCases,
+  creerEtat as creerEtatBase, longueurMax, resoudreTour, validerOrdre, deplacer, rien, creerRng, indiceCase, compter, copier, geler, nbCases,
 } from '../engine/index.js';
 import { choisirOrdre } from '../ai/ia-faible.js';
-import { etatAvec, ch, cr } from './aide.js';
+import { etatAvec as etatAvecBase, ch, cr } from './aide.js';
+
+// Comptage en cases par défaut depuis la décision Lomig du 03/11 : ces tests vérifient la logique des CROISEMENTS
+// (regles-proto.md), on les épingle donc à comptage = frontiere.
+const etatAvec = (o = {}) => etatAvecBase({ ...o, params: { comptage: 'frontiere', ...(o.params || {}) } });
+const creerEtat = (p = {}) => creerEtatBase({ comptage: 'frontiere', ...p });
+
 
 const n = 9;
 

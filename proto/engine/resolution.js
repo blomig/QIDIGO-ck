@@ -7,7 +7,7 @@ import {
 } from './grille.js';
 import { copier, geler, adversaire, occupant, nomJoueur, casesPossedees } from './etat.js';
 import { validerOrdre } from './ordres.js';
-import { JOUEURS, seuilCroisements } from './params.js';
+import { JOUEURS, seuilCroisements, compteEnCases, uniteScore } from './params.js';
 
 /** Entrée de journal lisible. */
 export const entree = (tour, code, texte, extra = {}) => ({ tour, code, texte, ...extra });
@@ -395,8 +395,16 @@ export function capturer(brouillon, fermees) {
   for (const { victime, croisement } of captures) {
     brouillon.pions[victime] = brouillon.pions[victime].filter((c) => c !== croisement);
     if (p.capture === 'retour') brouillon.reserve[victime] += 1;
-    else brouillon.retires[victime] += 1;
+    else brouillon.retires[victime] += 1; // `sans_retour` et son alias `definitive` (CDP 03/11)
     journal.push(entree(brouillon.tour, 'CAPTURE', `Le pion de ${nomJoueur(victime)} en ${nomCroisement(n, croisement)} est capturé${p.capture === 'retour' ? ' et retourne en réserve' : ' et quitte la partie'}.`, { joueur: victime, croisement }));
+  }
+  // Cas limite (capture `sans_retour`/`definitive`) : un joueur qui perd son dernier pion continue la
+  // partie et ne peut plus que passer ; il garde son territoire.
+  // A CONFIRMER (regles-proto.md) : la v0.2 ne dit rien de ce cas ; choix neutre du CDP (03/11).
+  for (const J of JOUEURS) {
+    if (captures.some((x) => x.victime === J) && brouillon.pions[J].length === 0 && brouillon.reserve[J] === 0) {
+      journal.push(entree(brouillon.tour, 'SANS_PION', `${nomJoueur(J)} n'a plus aucun pion : il ne pourra plus que passer.`, { joueur: J }));
+    }
   }
   return journal;
 }
@@ -421,8 +429,9 @@ export function croisementsControles(etat) {
   return res;
 }
 
-/** Étape 8 : nombre de croisements contrôlés. */
+/** Étape 8 : score de chaque joueur : cases possédées (défaut, décision Lomig 03/11) ou croisements contrôlés. */
 export function compter(etat) {
+  if (compteEnCases(etat.params)) return { A: casesPossedees(etat, 'A'), B: casesPossedees(etat, 'B') };
   const c = croisementsControles(etat);
   return { A: c.A.length, B: c.B.length };
 }
@@ -439,14 +448,14 @@ export function verifierFin(brouillon) {
     brouillon.raisonFin = raison;
     return [entree(tour, 'FIN', texte, { vainqueur: v })];
   };
-  const score = `${A} à ${B} croisements contrôlés`;
+  const score = compteEnCases(brouillon.params) ? `${A} à ${B} cases` : `${A} à ${B} croisements contrôlés`;
   if ((A >= S) !== (B >= S)) {
     const v = A >= S ? 'A' : 'B';
-    return finir(v, 'seuil', `${nomJoueur(v)} atteint le seuil de ${S} et gagne (${score}).`);
+    return finir(v, 'seuil', `${nomJoueur(v)} atteint le seuil de ${S}${compteEnCases(brouillon.params) ? " cases" : ""} et gagne (${score}).`);
   }
   if (A >= S && B >= S && A !== B) {
     const v = A > B ? 'A' : 'B';
-    return finir(v, 'seuil', `Les deux atteignent le seuil de ${S} ; ${nomJoueur(v)} a le plus grand total et gagne (${score}).`);
+    return finir(v, 'seuil', `Les deux atteignent le seuil de ${S}${compteEnCases(brouillon.params) ? " cases" : ""} ; ${nomJoueur(v)} a le plus grand total et gagne (${score}).`);
   }
   // A CONFIRMER (regles-proto.md) : les deux au seuil à égalité AU DERNIER TOUR (« on continue »
   // n'est plus possible). Provisoire : on applique la règle du dernier tour ci-dessous.
@@ -493,7 +502,7 @@ export function resoudreTour(etat, ordres) {
   journal.push(...attribuer(b, { A: f.A.gain, B: f.B.gain })); // 6
   journal.push(...capturer(b, { A: f.A.fermees, B: f.B.fermees })); // 7
   b.ctrl = compter(b); // 8
-  journal.push(entree(tour, 'SCORE', `Croisements contrôlés : A ${b.ctrl.A}, B ${b.ctrl.B}.`));
+  journal.push(entree(tour, 'SCORE', compteEnCases(b.params) ? `Cases possédées : A ${b.ctrl.A}, B ${b.ctrl.B}.` : `Croisements contrôlés : A ${b.ctrl.A}, B ${b.ctrl.B}.`));
   journal.push(...verifierFin(b)); // 9
 
   b.historique.push({ tour, ordres: { A: lu.ordres.A, B: lu.ordres.B }, journal });

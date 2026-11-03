@@ -150,3 +150,7 @@ button { font: inherit; color: inherit; }
   .ui-reprise { animation: none; opacity: .35; }
   .ui-reprise-cadre { animation: none; opacity: 1; transform: none; }
 }
+
+/* Capture définitive (CDP 03/11) : un pion retiré de la partie est barré dans la réserve. */
+.q-chip--retire { position: relative; opacity: .45; }
+.q-chip--retire::after { content: ""; position: absolute; left: -2px; right: -2px; top: 50%; border-top: 2px solid currentColor; transform: rotate(-45deg); }

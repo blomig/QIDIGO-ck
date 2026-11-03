@@ -285,7 +285,7 @@ async function match(nomX, nomY, params, n, graine, options = {}) {
 // ---------------------------------------------------------------------------
 
 const BORNES = {
-  croisements: [0.1, 5], cases: [0, 3], potentiel: [0, 6], exposition: [0, 4], coupure: [0, 4], reserve: [-2, 2],
+  croisements: [0.1, 5], cases: [0, 3], potentiel: [0, 6], exposition: [0, 4], coupure: [0, 4], reserve: [-2, 2], capture: [0, 5], capture_definitive: [0, 10], echelle_cases: [0.5, 4],
   seuil: [0, 60], tours_restants: [0, 3], maximin: [0, 1], temperature: [0.3, 10], poids_coupe: [0, 3], profondeur2: [0, 0.8], alea: [0, 2],
 };
 
