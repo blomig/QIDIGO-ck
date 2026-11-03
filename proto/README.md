@@ -20,6 +20,9 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
   Si ce pion ne part pas, l'ordre est annulé, en chaîne. Le réglage `depart_libere` permet de tester « seulement s'y arrêter ».
   Une pose sur le départ d'un pion qui bouge coupe toujours les deux ordres (choix du CDP).
 - **Déplacer** : glissez depuis un de vos pions le long des traits. Revenir en arrière efface le dernier segment.
+  Un déplacement fait **au plus 5 pas** (5 segments, décision de Lomig du 03/11, réglage `trajet_max` : illimité, 3, 4, 5 ou 7).
+  Près du doigt, un compteur affiche « 3/5 ». À la limite, il passe en accent (« 5/5 MAX ») et le tracé ne s'allonge plus.
+  On peut toujours reculer pour le raccourcir. Si le réglage vaut illimité, le compteur affiche seulement le nombre de pas.
   Le trait se colle aux croisements (avec une loupe sous le doigt).
 - **Prêt** valide l'ordre. **Effacer** l'efface. Sans ordre, ce bouton devient **Passer**.
   Si le chrono expire, l'ordre en cours est envoyé s'il est valide, sinon « Passer ».

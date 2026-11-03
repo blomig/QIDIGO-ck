@@ -56,6 +56,7 @@ export function validerOrdre(etat, joueur, ordre) {
     if (p.repasser_croisement === 'non' && new Set(ch).size !== ch.length) {
       return ko('Le trajet repasse par un croisement (réglage « Repasser par un croisement » : interdit).');
     }
+    // décision Lomig 03/11 : au plus trajet_max segments (5 par défaut) ; au-delà, l'ordre est invalide.
     if (segs.length > longueurMax(p)) return ko(`Trajet trop long (max ${longueurMax(p)} segments).`);
     for (let k = 1; k < ch.length; k++) {
       const occ = occupant(etat, ch[k]);

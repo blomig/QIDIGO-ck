@@ -6,7 +6,7 @@ import {
   nbCroisements, adversaire, nomJoueur,
 } from '../engine/index.js';
 import { choisirOrdre } from '../ai/ia-faible.js';
-import { dessinerPlateau, installerSaisie, geometrie, analyserDernierTour, CAMP } from './plateau.js';
+import { dessinerPlateau, installerSaisie, geometrie, analyserDernierTour, afficherCompteurPas, CAMP } from './plateau.js';
 import { chargerReglages, rendreReglages } from './reglages.js';
 import { rendreJournal, lignes } from './journal.js';
 
@@ -182,6 +182,7 @@ function installer() {
       S.chemin = chemin ? chemin.slice() : null;
       S.doigt = doigt;
       dessiner();
+      afficherCompteurPas(document.querySelector('.plateau-zone'), $('plateau'), S.etat, S.chemin, S.doigt, S.geo);
     },
     surOrdre: (ordre, raison, estTap) => {
       if (ordre) {

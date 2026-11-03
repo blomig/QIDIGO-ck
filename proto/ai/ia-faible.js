@@ -3,6 +3,7 @@
 // Elle n'utilise pas le soutien (pas de règle d'IA écrite pour cela).
 
 import { voisins, nbCroisements } from '../engine/grille.js';
+import { longueurMax } from '../engine/params.js';
 import { validerOrdre, poser, deplacer, rien, passer } from '../engine/ordres.js';
 
 /** Poses légales pour `joueur`. */
@@ -19,7 +20,8 @@ export function trajetAleatoire(etat, joueur, depart, rng, longueurVisee) {
   const n = etat.params.grille;
   let chemin = [depart];
   let valide = null;
-  for (let pas = 0; pas < longueurVisee; pas++) {
+  const visee = Math.min(longueurVisee, longueurMax(etat.params));
+  for (let pas = 0; pas < visee; pas++) {
     let prolonge = false;
     for (const v of rng.melanger(voisins(n, chemin[chemin.length - 1]))) {
       const essai = [...chemin, v];
@@ -50,7 +52,9 @@ export function choisirOrdre(etat, joueur, rng) {
   const tenterDeplacement = pions.length > 0 && (poses.length === 0 || rng.reel() < 0.5);
   if (tenterDeplacement) {
     for (const depart of rng.melanger(pions)) {
-      const o = trajetAleatoire(etat, joueur, depart, rng, 1 + rng.entier(etat.params.grille));
+      // décision Lomig 03/11 : jamais plus de trajet_max segments (5 par défaut).
+      const max = Math.min(etat.params.grille, longueurMax(etat.params));
+      const o = trajetAleatoire(etat, joueur, depart, rng, 1 + rng.entier(max));
       if (o) return o;
     }
   }

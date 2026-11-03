@@ -30,9 +30,10 @@ export const REGLAGES = [
   { id: 'capture', groupe: 'variante', desactivee: 'aucune', libelle: 'Capture', type: 'choix', defaut: 'aucune',
     valeurs: [['aucune', 'Aucune'], ['retour', 'Retour en réserve'], ['sans_retour', 'Sans retour']],
     description: 'Un pion adverse dont toutes les cases voisines sont dans une zone fermée à ce tour est capturé. « Retour » : il revient en réserve (Q4 a, Q5 a). « Sans retour » : il quitte la partie. Lomig remet Q4 et Q5 en question (K160).' },
-  { id: 'trajet_max', groupe: 'variante', desactivee: 'illimite', libelle: 'Longueur max. d’un trajet', type: 'choix', defaut: 'illimite',
-    valeurs: [['illimite', 'Illimitée'], [3, '3 segments'], [5, '5 segments']],
-    description: 'Nombre maximal de segments d’un trajet. Un long trajet risque davantage d’être coupé (K98).' },
+  // décision Lomig 03/11 : un déplacement fait au plus 5 pas (5 segments) par défaut.
+  { id: 'trajet_max', groupe: 'variante', desactivee: 'illimite', libelle: 'Longueur max. d’un trajet', type: 'choix', defaut: 5,
+    valeurs: [['illimite', 'Illimitée'], [3, '3 segments'], [4, '4 segments'], [5, '5 segments'], [7, '7 segments']],
+    description: 'Décision de Lomig (03/11) : un déplacement fait au plus 5 pas, soit 5 segments. Un trajet plus long est invalide. Les autres valeurs restent là pour tester. Un long trajet risque davantage d’être coupé (K98).' },
   { id: 'soutien', groupe: 'variante', desactivee: 'non', libelle: 'Soutien (façon Diplomacy)', type: 'choix', defaut: 'non',
     valeurs: [['non', 'Désactivé'], ['oui', 'Activé']],
     description: 'Un déplacement peut être soutenu par un pion voisin du départ : face à un trajet non soutenu, il passe ; une pose ne le coupe pas (K161).' },

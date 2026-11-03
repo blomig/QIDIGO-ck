@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  creerEtat, resoudreTour, validerOrdre, deplacer, rien, creerRng, indiceCase, compter, copier, geler, nbCases,
+  creerEtat, longueurMax, resoudreTour, validerOrdre, deplacer, rien, creerRng, indiceCase, compter, copier, geler, nbCases,
 } from '../engine/index.js';
 import { choisirOrdre } from '../ai/ia-faible.js';
 import { etatAvec, ch, cr } from './aide.js';
@@ -25,7 +25,8 @@ test('boucle en un seul ordre : ferme une zone dès ce tour', () => {
 });
 
 test('trajet bord à bord : la plus petite part est gagnée', () => {
-  const e = etatAvec({ pions: { A: [[2, 0]] } });
+  // Trajet de 8 segments, au-delà du défaut de 5 (décision Lomig 03/11) : lancé avec trajet_max = illimité.
+  const e = etatAvec({ pions: { A: [[2, 0]] }, params: { trajet_max: 'illimite' } });
   const chemin = [];
   for (let y = 0; y < n; y++) chemin.push([2, y]);
   const r = resoudreTour(e, { A: deplacer(ch(n, chemin)), B: rien() });
@@ -104,16 +105,19 @@ test('fin après nbTours : départage par les cases possédées', () => {
   assert.equal(r.etat.vainqueur, 'A');
 });
 
-test('IA faible : toujours légale sur 30 parties à graine (7, 8, 9)', () => {
+test('IA faible : toujours légale et jamais au-delà de trajet_max sur 30 parties (7, 8, 9)', () => {
   for (let g = 1; g <= 30; g++) {
     const rng = creerRng(g);
-    let e = creerEtat({ grille: [7, 8, 9][g % 3], soutien: g % 2 ? 'oui' : 'non', trajet_max: g % 5 === 0 ? 3 : 'illimite' });
+    let e = creerEtat({ grille: [7, 8, 9][g % 3], soutien: g % 2 ? 'oui' : 'non', trajet_max: [5, 3, 'illimite', 4, 7][g % 5] });
     let tours = 0;
     while (!e.fini) {
       const oA = choisirOrdre(e, 'A', rng);
       const oB = choisirOrdre(e, 'B', rng);
       assert.ok(validerOrdre(e, 'A', oA).ok, `graine ${g} tour ${e.tour} A`);
       assert.ok(validerOrdre(e, 'B', oB).ok, `graine ${g} tour ${e.tour} B`);
+      // décision Lomig 03/11 : l'IA ne dépasse jamais trajet_max.
+      const max = longueurMax(e.params);
+      for (const o of [oA, oB]) if (o.type === 'deplacer') assert.ok(o.chemin.length - 1 <= max, `graine ${g} : trajet de ${o.chemin.length - 1} > ${max}`);
       const r = resoudreTour(e, { A: oA, B: oB });
       assert.ok(!r.journal.some((x) => x.code === 'INVALIDE'));
       // Invariants : pas deux pions sur un croisement, réserves cohérentes.

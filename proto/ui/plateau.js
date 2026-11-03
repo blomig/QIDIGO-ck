@@ -3,7 +3,7 @@
 
 import { plateauSVG } from '../design/plateau.js';
 import {
-  coord, indice, sontAdjacents, cheminDroit, coordCase, croisementsControles, validerOrdre, deplacer, poser,
+  coord, indice, sontAdjacents, cheminDroit, coordCase, croisementsControles, validerOrdre, deplacer, poser, longueurMax,
 } from '../engine/index.js';
 
 /** Camp graphique du designer : A = Noir (« n »), B = Blanc (« b »). */
@@ -182,6 +182,7 @@ export function installerSaisie(conteneur, rappels) {
         for (const s of pas) {
           const essai = [...ch, s];
           // On n'ajoute un segment que si le trajet reste valide (le moteur décide).
+          // décision Lomig 03/11 : à trajet_max segments, le tracé ne s'allonge plus (on peut reculer).
           if (validerOrdre(etat, rappels.joueur(), deplacer(essai)).ok) ch.push(s);
           else break;
         }
@@ -215,6 +216,46 @@ export function installerSaisie(conteneur, rappels) {
   };
   conteneur.addEventListener('pointerup', finir);
   conteneur.addEventListener('pointercancel', finir);
+}
+
+/**
+ * Compteur de pas près du doigt pendant le glissement : « 3/5 », ou « 3 » si trajet_max = illimité.
+ * décision Lomig 03/11 : la limite (5 par défaut) doit se voir ; à la limite, le compteur passe en accent.
+ * `zone` = conteneur positionné qui reçoit la pastille ; `doigt` en coordonnées de grille.
+ */
+export function afficherCompteurPas(zone, plateau, etat, chemin, doigt, geo) {
+  let el = zone.querySelector('.ui-pas');
+  if (!chemin || chemin.length < 1 || !doigt) {
+    if (el) el.hidden = true;
+    return;
+  }
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'ui-pas';
+    el.setAttribute('aria-live', 'polite');
+    zone.appendChild(el);
+  }
+  const pas = chemin.length - 1;
+  const max = longueurMax(etat.params);
+  const auMax = Number.isFinite(max) && pas >= max;
+  el.innerHTML = Number.isFinite(max)
+    ? `<b>${pas}</b><small>/${max}</small>${auMax ? '<em>max</em>' : ''}`
+    : `<b>${pas}</b><small> pas</small>`;
+  el.classList.toggle('is-max', auMax);
+  el.hidden = false;
+  // Position : à côté de la loupe (au-dessus du doigt), côté opposé au bord le plus proche.
+  const svg = plateau.querySelector('svg');
+  const rz = zone.getBoundingClientRect();
+  const rs = svg.getBoundingClientRect();
+  const s = rs.width / geo.taille;
+  const fx = rs.left - rz.left + (geo.margin + doigt[0] * geo.pitch) * s;
+  const fy = rs.top - rz.top + (geo.margin + doigt[1] * geo.pitch) * s;
+  const w = el.offsetWidth || 64;
+  const h = el.offsetHeight || 32;
+  let x = fx + 56 * s;
+  if (x + w > rz.width - 4) x = fx - 56 * s - w;
+  const y = Math.max(4, fy - 86 * s - h / 2);
+  el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
 }
 
 /** Dessine le plateau (rendu du designer + lien de soutien en surimpression). */
