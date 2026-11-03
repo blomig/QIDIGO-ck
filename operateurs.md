@@ -1,0 +1,203 @@
+# QIDIGO — opérateurs (tour 1)
+
+188 opérateurs : 9 K→K, 59 C→C, 60 K→C, 60 C→K.
+
+## K→K
+
+- K94 → K157 : déduction
+- K94, K60, K103 → K158 : déduction
+- K96, K157 → K159 : déduction
+- K105, K116, K106 → K160 : déduction
+- K144, K145, K147 → K161 : déduction
+- K122, K89 → K162 : déduction
+- K126, K36 → K163 : déduction
+- K151, K138, K105 → K164 : déduction
+- K108, K32, K83, K166 → K165 : déduction
+
+## C→C
+
+- C0 → C1 : partition « Comment on gagne du terrain (unité de possession) » : Possédé = mes pions + les croisements vides que seuls mes pions entourent.
+- C0 → C2 : partition « Comment on gagne du terrain (unité de possession) » : Un trajet qui ferme une zone avec le bord ou mes trajets précédents me donne la zone.
+- C2 → C2a : partition « Que reste-t-il du trajet » : Le trajet sert à fermer, puis disparaît.
+- C2 → C2b : partition « Que reste-t-il du trajet » : Les trajets réussis restent tracés (murs) et servent à fermer plus tard.
+- C2 → C2c : partition « Zone contenant un pion adverse » : Fermer autour d'un pion adverse le renvoie dans sa réserve.
+- C2 → C2d : partition « Zone contenant un pion adverse » : Le pion adverse « crève » la zone.
+- C0 → C3 : partition « Comment on gagne du terrain (unité de possession) » : Possédé = les 64 cases dont les 4 coins sont à moi, ou fermées par mes trajets.
+- C0 → C4o : partition « Comment on gagne du terrain (unité de possession) » : Seuls les pions comptent.
+- C0 → C5 : partition « Comment on gagne du terrain (unité de possession) » : Chaque trajet réussi peint les croisements traversés ; un trajet adverse les repeint.
+- C0 → C6 : partition « Ce qui compte comme « couper » » : Toute intersection commune des trajets des deux ordres.
+- C6 → C6a : partition « Le face-à-face » : Deux trajets qui empruntent le même segment en sens inverse se coupent.
+- C0 → C6b : partition « Ce qui compte comme « couper » » : Les pions avancent d'un segment par pas ; coupure seulement s'ils se rencontrent au même pas.
+- C0 → C6c : partition « Ce qui compte comme « couper » » : Pose ou arrivée sur un croisement du trajet adverse coupe ce trajet (exemple du BRIEF).
+- C0 → C6d : partition « Ce qui compte comme « couper » » : Seule la même destination est un conflit.
+- C0 → C7 : partition « Effet de la coupure » : Comme le BRIEF.
+- C7 → C7a : partition « Après l'annulation » : Marque X un tour (F-Go, SAS Go).
+- C7 → C7b : partition « Après l'annulation » : Chaque joueur peut donner un ordre de secours si le premier est annulé.
+- C0 → C7c : partition « Effet de la coupure » : Départage par longueur.
+- C0 → C7d : partition « Effet de la coupure » : Couper devient une capture (Slither.io).
+- C0 → C8 : partition « Comment se fait la capture » : Un pion (ou groupe) sans croisement vide voisin est capturé et retourne dans la réserve.
+- C8 → C8a : partition « Unité capturée » : Les pions reliés partagent leurs libertés.
+- C8 → C8b : partition « Unité capturée » : Chaque pion a ses propres libertés.
+- C0 → C8c : partition « Comment se fait la capture » : Un pion adverse dans une zone que je ferme retourne dans sa réserve.
+- C0 → C8d : partition « Comment se fait la capture » : Un pion encadré par deux des miens sur une ligne est capturé.
+- C0 → C8e : partition « Comment se fait la capture » : Un pion dont le trajet traverse un pion adverse immobile, ou dont l'arrivée est occupée au même pas, est capturé.
+- C0 → C8f : partition « Comment se fait la capture » : Un pion voisin de plus de pions adverses que de pions amis est capturé.
+- C0 → C9 : partition « Captures dans la résolution simultanée » : On juge les captures sur la position après les mouvements ; captures mutuelles possibles.
+- C9 → C9a : partition « Ordre des captures » : Ordre fixe ; le suicide devient possible.
+- C9 → C9b : partition « Le pion qui part » : Jugé après mouvement.
+- C0 → C9c : partition « Captures dans la résolution simultanée » : On encercle ce qui était là au début.
+- C0 → C9d : partition « Captures dans la résolution simultanée » : Un ordre qui laisserait son pion capturé est refusé ou annulé.
+- C0 → C10 : partition « Retour en réserve et répétition (fin garantie) » : Le pion capturé revient en réserve et peut être reposé tout de suite.
+- C0 → C10a : partition « Retour en réserve et répétition (fin garantie) » : Comme la barre du backgammon ou le 6 des petits chevaux.
+- C0 → C10b : partition « Retour en réserve et répétition (fin garantie) » : Comme le superko du go, appliqué après résolution.
+- C0 → C10c : partition « Retour en réserve et répétition (fin garantie) » : Comme les prisonniers au décompte par territoire.
+- C0 → C10d : partition « Retour en réserve et répétition (fin garantie) » : Pas de règle anti-cycle : la partie s'arrête au gong.
+- C0 → C11 : partition « Critère de fin (décision ouverte de Lomig) » : On joue N tours ; le plus de terrain gagne.
+- C0 → C11a : partition « Critère de fin (décision ouverte de Lomig) » : Le premier à dépasser X % gagne.
+- C0 → C11b : partition « Critère de fin (décision ouverte de Lomig) » : Le seuil permet une victoire anticipée ; la limite garantit la fin.
+- C11b → C11c : partition « Seuil » : Valeur de Qix ; Volfied 80 %, Super Qix 70 %.
+- C11b → C11d : partition « Seuil » : Le seuil baisse tour après tour.
+- C0 → C11e : partition « Gagnant à la limite de tours » : Comme K12.
+- C11e → C11f : partition « Départage » : À égalité, le plus de captures gagne.
+- C0 → C11g : partition « Seuil franchi par les deux en même temps » : Règle de résolution simultanée.
+- C0 → C11h : partition « Fin par passes » : Comme au go.
+- C0 → C12 : partition « Nombre de pions X » : Réserve courte.
+- C0 → C12a : partition « Nombre de pions X » : Réserve moyenne.
+- C0 → C12b : partition « Nombre de pions X » : Chaque zone fermée donne un pion de plus (comme les centres de Diplomacy).
+- C0 → C13 : partition « Longueur du trajet » : Longueur libre ; un long trajet s'expose plus.
+- C0 → C13a : partition « Longueur du trajet » : Bornage simple.
+- C0 → C13b : partition « Longueur du trajet » : Une glissade comme Sliding Go.
+- C0 → C14 : partition « Rythme d'un tour » : Les deux planifient en secret, résolution animée.
+- C0 → C14a : partition « Rythme d'un tour » : Comme R-5.2b du JdS.
+- C0 → C14b : partition « Rythme d'un tour » : Chacun voit l'ordre adverse avant de valider.
+- C0 → C14c : partition « Rythme d'un tour » : Asynchrone.
+- C0 → C15 : partition « Où poser un pion » : Liberté totale.
+- C0 → C15a : partition « Où poser un pion » : Pose ancrée.
+- C0 → C16 : partition « Geste pour donner un ordre » : Deux appuis, comme R-13.2 du JdS.
+- C0 → C16a : partition « Geste pour donner un ordre » : Dessin du trajet.
+
+## K→C
+
+- K93, K94, K95, K96, K97, K98, K99, K105, K106, K103, K1, K26 → C0 : K mobilisées pour Chapeau QIDIGO
+- K113, K86, K112 → C1 : K mobilisées pour Terrain = croisements contrôlés (aire à la Go)
+- K122, K90, K124, K130, K135, K125 → C2 : K mobilisées pour Terrain = zones fermées par des trajets (à la Qix)
+- K73 → C2a : K mobilisées pour Le trajet s'efface après le tour ; seules les zones fermées restent
+- K122, K130, K133 → C2b : K mobilisées pour Le trajet reste peint et devient frontière
+- K124, K130, K105 → C2c : K mobilisées pour Une zone fermée qui contient un pion adverse capture ce pion
+- K113 → C2d : K mobilisées pour Une zone qui contient un pion adverse n'est pas fermée
+- K157, K131, K88 → C3 : K mobilisées pour Terrain = cases 8×8 entre les traits
+- K159 → C4o : K mobilisées pour Terrain = croisements occupés seulement
+- K88, K89, K11 → C5 : K mobilisées pour Terrain = peinture : arrivée + trajet (à la Splatoon / Paper.io)
+- K99, K34 → C6 : K mobilisées pour Couper = deux trajets passent par un même croisement (à n'importe quel moment)
+- K163, K126, K36 → C6a : K mobilisées pour Le face-à-face sur un même segment compte aussi
+- K85, K83, K84, K25 → C6b : K mobilisées pour Couper = au même croisement au même instant (résolution animée pas à pas)
+- K100, K164 → C6c : K mobilisées pour Couper = arriver sur le trajet adverse, ou poser dessus
+- K34, K78 → C6d : K mobilisées pour Couper = même arrivée seulement (standoff)
+- K99 → C7 : K mobilisées pour Les deux déplacements sont annulés (pitch)
+- K144, K147, K145 → C7a : K mobilisées pour Le croisement de coupure est interdit au tour suivant
+- K146 → C7b : K mobilisées pour Ordre de repli (contingence)
+- K162 → C7c : K mobilisées pour Le trajet le plus court passe, l'autre est annulé
+- K137, K136, K105 → C7d : K mobilisées pour Le coupeur gagne : le trajet coupé est annulé, le pion coupé est capturé
+- K112, K105, K121, K87 → C8 : K mobilisées pour Capture par libertés (à la Go)
+- K112 → C8a : K mobilisées pour Groupes (chaînes) comme au go
+- K74 → C8b : K mobilisées pour Pion seul (pas de groupes)
+- K124, K130, K122, K105 → C8c : K mobilisées pour Capture par encerclement de trajets (à la Qix / Dots)
+- K139, K140 → C8d : K mobilisées pour Capture en tenaille (Hasami shogi)
+- K137, K37 → C8e : K mobilisées pour Capture par interception de trajet
+- K127, K78 → C8f : K mobilisées pour Capture par supériorité numérique (Diplomacy)
+- K146, K85 → C9 : K mobilisées pour Tous les mouvements d'abord, puis toutes les captures ensemble
+- K146, K115 → C9a : K mobilisées pour D'abord les anciens groupes sans liberté, puis les nouveaux (Diplomatic Go)
+- K144, K152 → C9b : K mobilisées pour Un pion qui quitte un encerclement pendant le tour lui échappe
+- K144 → C9c : K mobilisées pour Captures jugées sur la position du début du tour (F-Go)
+- K115 → C9d : K mobilisées pour Suicide interdit
+- K105, K121 → C10 : K mobilisées pour Rejouable dès le tour suivant
+- K141, K142 → C10a : K mobilisées pour Délai d'un ou deux tours avant de rejouer un pion capturé
+- K116, K146 → C10b : K mobilisées pour Superko positionnel : une résolution qui recrée une position déjà vue est annulée
+- K113, K12 → C10c : K mobilisées pour Chaque capture rapporte un point au preneur
+- K160, K9 → C10d : K mobilisées pour Seule la limite de tours garantit la fin
+- K106, K9, K12, K165 → C11 : K mobilisées pour Fin après N tours seulement
+- K106, K90, K124, K11 → C11a : K mobilisées pour Fin au seuil de X % seulement
+- K106, K90, K160 → C11b : K mobilisées pour Fin au premier des deux : N tours ou X %
+- K90, K124, K157 → C11c : K mobilisées pour Seuil fixe (PROPOSITION : 75 % de l'aire, soit 61 croisements sur 81)
+- K90 → C11d : K mobilisées pour Seuil dégressif (ex. de 75 % vers 55 % au fil des tours)
+- K12, K155 → C11e : K mobilisées pour Plus grande possession ; égalité = nul
+- K27, K51 → C11f : K mobilisées pour Départage par captures
+- K13, K14 → C11g : K mobilisées pour Le plus haut des deux gagne ; égalité exacte = on continue
+- K114, K33 → C11h : K mobilisées pour Fin si les deux passent (ou ne bougent pas) au même tour
+- K96, K74, K138 → C12 : K mobilisées pour X = 5
+- K96, K138 → C12a : K mobilisées pour X = 8
+- K79, K3 → C12b : K mobilisées pour Réserve qui grandit avec le terrain
+- K162, K37, K149 → C13 : K mobilisées pour Trajet libre, sans traverser de pion
+- K150 → C13a : K mobilisées pour Trajet limité à N segments (ex. 4)
+- K149, K134 → C13b : K mobilisées pour Trajet en ligne droite, ou un seul virage
+- K77, K32, K110, K81, K49 → C14 : K mobilisées pour Ordres secrets, chrono court (ex. 15 s) + bouton « Prêt »
+- K108 → C14a : K mobilisées pour Chrono de 30 s (repris du JdS)
+- K72, K75 → C14b : K mobilisées pour Ordres visibles, pas de secret
+- K4, K18 → C14c : K mobilisées pour Partie par correspondance (un tour par jour)
+- K97, K112 → C15 : K mobilisées pour N'importe quel croisement vide
+- K12, K149 → C15a : K mobilisées pour Seulement sur ou à côté de son terrain
+- K109, K58, K59, K158 → C16 : K mobilisées pour Toucher le pion puis l'arrivée ; trajet le plus court proposé, ajustable
+- K98, K158, K60 → C16a : K mobilisées pour Glisser le doigt le long des traits
+
+## C→K
+
+- C0 → (test) : Une partie papier à deux, règles C1–C4 provisoires, chronométrée.
+- C1 → (test) : Compter l'aire sur 10 positions papier : combien de secondes faut-il à un débutant ?
+- C2 → (test) : Papier : 5 parties ; les zones fermées se lisent-elles d'un coup d'œil ?
+- C2a → (test) : Comparer lisibilité C2a/C2b sur 3 parties.
+- C2b → (test) : Compter combien de tours il faut pour fermer une première zone.
+- C2c → (test) : Voir C4b.
+- C2d → (test) : Mesurer combien de zones échouent.
+- C3 → (test) : Comparer 64 cases et 81 croisements pour la lisibilité sur écran 393 pt.
+- C4o → (test) : Écartée par le calcul : 8/81 ≈ 9,9 % au plus (K159).
+- C5 → (test) : Le % peint bouge-t-il assez d'un tour à l'autre ?
+- C6 → (test) : Papier : % de tours où il y a coupure ; si > 50 %, le jeu se bloque.
+- C6a → (test) : Cas d'école en 3 schémas.
+- C6b → (test) : Le joueur prévoit-il le timing ? Tester avec 3 joueurs.
+- C6c → (test) : Poser bat-il toujours déplacer ? Compter les choix sur 5 parties.
+- C6d → (test) : Écart vs pitch : le trajet perd son sens.
+- C7 → (test) : Mesurer le taux d'annulation.
+- C7a → (test) : Les X s'accumulent-ils (K145) ?
+- C7b → (test) : Le temps de planification double-t-il ?
+- C7c → (test) : S'écarte du point 7 du BRIEF : à valider par Lomig.
+- C7d → (test) : S'écarte du point 7 du BRIEF.
+- C8 → (test) : Papier : avec 5–8 pions, arrive-t-on à capturer ? Combien de captures par partie ?
+- C8a → (test) : Les débutants voient-ils les chaînes ?
+- C8b → (test) : Compare C8a sur 3 parties.
+- C8c → (test) : Papier : la fermeture est-elle évidente pour les deux joueurs ?
+- C8d → (test) : Avec peu de pions, la tenaille arrive-t-elle ?
+- C8e → (test) : Croise C7d ; contredit-il K37 ?
+- C8f → (test) : Comptage voisinage : lisible ou non ?
+- C9 → (test) : Lister les cas de capture mutuelle en 10 schémas.
+- C9a → (test) : Lisible en replay ?
+- C9b → (test) : Compter les fuites réussies.
+- C9c → (test) : Sentiment d'injustice ? (K65)
+- C9d → (test) : En simultané, le suicide dépend de l'ordre adverse : invérifiable à la saisie.
+- C10 → (test) : Risque de cycles pose → capture → pose : les compter.
+- C10a → (test) : Avec délai 1, la capture change-t-elle le score ?
+- C10b → (test) : Il faut un historique : facile en app, dur sur papier.
+- C10c → (test) : Les points de capture écrasent-ils le terrain ?
+- C10d → (test) : Les cycles rendent-ils la fin ennuyeuse ?
+- C11 → (test) : Calculer la durée par couple tours × chrono (K165).
+- C11a → (test) : Pas de fin garantie (K160) : à écarter seul.
+- C11b → (test) : Sur 10 parties papier : combien finissent au seuil ?
+- C11c → (test) : 75 % est-il atteint parfois, jamais, trop souvent ?
+- C11d → (test) : Les joueurs suivent-ils un seuil qui bouge ?
+- C11e → (test) : Taux de nuls sur 10 parties.
+- C11f → (test) : Taux de nuls restant.
+- C11g → (test) : Fréquence du cas en papier.
+- C11h → (test) : Compatible avec « sans ordre = tenir » (K33) ?
+- C12 → (test) : Poser s'épuise vite : on passe au déplacement ?
+- C12a → (test) : Comparer durée et profondeur à X = 5.
+- C12b → (test) : Risque d'emballement du meneur.
+- C13 → (test) : Longueur moyenne choisie et taux de coupure.
+- C13a → (test) : N = 3, 4, 6 en papier.
+- C13b → (test) : Le 1 virage suffit-il à fermer des zones ?
+- C14 → (test) : Durée réelle d'un tour papier/chrono.
+- C14a → (test) : 15 tours = 8 min 45 s au plus : trop lent ?
+- C14b → (test) : Le premier qui joue perd-il ?
+- C14c → (test) : Rétention sur une semaine.
+- C15 → (test) : Poser domine-t-il (K164) ?
+- C15a → (test) : Le joueur en retard peut-il revenir ?
+- C16 → (test) : Test d'utilisabilité : 10 ordres sur iPhone.
+- C16a → (test) : Taux d'erreur à 43,7 pt par croisement.

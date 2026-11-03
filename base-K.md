@@ -1,0 +1,373 @@
+# QIDIGO — base de K (tour 1)
+
+Date : 2026-11-03. 166 K : 92 reprises du Jeu du siècle, 74 propres à QIDIGO (dépôt, Lomig via CDP, externes, déductions).
+Statuts : sûre (source vérifiée ou décision), à creuser (source secondaire ou partielle), évoquée (opinion).
+Vocabulaire du dépôt : pion, trajet, croisement.
+
+## L — Goûts et décisions de Lomig
+
+- **K1 — Freemium, zéro pub** [sûre] : Le jeu est freemium (gratuit puis achats intégrés) et n'a aucune publicité ; c'est non négociable. Vaut tel quel pour QIDIGO.
+  - Origine : reprise JdS K2 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : 01-vision-et-gouts.md (déclaration de Lomig)
+- **K2 — Compétition et profondeur stratégique** [sûre] : Lomig aime la compétition et la profondeur stratégique (échecs, Hearthstone) plus que la vitesse des réflexes. La « collection » du JdS tenait aux cartes : elle ne se transpose pas d'office à QIDIGO (pas de cartes).
+  - Origine : reprise JdS K3 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : 01-vision-et-gouts.md (déclaration de Lomig)
+- **K3 — Récolter = gagner (pas de récolte passive)** [sûre] : Pas de récolte passive (ouvrir le jeu pour ramasser) : tout ce que le joueur reçoit doit venir d'une victoire. Vaut tel quel pour QIDIGO.
+  - Origine : reprise JdS K4 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : 01-vision-et-gouts.md (déclaration de Lomig)
+- **K4 — Échecs lents quotidiens** [sûre] : Lomig joue aux échecs tous les jours, en partie lente (un coup tous les 3 jours). Il connaît et aime la réflexion au long cours.
+  - Origine : reprise JdS K6 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : 01-vision-et-gouts.md (déclaration de Lomig)
+- **K5 — Savoir-faire puzzle : BLOMIX** [sûre] : Lomig a publié BLOMIX, un jeu de puzzle. Compétence de lisibilité et de « petit plateau » utile pour une grille 9×9.
+  - Origine : reprise JdS K8 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : 01-vision-et-gouts.md (déclaration de Lomig)
+- **K6 — BLOMIX ne sert pas de socle** [sûre] : Réponse de Lomig à Q4 (JdS) : BLOMIX n'est pas une base de code ou de jeu à reprendre. On garde le savoir-faire, pas le jeu.
+  - Origine : reprise JdS K413 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q4
+- **K7 — Adresse de décision, pas geste pur** [sûre] : Lomig ne veut pas d'adresse pure (réflexe, précision du doigt) ; il veut une montée en compétence par la décision. Pour QIDIGO : tracer un trajet doit être un geste trivial, la difficulté est dans le choix du trajet.
+  - Origine : reprise JdS K12 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, réponses aux questions Q1–Q3, 25/10/2026
+- **K8 — Court + profond** [sûre] : Piste de départ du JdS : parties courtes ET profondeur stratégique (l'« adresse » est devenue adresse de décision, K7). C'est exactement le « simple, rapide, profond » du pitch QIDIGO.
+  - Origine : reprise JdS K9 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : 01-vision-et-gouts.md (déclaration de Lomig)
+- **K9 — Parties à durée fixe et courte** [sûre] : Lomig veut des parties à durée définie et plutôt courte, comme Clash Royale ; les parties longues et variables de Hearthstone sont pour lui un défaut.
+  - Origine : reprise JdS K249 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, commentaires dans ck.html, 25/10/2026
+- **K10 — Un vrai affrontement, pas « chacun de son côté »** [sûre] : Lomig refuse le PvP où chacun joue sur son plateau (Rush Royale) : il veut un vrai match où les coups de l'un gênent l'autre. Dans QIDIGO, la coupure de trajet est ce point de contact.
+  - Origine : reprise JdS K250 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, commentaires dans ck.html, 25/10/2026
+- **K11 — Gagner en occupant plus de x % de la carte** [sûre] : Idée de Lomig (25/10/2026) : le but est d'occuper plus de x % de la carte. Principe transposable tel quel au terrain de la grille 9×9 (la mécanique de « combattants » du JdS ne l'est pas).
+  - Origine : reprise JdS K265 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 25/10/2026, idée originale
+- **K12 — Plus de terrain au gong, nul possible, pas de base** [sûre] : Lomig aime qu'à la fin du temps de jeu, celui qui a le plus de terrain gagne, que le nul soit possible, et qu'il n'y ait pas de base de départ ; les nouveaux déploiements ne se font que depuis le terrain possédé. Transposable : « où peut-on poser un pion ? » (C9).
+  - Origine : reprise JdS K319 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, commentaires dans ck.html, 26/10/2026 (tour 13)
+- **K13 — Tours simultanés en temps limité, puis exécution** [sûre] : Réponse de Lomig à Q23 (JdS) : les deux joueurs jouent leur tour en même temps, puis on exécute, avec un temps limité (modèle Diplomacy / Hearthstone). Le pitch QIDIGO le reprend (ordres puis résolution).
+  - Origine : reprise JdS K337 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, réponses en chat, 27/10/2026 (tour 14)
+- **K14 — Deux phases par tour : ordres, puis exécution** [à creuser] : Lomig (tour 13 du JdS) : chaque tour comporte une phase d'ordres, en même temps pour les deux joueurs, puis une phase d'exécution. Le « mana » du JdS ne se transpose pas.
+  - Origine : reprise JdS K310 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : piste : Lomig, commentaires dans ck.html, 26/10/2026 (tour 13)
+- **K15 — Jouer son tour sans stress, en parties courtes** [sûre] : Lomig aimait jouer son tour sans stress dans Hearthstone, veut des parties pas trop longues, mais sans le stress « arcade » de Clash Royale. Tension directe avec un chrono serré.
+  - Origine : reprise JdS K312 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, commentaires dans ck.html, 26/10/2026 (tour 13)
+- **K16 — Pureté des échecs : peu de règles, des fonctions claires** [sûre] : Lomig voulait des règles les plus simples possibles, pour une pureté et une élégance comme aux échecs. Transposé à QIDIGO (sans cartes) : chaque règle ajoutée doit gagner sa place ; viser une règle tenant sur une carte.
+  - Origine : reprise JdS K316 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, commentaires dans ck.html, 26/10/2026 (tour 13)
+- **K17 — Durée de partie fixe au départ ; la cadence se testera** [sûre] : Réponse de Lomig à Q24 (JdS) : rester sur un temps fixe au début, et voir en testant s'il faut des parties plus rapides ou plus longues.
+  - Origine : reprise JdS K338 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, réponses en chat, 27/10/2026 (tour 14)
+- **K18 — Cadence choisie par les joueurs, comme aux échecs** [à creuser] : Piste de Lomig (JdS) : laisser les joueurs choisir la cadence, comme aux échecs, au lieu de l'imposer. Reportée par K17 (cadence fixe d'abord).
+  - Origine : reprise JdS K317 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : piste : Lomig, commentaires dans ck.html, 26/10/2026 (tour 13)
+- **K19 — À chaque tour : poser du neuf et/ou ordonner ce qui est posé** [sûre] : Réponse de Lomig à Q26 (JdS) : chaque tour, on peut poser du nouveau et/ou donner des ordres à ce qui est déjà déployé. Le pitch QIDIGO resserre en « OU » : une pose OU un déplacement par tour.
+  - Origine : reprise JdS K340 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, réponses en chat, 27/10/2026 (tour 14)
+- **K20 — Un jeu, ce sont des règles et des paramètres : prototyper** [sûre] : Lomig : il faudra prototyper pour tester les choix dans un formalisme basique. Pour QIDIGO : la plupart des C de ce tour sont des paramètres à tester (nombre de pions, longueur de trajet, seuil).
+  - Origine : reprise JdS K311 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, commentaires dans ck.html, 26/10/2026 (tour 13)
+- **K23 — Un tutoriel, puis une ou deux parties contre le jeu** [sûre] : Réponse de Lomig à Q22 (JdS) : un tutoriel, puis une ou deux parties contre le jeu en mode débutant, avant d'accéder au classé.
+  - Origine : reprise JdS K422 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q22
+- **K24 — Tutoriel passable, parties contre l'IA obligatoires** [sûre] : Réponse de Lomig à Q43 (JdS) : le tutoriel peut être passé, mais les parties contre l'IA restent obligatoires.
+  - Origine : reprise JdS K457 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q38-Q45-chat.md), Q43
+- **K25 — Pendant l'exécution, on regarde ; animations intenses et rapides** [sûre] : Réponse de Lomig à Q27 (JdS) : pendant l'exécution, on regarde, et les animations doivent être intenses et rapides. Pour QIDIGO : voir les deux trajets se dérouler et se couper est le moment fort du tour.
+  - Origine : reprise JdS K423 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q27
+- **K28 — Chaque victoire classée donne une récompense** [sûre] : Réponse de Lomig à Q59 (JdS) : chaque victoire classée donne une récompense. Cohérent avec K3 (récolter = gagner).
+  - Origine : reprise JdS K495 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 29/10/2026, chat CDP (texte complet dans reponses-Q59-Q64-chat.md), Q59
+- **K32 — Chrono de tour visible, nombre de tours affiché** [sûre] : Réponse de Lomig à Q37 (JdS) : le temps de chaque tour est connu et visible avec un chrono (il proposait « 15s? » plus 5 s d'animation), et le nombre de tours est affiché (15 ?). Le chrono est ensuite passé à 30 s (voir K « 30 s »).
+  - Origine : reprise JdS K433 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q37
+- **K33 — Sans ordre à la fin du chrono, on tient sa position** [sûre] : Réponse de Lomig à Q44 (JdS) : une troupe sans ordre à la fin du chrono tient sa position. Transposé : un joueur qui ne donne pas d'ordre passe (son pion reste).
+  - Origine : reprise JdS K458 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q38-Q45-chat.md), Q44
+- **K38 — Pas de brouillard en v0, à tester plus tard** [sûre] : Réponse de Lomig à Q66 (JdS) : pas de brouillard en v0. Pour QIDIGO : toute la grille et tous les pions sont visibles ; seuls les ordres du tour sont cachés.
+  - Origine : reprise JdS K530 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 29/10/2026, chat CDP (texte complet dans reponses-Q65-Q78-chat.md), Q66
+- **K93 — Pitch QIDIGO : Qix + Diplomacy + Go** [sûre] : Décision de Lomig relayée par CDP : un mélange de Qix (gagner du terrain), de Diplomacy (donner des ordres, puis tout se résout en même temps) et de Go (on joue sur les croisements d'une grille de traits 9×9, pions noirs et blancs). Les règles sont incomplètes : c'est l'objet du C-K. But : simple, rapide, profond.
+  - Origine : dépôt QIDIGO. Sources : décision de Lomig relayée par CDP, 03/11/2026 ; DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Pitch
+- **K94 — On joue sur les 81 intersections d'une grille de traits 9×9** [sûre] : BRIEF, point 1 : plateau = grille de traits 9×9 ; on joue sur les intersections, pas dans les cases.
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui est posé, 1
+- **K95 — Deux joueurs : noirs contre blancs** [sûre] : BRIEF, point 2 : deux joueurs, noirs contre blancs.
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui est posé, 2
+- **K96 — X pions par joueur, X non fixé (5 ? 8 ?)** [sûre] : BRIEF, point 3 : chaque joueur dispose de X pions ; X n'est pas fixé (5 ? 8 ?).
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui est posé, 3
+- **K97 — Chaque tour : poser un nouveau pion OU déplacer un pion** [sûre] : BRIEF, point 4 : à chaque tour, chaque joueur choisit de poser un nouveau pion ou de déplacer un pion déjà en place.
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui est posé, 4
+- **K98 — Déplacer = dessiner un trajet jusqu'au point d'arrivée** [sûre] : BRIEF, point 5 : pour déplacer un pion, le joueur dessine un trajet sur la grille jusqu'au point d'arrivée.
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui est posé, 5
+- **K99 — Trajet non coupé : le déplacement a lieu ; coupé : les deux déplacements sont annulés** [sûre] : BRIEF, points 6 et 7 : si aucun ordre adverse ne coupe le trajet, le déplacement a lieu ; sinon le déplacement est annulé, et celui de l'adversaire aussi.
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui est posé, 6–7
+- **K100 — Ce qui reste ouvert selon le BRIEF** [sûre] : BRIEF, § Ce qui reste ouvert : le nombre X ; comment on gagne du terrain (zones fermées, comptage, territoire) ; ce qui compte comme « couper » (croisement de trajets, arrivée sur un trajet, pose sur un trajet…) ; la fin de partie et la victoire ; le rythme d'un tour (chrono ? ordres simultanés en secret ?) ; le nom définitif (QIDIGO est un nom de travail).
+  - Origine : dépôt QIDIGO. Sources : DOCS/BRIEF.md (dépôt blomig/QIDIGO, commit e88023f), § Ce qui reste ouvert
+- **K101 — QIDIGO a son propre C-K, qui reprend les K utiles du JdS** [sûre] : Décision du 03/11/2026 : QIDIGO a son propre C-K dans CK/, ce n'est pas une branche du C-K du Jeu du siècle ; il reprend les K utiles du JdS (ordres simultanés, résolution, rythme, tests). Pas de code tant que Lomig n'a pas ouvert la phase maquette.
+  - Origine : dépôt QIDIGO. Sources : DOCS/DECISIONS.md (dépôt blomig/QIDIGO, commit e88023f), 2026-11-03
+- **K102 — Ce n'est ni BLOMIX, ni JeuDuDico, ni GooBots, ni le Jeu du siècle** [sûre] : AGENTS.md : on ne copie ni leurs règles, ni leur palette, ni leur code. Ne pas inventer les règles : tant qu'il n'existe pas de DOCS/RULES.md figé, tout ce qui est écrit n'est que pistes.
+  - Origine : dépôt QIDIGO. Sources : AGENTS.md (dépôt blomig/QIDIGO, commit e88023f)
+- **K104 — Questions à Lomig : courtes, numérotées, options a) / b)** [sûre] : AGENTS.md : les questions à Lomig sont courtes, numérotées, avec des options a) / b) ; ses réponses vont dans DOCS/DECISIONS.md.
+  - Origine : dépôt QIDIGO. Sources : AGENTS.md (dépôt blomig/QIDIGO, commit e88023f)
+- **K105 — Captures de pions ; un pion capturé retourne dans la réserve de son propriétaire** [sûre] : Décision de Lomig relayée par CDP (03/11/2026, 7 h 04) : il veut des captures de pions (« comme au Go ? »). Un pion capturé n'est pas perdu : il retourne dans la réserve de son propriétaire, qui peut le rejouer. Seule la parenthèse est citée mot pour mot ; le reste est la formulation de CDP.
+  - Origine : Lomig via CDP. Sources : décision de Lomig relayée par CDP, 03/11/2026, 7 h 04
+- **K106 — Fin : après un nombre de coups, ou au-delà de X % de la grille, ou au premier des deux** [sûre] : Décision ouverte de Lomig relayée par CDP (03/11/2026, 7 h 06, formulation de CDP) : la partie pourrait se terminer après un certain nombre de coups, ou quand un joueur possède plus de X % de la grille, ou au premier des deux. Rien n'est tranché entre les trois.
+  - Origine : Lomig via CDP. Sources : décision ouverte de Lomig relayée par CDP, 03/11/2026, 7 h 06
+- **K107 — Leçon du JdS : « compliqué et lent », caractéristiques des cartes sous-utilisées** [sûre] : Constat de Lomig relayé par CDP (03/11/2026) : le Jeu du siècle est compliqué et lent, et n'utilise pas assez les caractéristiques de ses cartes ; il est mis en pause. Principe général transposé : chaque règle et chaque paramètre de QIDIGO doit servir le jeu ; viser moins de règles et des parties plus courtes.
+  - Origine : Lomig via CDP. Sources : constat de Lomig relayé par CDP, 03/11/2026
+- **K108 — JdS : chrono de 30 s (décision du 31/10), 15 tours ≈ 8 min 45 s au plus** [sûre] : Règles v0.3 du JdS, R-5.2b : le chrono de planification dure 30 s (décision de Lomig du 31/10/2026, relayée par CDP ; K32 disait « 15s? ») ; une partie de 15 tours dure 15 × (30 + 5) = 525 s, soit environ 8 min 45 s au plus. Le JdS est jugé « compliqué et lent » (K107) ; cette durée en est un repère. Pour QIDIGO, le rythme est ouvert (BRIEF) : ce n'est pas une décision QIDIGO.
+  - Origine : règles du JdS. Sources : /workspace/jds-patch-out/regles-v0.3-recharge.patch, R-5.2b (JdS)
+- **K110 — JdS : bouton « Prêt » pour finir sa planification avant le chrono (proposition)** [à creuser] : Règles v0.3 du JdS, R-5.3, PROPOSITION P-19 (pas une décision) : un bouton « Prêt » met fin à la planification ; contre l'IA, la résolution démarre aussitôt.
+  - Origine : règles du JdS. Sources : /workspace/jds-patch-out/regles-v0.3-recharge.patch, R-5.3 (JdS)
+
+## S — Simultanéité et ordres (Diplomacy)
+
+- **K34 — Deux unités vers la même case vide : conflit** [sûre] : Réponse de Lomig à Q41 (JdS) : deux unités qui visent la même case vide déclenchent un combat. Le combat (points de vie) ne se transpose pas ; le principe « même arrivée = conflit » se transpose à QIDIGO.
+  - Origine : reprise JdS K455 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q38-Q45-chat.md), Q41
+- **K35 — Au plus une unité par point visé ; sortir pendant qu'une autre entre ne crée pas de conflit** [sûre] : Réponse de Lomig à Q49 (JdS) : un joueur ne peut pas envoyer deux de ses unités au même endroit ; sortir d'une case pendant qu'une autre y entre ne crée pas de conflit. Transposable au suivi des trajets (un trajet peut emprunter un point qu'un pion quitte au même tour ?).
+  - Origine : reprise JdS K469 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q46-Q50-chat.md), Q49
+- **K36 — Même case visée ou échange de cases : conflit** [sûre] : Réponse de Lomig à Q54 (JdS) : des unités adverses qui visent la même case ou qui se croisent (échange de cases) se combattent. Transposé : un croisement frontal sur un même segment compte comme une coupure (C2.2).
+  - Origine : reprise JdS K479 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q51-Q54-chat.md), Q54
+- **K37 — Pas de mouvement vers une case occupée** [sûre] : Réponse de Lomig à Q77 (JdS) : un mouvement vers une case occupée équivaut à l'attaquer. Transposé : un trajet ne traverse pas et ne finit pas sur un pion (sauf capture explicite, C4.4).
+  - Origine : reprise JdS K542 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 29/10/2026, chat CDP (texte complet dans reponses-Q65-Q78-chat.md), Q77
+- **K77 — Diplomacy : ordres écrits en secret, révélés et résolus ensemble** [sûre] : Chaque joueur écrit en secret un ordre par unité (tenir, bouger, soutenir, convoyer) ; tout est révélé puis résolu ensemble ; un ordre absent vaut « tenir ».
+  - Origine : reprise JdS K323 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://media.wizards.com/2015/downloads/ah/diplomacy_rules.pdf ; https://renegadegamestudios.com/content/File%20Storage%20for%20site/Rulebooks/Diplomacy/DiplomacyRGS_Rulebook_v6_LR.pdf
+- **K78 — Diplomacy : à force égale, personne n'avance (standoff)** [sûre] : Quand des unités de même force visent la même province, aucune ne bouge ; un blocage ne déloge pas l'unité déjà présente. C'est l'ancêtre direct de « coupé = les deux ordres annulés ».
+  - Origine : reprise JdS K345 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://media.wizards.com/2015/downloads/ah/diplomacy_rules.pdf
+- **K79 — Diplomacy : des cases qui valent plus** [sûre] : 34 centres de ravitaillement ; pas plus d'unités que de centres tenus ; il en faut 18 pour gagner. Précédent d'une réserve d'unités liée au terrain (C5.4).
+  - Origine : reprise JdS K518 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.playdiplomacy.com/help.php?sub_page=Game_Rules ; https://www.hasbro.com/common/instruct/diplomacy.pdf
+- **K80 — Tours simultanés (« WeGo ») : la pression porte sur le plan** [sûre] : Lines of Battle : en tours simultanés, on s'engage sans savoir, le bluff devient réel, personne n'a le dernier mot ; la pression du temps porte sur la planification, pas sur le clic.
+  - Origine : reprise JdS K349 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://linesofbattle.net/simultaneous-turns
+- **K81 — Atlas Reactor : 20 s pour décider, puis résolution en phases fixes** [sûre] : Tous verrouillent leurs actions pendant une décision chronométrée (20 s), puis la résolution suit un ordre fixe de phases.
+  - Origine : reprise JdS K342 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : http://webcdn.triongames.com/atlasreactor/AtlasReactor_Guide.pdf ; https://atlas-reactor.fandom.com/wiki/Phases
+- **K82 — Frozen Synapse : qui gagne un face-à-face, replay de chaque tour** [sûre] : Les deux planifient, valident, puis regardent un tour d'environ 5 s ; on peut revoir chaque tour passé. Modèle pour l'animation des trajets de QIDIGO.
+  - Origine : reprise JdS K344 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : http://icebrain.free.fr/guides/official-manual/ ; https://en.wikipedia.org/wiki/Frozen_Synapse_(video_game)
+- **K83 — Frozen Synapse : planifier, simuler, valider, exécuter** [sûre] : Planification simultanée, simulation possible en supposant le coup adverse, puis exécution déterministe d'environ 5 s.
+  - Origine : reprise JdS K324 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://en.wikipedia.org/wiki/Frozen_Synapse_(video_game) ; https://blog.playstation.com/archive/2014/09/10/new-frozen-synapse-prime-video-explains-combat-mechanics-2 ; https://store.steampowered.com/app/98200/Frozen_Synapse/
+- **K84 — Kung-Fu Chess : échecs sans tours** [sûre] : Échecs en temps réel où chaque pièce jouée a un temps de recharge. Montre qu'un abstrait classique tolère qu'on supprime l'alternance.
+  - Origine : reprise JdS K202 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.kungfuchess.org/about ; https://www.kungfuchess.org/faq ; https://en.wikipedia.org/wiki/Kung-fu_chess
+- **K126 — Diplomacy : deux unités ne peuvent pas échanger leurs places** [sûre] : Règles officielles : deux unités qui visent chacune la province de l'autre ne bougent ni l'une ni l'autre (sauf convoi) ; trois unités ou plus peuvent tourner si aucune n'échange directement. Une unité qui ne bouge pas bloque toute une file (« traffic backup »).
+  - Origine : externe. Sources : https://media.wizards.com/2015/downloads/ah/diplomacy_rules.pdf
+- **K127 — Diplomacy : un soutien est coupé par une attaque, même ratée** [sûre] : Un soutien est coupé si l'unité qui soutient est attaquée depuis une autre province que celle où porte le soutien, que l'attaque réussisse ou non ; la force = l'unité + ses soutiens. Précédent de « capture par supériorité numérique ».
+  - Origine : externe. Sources : https://media.wizards.com/2015/downloads/ah/diplomacy_rules.pdf
+- **K128 — Diplomacy : un convoi échoue si une flotte du convoi est délogée** [sûre] : Si une flotte qui convoie est délogée pendant le tour, l'armée convoyée reste sur place ; une simple attaque qui ne la déloge pas ne rompt pas le convoi. C'est l'analogue le plus proche d'un « trajet coupé ».
+  - Origine : externe. Sources : https://media.wizards.com/2015/downloads/ah/diplomacy_rules.pdf
+- **K129 — Théorie des jeux : un jeu simultané** [sûre] : Un jeu simultané est un jeu où chaque joueur choisit son action sans connaître celle des autres (exemple : pierre-feuille-ciseaux).
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Simultaneous_game
+
+## G — Go
+
+- **K86 — Go : gagner par le territoire** [sûre] : Au go, on gagne en contrôlant plus de territoire (intersections encerclées, plus prisonniers selon le décompte).
+  - Origine : reprise JdS K224 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://en.wikipedia.org/wiki/Go_%28game%29
+- **K87 — Go : un groupe à deux yeux ne peut plus être pris** [sûre] : Un groupe qui a deux yeux vrais et séparés est vivant : c'est une « zone sûre pour de bon » obtenue par la forme, sans règle spéciale.
+  - Origine : reprise JdS K330 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://senseis.xmp.net/?TwoEyes ; https://www.learn-go.net/lessons/06/
+- **K112 — Go : libertés et capture** [sûre] : Les libertés d'un pion (pierre) sont les intersections vides adjacentes ; une chaîne qui n'a plus de liberté est capturée ; les pierres ne bougent jamais.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Go_(game) ; https://en.wikipedia.org/wiki/Rules_of_Go
+- **K113 — Go : décompte par aire ou par territoire** [sûre] : Décompte par aire (règles chinoises) : pierres vivantes + intersections vides entourées ; par territoire (japonais) : vides entourés + prisonniers. Les deux donnent le plus souvent le même résultat.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Rules_of_Go
+- **K114 — Go : la partie finit par deux passes consécutives** [sûre] : Au go, la partie se termine quand les deux joueurs passent l'un après l'autre.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Rules_of_Go
+- **K115 — Go : le suicide, permis ou interdit selon les règles** [sûre] : Les règles de base (Tromp–Taylor) permettent le suicide (auto-capture) ; c'est inhabituel hors de Taïwan et de Nouvelle-Zélande ; une règle optionnelle l'interdit.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Rules_of_Go
+- **K116 — Go : ko simple, superko positionnel et situationnel** [sûre] : La règle du ko simple interdit de recréer la position précédente ; le superko interdit de recréer n'importe quelle position antérieure. Superko positionnel (PSK) : la position seule ; situationnel (SSK) : la position et le joueur au trait. Sans superko, un triple ko donne un cycle sans fin et « pas de résultat ».
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Rules_of_Go ; https://en.wikipedia.org/wiki/Ko_fight
+- **K117 — Go : seki (vie mutuelle)** [sûre] : Un groupe est vivant en seki s'il n'est pas indépendamment vivant mais ne peut pas être capturé ; les règles japonaises et coréennes ont des dispositions spéciales pour les points en seki.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Rules_of_Go
+- **K118 — Go : komi de 6,5 ou 7,5 points** [sûre] : Komi standard : 6,5 points (règles japonaises, coréennes), 7,5 (chinoises, Ing, AGA), 7 (Nouvelle-Zélande). Il compense l'avantage du premier coup ; une valeur fractionnaire évite le nul. En simultané, il n'y a pas de premier coup.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Komi_(Go)
+- **K119 — Go : 9×9 = 81 points, pour débuter ou finir vite** [sûre] : Le 9×9 et le 13×13 servent aux débutants et aux joueurs qui veulent une partie qui finit plus vite.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Go_(game) ; https://en.wikipedia.org/wiki/Go_variants
+- **K120 — Go 9×9 : environ 58 coups jusqu'au décompte ; 10 à 30 min selon les sources** [à creuser] : Forum OGS : mesure d'environ 58 coups (les deux joueurs) jusqu'au décompte en 9×9, soit 71,6 % des 81 points ; FirstGo : 10 à 20 min en partie détendue ; play-go-online.com : 20 à 30 min, 40 à 60 coups. Sources secondaires (forum, sites), d'où « à creuser ».
+  - Origine : externe. Sources : https://forums.online-go.com/t/average-game-length-on-different-board-sizes/35042 ; https://firstgo.app/blog/go-board-sizes ; https://play-go-online.com/play/9x9/
+- **K121 — Règles Ing : 180 pierres chacun, les prisonniers reviennent à leur propriétaire** [sûre] : Règles Ing (SST) : chaque joueur a exactement 180 pierres ; les pierres capturées sont rendues à leur propriétaire (« returned to the opponent's bowl » pour le preneur) ; le décompte se fait en remplissant son territoire. Seul précédent trouvé, au go, de pions capturés qui reviennent à leur propriétaire ; mais avec 180 pierres, la réserve ne manque pas : la question de la répétition ne s'y pose pas comme dans QIDIGO.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Rules_of_Go ; https://www.cs.cmu.edu/~wjh/go/rules/KSS.html ; https://senseis.xmp.net/?IngRules
+
+## Q — Qix et clones
+
+- **K90 — Qix : finir le niveau en prenant 75 % de l'écran** [sûre] : On trace des lignes pour fermer des zones ; il faut réclamer 75 % de l'aire (réglable de 50 à 90 % selon Wikipédia) pour finir un niveau.
+  - Origine : reprise JdS K268 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://en.wikipedia.org/wiki/Qix ; https://archive.org/stream/ArcadeGameManualQix/qix_djvu.txt
+- **K122 — Qix : tracer pour fermer des zones ; le trait non fini est vulnérable** [sûre] : Qix : on trace des lignes (Stix) pour fermer des zones, qui se remplissent de couleur ; les zones prises en Slow Draw valent double ; les Sparx parcourent les bords sauf les Stix non finis, mais les Super Sparx peuvent poursuivre le joueur sur un Stix non fini. Le trait en cours est le moment de risque.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Qix
+- **K123 — Qix a été très cloné (Xonix 1984, Gals Panic 1990, JezzBall 1992…)** [sûre] : Wikipédia liste de nombreux clones de Qix : Xonix (1984), Gals Panic (1990), JezzBall (1992), Dancing Eyes (1996)… Le « gagner du terrain en traçant » est un genre connu ; la nouveauté devra venir d'ailleurs.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Qix
+- **K124 — Volfied : 80 % pour finir ; les ennemis enfermés meurent** [sûre] : Volfied : il faut réclamer au moins 80 % du niveau (75 % dans Qix, 70 % dans Super Qix) ; les petits ennemis qui se retrouvent dans la zone fermée sont tués. Précédent de « capture par zone fermée ».
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Volfied
+- **K125 — JezzBall : capturer en divisant l'espace par des lignes** [sûre] : JezzBall (Windows, 1992) : on capture des parties d'un rectangle en le divisant par des lignes horizontales ou verticales.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/JezzBall
+
+## T — Tracés, territoire et capture
+
+- **K88 — Splatoon : Guerre de territoire (% de surface encrée)** [sûre] : Deux équipes ont trois minutes pour encrer le terrain ; au gong, l'équipe qui couvre le plus de surface gagne. Précédent de « peindre en passant » (C1.4).
+  - Origine : reprise JdS K266 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://splatoonwiki.org/wiki/Turf_War ; https://www.nintendo.com/en-gb/News/2024/December/Beginner-basics-for-Splatoon-3-the-ins-and-outs-of-playing-online-2645154.html ; https://www.youtube.com/watch?v=aiuIZN0KDFQ
+- **K89 — Paper.io 2 : le score est le % de la carte possédé** [sûre] : On part d'un petit territoire ; dehors on laisse une trace, et revenir chez soi annexe la zone tracée ; si un adversaire coupe la trace, on perd tout. Précédent direct du trajet qui ferme une zone.
+  - Origine : reprise JdS K267 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.gamedeveloper.com/design/paper-io-2-a-natural-difficulty-curve ; https://apps.apple.com/us/app/paper-io-2/id1423046460
+- **K91 — Ingress : trois balises reliées créent un champ ; les liens ne se croisent pas** [sûre] : On relie des portails de sa faction ; trois portails reliés créent un champ de contrôle ; un lien ne peut pas en croiser un autre. Précédent de « croiser = interdit / couper ».
+  - Origine : reprise JdS K331 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://support.ingress.com/hc/en-us/articles/41140344104219-Creating-Links-and-Fields
+- **K92 — Polytopia : cases carrées, mode en 30 tours** [sûre] : Polytopia se joue sur des cases carrées ; un mode se joue en 30 tours (meilleur score). Précédent d'une fin par nombre de tours fixe.
+  - Origine : reprise JdS K347 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://en.wikipedia.org/wiki/The_Battle_of_Polytopia ; https://polytopia.fandom.com/wiki/Map_Generation
+- **K130 — Dots (Kropki) : capturer les points adverses en les entourant** [sûre] : Dots : on place des points sur les croisements d'un papier quadrillé ; une chaîne fermée qui entoure au moins un point adverse le capture ; les zones entourées sont exclues du jeu ; 5 à 90 min.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Dots_(paper-and-pencil_game)
+- **K131 — Pipopipette (Dots and Boxes) : fermer une case donne un point et un coup de plus** [sûre] : On trace un trait entre deux points voisins ; celui qui ferme le quatrième côté d'une case marque un point et rejoue.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Dots_and_boxes
+- **K132 — Hex : pas de nul possible ; les pions ne bougent jamais** [sûre] : Hex : relier ses deux bords ; une fois posés, les pions ne bougent ni ne partent ; le nul est impossible par la topologie du plateau.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Hex_(board_game)
+- **K133 — TwixT : des liens qui ne se croisent pas ; règle du gâteau** [sûre] : TwixT : des pions reliés par des liens ; un lien ne peut pas croiser un autre lien ; la règle du gâteau (« pie rule ») compense l'avantage du premier joueur.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/TwixT
+- **K134 — Amazones : déplacer puis murer ; le dernier qui peut bouger gagne** [sûre] : Une amazone bouge comme une dame aux échecs sans traverser de pièce, puis tire une flèche qui bloque une case pour toujours ; jeu de territoire cousin du go.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Game_of_the_Amazons
+- **K135 — À travers le désert (Knizia) : marquer les zones fermées par ses caravanes** [sûre] : Jeu de pose où l'on marque des points pour les zones fermées par une de ses caravanes.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Through_the_Desert
+- **K136 — Blockade (1976) / Tron (1982) : survivre en évitant les traces** [sûre] : Le genre Snake naît avec Blockade (1976), à deux joueurs : survivre plus longtemps que l'autre ; Tron (1982) reprend l'idée avec les motos de lumière.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Snake_(video_game_genre)
+- **K137 — Slither.io : une tête qui touche un autre corps meurt** [sûre] : Dans Slither.io, si la tête d'un serpent touche le corps d'un autre, il meurt. Précédent d'« interception d'un trajet = capture ».
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Slither.io
+- **K138 — Jeu du moulin : une phase de pose, puis une phase de déplacement** [sûre] : Jeu du moulin : 9 pions chacun sur 24 points ; on pose d'abord tous ses pions, puis on les déplace vers un point voisin ; un moulin (3 alignés) permet de retirer un pion adverse. Précédent ancien d'une réserve limitée qui force à passer de la pose au déplacement.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Nine_men%27s_morris
+- **K139 — Hasami shogi : capture en tenaille (méthode du gardien)** [sûre] : On prend une pièce adverse en occupant les deux cases qui l'encadrent sur une ligne ou une colonne ; plusieurs pièces alignées peuvent être prises d'un coup ; entrer soi-même entre deux pièces adverses est sans danger.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Hasami_shogi
+- **K140 — Othello / Reversi : les pions encadrés changent de camp** [sûre] : Les pions adverses alignés entre le pion posé et un autre pion du joueur sont retournés ; un coup n'est valide que s'il retourne au moins un pion. C'est une conversion, pas une capture.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Reversi
+- **K141 — Backgammon : un pion frappé va sur la barre et doit rentrer d'abord** [sûre] : Un pion seul frappé est placé sur la barre ; il doit rentrer par le jan adverse avant tout autre mouvement. Précédent de pion capturé qui revient en jeu chez son propriétaire, avec une contrainte de retour.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Backgammon
+- **K142 — Petits chevaux (Ludo) : un pion pris retourne à la maison** [sûre] : Un pion pris retourne à son point de départ et il faut un 6 pour le remettre en jeu. Précédent de délai avant de rejouer un pion capturé.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Ludo
+- **K143 — Shogi : les pièces prises sont parachutées par le preneur** [sûre] : Au shogi, les pièces capturées restent en main du preneur, qui peut les reposer plus tard. Contraste avec QIDIGO, où le pion revient à son propriétaire.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Shogi
+
+## V — Déjà-vu (jeux proches)
+
+- **K144 — F-Go : go simultané ; même point = point interdit** [sûre] : Sensei's Library : les deux joueurs choisissent un point en même temps ; s'ils coïncident, rien n'est joué et le point devient interdit jusqu'au coup suivant ; les captures se jugent sur la position avant le coup ; fin par passe simultanée.
+  - Origine : externe. Sources : https://senseis.xmp.net/?FGo
+- **K145 — Fuseki.net : en go simultané, des amas de points interdits** [sûre] : Simultaneous Go : en cas de collision, les deux reprennent leur pierre et le point est interdit ; l'auteur note que ça marche, sauf de grands amas de zones interdites, et doute de la fin de partie ; le morpion à 5 marche mieux ainsi. Témoignage d'un auteur, pas une étude.
+  - Origine : externe. Sources : https://fuseki.net/simultaneous-go
+- **K146 — Diplomatic Go (OGS, 2020) : go simultané à plusieurs, sur 9×9** [sûre] : Coups scellés exécutés en même temps ; collision = personne ne joue, avec des choix de repli ; captures : d'abord les vieilles chaînes sans liberté, puis les nouvelles (suicide possible) ; fin par passes mutuelles ou position répétée trois fois ; aire, sans komi. Première partie sur 9×9.
+  - Origine : externe. Sources : https://forums.online-go.com/t/diplomatic-go/29867
+- **K147 — SAS Go : collision marquée d'une croix, interdite au tour suivant** [à creuser] : Variante citée sur le forum OGS : si les deux joueurs choisissent le même point, rien n'est posé, le point est marqué X et personne ne peut y jouer au tour suivant. Vu en citation seulement.
+  - Origine : externe. Sources : https://forums.online-go.com/t/diplomatic-go/29867
+- **K148 — Go multijoueur parallèle : coups annoncés ensemble ; chevauchement = passe** [sûre] : Wikipédia (Go variants) : coups annoncés simultanément ; deux coups qui se chevauchent comptent comme des passes.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Go_variants
+- **K149 — Sliding Go (Pahle) : la pose se fait par un glissement le long des lignes** [sûre] : Le pion entre par un bord ou à côté d'un groupe relié au bord, puis glisse le long des lignes, en tournant à angle droit, sans traverser de point occupé ; plus de ko, et la plupart des grands yeux vivent. Le plus proche précédent du « trajet dessiné ».
+  - Origine : externe. Sources : https://jpneto.github.io/world_abstract_games/rules.htm
+- **K150 — Slidey Go (Jones, 1999) : on peut aussi déplacer un pion d'un cran** [sûre] : Comme le go, mais un joueur peut aussi déplacer un de ses pions vers un point voisin vide.
+  - Origine : externe. Sources : https://jpneto.github.io/world_abstract_games/rules.htm
+- **K151 — Forum OGS : déplacer au lieu de poser semble trop faible** [évoquée] : Spéculation de joueurs (2024) : déplacer un pion d'un cran au lieu d'en poser un semble trop faible, poser étant presque toujours meilleur ; et de petits groupes pourraient vivre partout. Opinion, non testée.
+  - Origine : externe. Sources : https://forums.online-go.com/t/variant-in-which-the-stones-move/52841
+- **K152 — XYMYX : échecs simultanés, collisions par hiérarchie** [sûre] : Les deux joueurs enregistrent leur coup en secret, exécuté en même temps ; deux pièces vers la même case : la plus haute gagne, à égalité celle enregistrée en premier ; une prise échoue si la cible bouge.
+  - Origine : externe. Sources : https://xymyx.com/en/rules/
+- **K153 — Grid Kings : Move or Die (iOS) : duel tactique simultané sur grille** [sûre] : App Store : les deux joueurs planifient en même temps puis les coups se résolvent ; grille 7×12 qui rétrécit ; PvP ou solo ; « parties courtes ». Jeu iPhone proche par le format (simultané, grille, duel).
+  - Origine : externe. Sources : https://apps.apple.com/us/app/grid-kings-move-or-dir/id6754548572
+- **K154 — Grid Domination (iPhone) : tours simultanés, routes planifiées, territoire** [à creuser] : Page miroir de l'App Store : mode tours simultanés, on planifie des routes et des ordres, puis tout s'exécute ensemble ; bases capturées et territoire. Vu sur un site tiers seulement.
+  - Origine : externe. Sources : https://apppage.net/preview/ios/6790938410
+- **K155 — Territory Game (Yorimichi, 2026) : prendre une case, murer une zone** [sûre] : Jeu web : on prend une case voisine de son terrain ; une zone vide que l'adversaire ne peut plus atteindre est à soi ; pas de capture ; fin quand tout est partagé ; plus de cases gagne, égalité = nul.
+  - Origine : externe. Sources : https://yorimichi-games.com/en/jintori/
+- **K156 — AtCoder AHC061 (2026) : jeu de territoire simultané, conflits = pièces renvoyées** [sûre] : Concours de programmation : tous les joueurs choisissent leur destination en même temps ; plusieurs pièces sur une case sans propriétaire : toutes renvoyées à leur case de départ ; score après T = 100 tours.
+  - Origine : externe. Sources : https://atcoder.jp/contests/ahc061/tasks/ahc061_a?lang=en
+
+## C — Classement
+
+- **K26 — Seulement des duels classés** [sûre] : Réponse de Lomig à Q33 (JdS) : seulement des duels classés. QIDIGO est donc un 1 contre 1 classé.
+  - Origine : reprise JdS K429 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q33
+- **K27 — Décision : un classement de type Elo** [sûre] : Lomig a décidé d'un classement de type Elo pour apparier les joueurs et afficher leur niveau. Vaut pour QIDIGO.
+  - Origine : reprise JdS K228 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, message du 25/10/2026
+- **K51 — Elo (FIDE) : probabilité de score et coefficient K** [sûre] : Classement Elo de la FIDE : l'écart de classement donne une probabilité de score ; la variation = K × (score réel − score attendu).
+  - Origine : reprise JdS K230 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://handbook.fide.com/chapter/B022024
+- **K52 — Glicko-2 (Lichess) : classement + incertitude** [sûre] : Lichess utilise Glicko-2 : un classement, un écart (confiance) et une volatilité ; on démarre à 1500 ± 1000.
+  - Origine : reprise JdS K231 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://lichess.org/faq ; https://lichess.org/page/rating-systems ; https://glicko.net/glicko/glicko2.pdf
+- **K53 — Smurfing** [sûre] : Un joueur fort qui joue sur un compte secondaire moins bien classé casse l'appariement ; à prévoir pour un duel classé.
+  - Origine : reprise JdS K236 (CK/base-K.md du JdS, § Psychologie du joueur). Sources : https://journals.sagepub.com/doi/10.1177/14614448241235638 ; https://doi.org/10.17605/osf.io/rz8xq
+- **K54 — Anxiété de classement** [à creuser] : Des joueurs évitent le classé par peur de perdre du rang (« ladder anxiety »), décrit notamment par la communauté StarCraft II. QIDIGO étant « seulement classé » (K26), le risque est réel.
+  - Origine : reprise JdS K237 (CK/base-K.md du JdS, § Psychologie du joueur). Sources : piste : https://www.reddit.com/r/starcraft/comments/5q4xc4/starcraft_ladder_anxiety_and_you_current_research/ ; https://tictactactics.wordpress.com/2015/09/09/ladder-anxiety-and-the-starcraft-ii-multiplayer-experience/ ; https://news.blizzard.com/en-gb/article/10060622/coming-soon-starcraft-ii-2-0-4
+- **K55 — Inflation de classement** [sûre] : Les classements montent sans hausse réelle du niveau ; Lichess dit l'éviter, Brawl Stars la combat.
+  - Origine : reprise JdS K238 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://lichess.org/page/rating-systems ; https://supercell.com/en/games/brawlstars/blog/news/ranked-is-dead-and-ranked-is-back/
+- **K56 — Démarrage à froid du classement** [sûre] : Un nouveau joueur n'a pas de niveau connu ; Glicko-2 démarre avec une forte incertitude pour accélérer les premiers ajustements.
+  - Origine : reprise JdS K240 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://lichess.org/faq ; https://handbook.fide.com/chapter/B022024 ; https://www.microsoft.com/en-us/research/project/trueskill-ranking-system/
+
+## I — iPhone et interface
+
+- **K57 — Apple HIG : jouer tout de suite, apprendre en jouant** [sûre] : Apple HIG, Designing for games : laisser jouer dès l'installation, bons réglages par défaut, apprendre en jouant.
+  - Origine : reprise JdS K405 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Apple, Human Interface Guidelines, « Designing for games » : https://developer.apple.com/design/human-interface-guidelines/designing-for-games
+- **K58 — Apple HIG : toucher pour sélectionner, commandes près du pouce** [sûre] : Apple HIG, Game controls : toucher les objets pour les sélectionner, boutons fréquents près du pouce, retours visuels.
+  - Origine : reprise JdS K406 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Apple, Human Interface Guidelines, « Game controls » : https://developer.apple.com/design/human-interface-guidelines/game-controls
+- **K59 — Hoober (2013) : une main 49 %** [sûre] : Sur 780 personnes observées en train de toucher l'écran : une main 49 %, téléphone tenu à deux mains et touché d'une seule 36 %. Un tracé de trajet doit se faire au pouce, d'une main.
+  - Origine : reprise JdS K408 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Steven Hoober, « How Do Users Really Hold Mobile Devices? », UXmatters, 18/02/2013 : https://www.uxmatters.com/mt/archives/2013/02/how-do-users-really-hold-mobile-devices.php
+- **K60 — iPhone : 393 pt de large, cible tactile ≥ 44 pt** [sûre] : iPhone 16 : 393 × 852 points ; iPhone 16 Pro Max : 440 × 956 points. Cible tactile Apple : au moins 44 × 44 pt.
+  - Origine : reprise JdS K525 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://useyourloaf.com/blog/iphone-16-screen-sizes/
+- **K61 — Apple : ne pas coder par la couleur seule** [sûre] : Apple : ne pas obliger à distinguer des états par la seule couleur ; le daltonisme est fréquent. Pions noirs et blancs : bon point ; terrain colorié : prévoir un motif.
+  - Origine : reprise JdS K526 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://developer.apple.com/help/app-store-connect/manage-app-accessibility/differentiate-without-color-alone-evaluation-criteria/
+- **K62 — Petit écran, UI chargée** [sûre] : Gladiabots est critiqué pour une interface trop chargée sur iPhone : la profondeur doit tenir dans un petit écran.
+  - Origine : reprise JdS K134 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://www.tapsmart.com/games/gladiabots-build-ai-robot-warriors/
+- **K103 — Plateforme visée : iPhone, en portrait** [sûre] : AGENTS.md : plateforme visée iPhone, portrait ; plus tard Swift 6, iOS 18 (rien avant la phase maquette).
+  - Origine : dépôt QIDIGO. Sources : AGENTS.md (dépôt blomig/QIDIGO, commit e88023f)
+- **K109 — JdS : ordres par appui direct sur les cases surlignées, sans mini-menu** [sûre] : Règles v0.3 du JdS, R-13.2 : décision de Lomig du 31/10/2026, relayée par CDP : on donne un ordre en appuyant sur l'unité puis sur une case surlignée, sans mini-menu (JdS-K420 remplacée). Principe transposable : geste direct, pas de menu.
+  - Origine : règles du JdS. Sources : /workspace/jds-patch-out/regles-v0.3-recharge.patch, R-13.2, R-5.7 (JdS)
+
+## M — Marché et monétisation
+
+- **K21 — Modèle économique sans pay-to-win** [sûre] : Réponse de Lomig à Q5 (JdS) : un modèle proche de Hearthstone et Clash, sans pay-to-win. Le détail (cartes à débloquer) ne se transpose pas : QIDIGO n'a pas de cartes ; il faudra trouver ce qui se vend (cosmétique, accès, saisons) sans toucher à l'équité.
+  - Origine : reprise JdS K414 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q5
+- **K22 — Payer accélère sans rendre le sommet inatteignable** [sûre] : Réponse de Lomig à Q36 (JdS) : ceux qui paient accélèrent leur progression, mais le sommet reste accessible sans payer. Dans un jeu sans contenu à débloquer comme QIDIGO, « accélérer » n'a pas encore d'objet : question ouverte.
+  - Origine : reprise JdS K432 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q36
+- **K39 — IAP jeux mobiles ≈ 82 Md$, stagnation** [sûre] : Sensor Tower : revenus IAP des jeux mobiles 2025 ≈ 82 Md$ (+1,3 %), puis −2 % au S1 2026 ; le marché passe du volume à la valeur à vie.
+  - Origine : reprise JdS K50 (CK/base-K.md du JdS, § Marché). Sources : https://sensortower.com/blog/state-of-gaming-2026 ; https://sensortower.com/blog/h1-2026-digital-gaming-market-index
+- **K40 — App Store > Google Play en revenus** [sûre] : Sensor Tower : l'App Store génère ≈ 75 % de revenus IAP de plus que Google Play avec 4 fois moins de téléchargements. Conforte le choix iPhone d'abord.
+  - Origine : reprise JdS K51 (CK/base-K.md du JdS, § Marché). Sources : https://sensortower.com/blog/state-of-gaming-2026
+- **K41 — La stratégie croît, surtout par les 4X** [sûre] : La stratégie était le seul genre en hausse de téléchargements dans toutes les grandes régions en 2025, tirée par les 4X ; au T2 2026, les anciens 4X reculent.
+  - Origine : reprise JdS K52 (CK/base-K.md du JdS, § Marché). Sources : https://sensortower.com/blog/state-of-gaming-2026 ; https://naavik.co/f2p-mobile/h1-2026-4x-strategys-ua-reckoning/
+- **K42 — CCG digitaux en déclin** [sûre] : Marvel Snap : 99 M$ (2023) → 26 M$ (2025) ; Legends of Runeterra : développement PvP arrêté en 2024. Abandonner les cartes n'éloigne pas de marchés en croissance.
+  - Origine : reprise JdS K55 (CK/base-K.md du JdS, § Marché). Sources : https://www.blog.udonis.co/statistics/marvel-snap ; https://playruneterra.com/en-sg/news/game-updates/legends-of-runeterra-2024-state-of-the-game-faq
+- **K43 — Chess.com : 243 M de membres** [sûre] : Chess.com : 243 M de membres fin 2025 ; un public qui aime la profondeur et paie pour progresser. Public cible naturel d'un abstrait au tour.
+  - Origine : reprise JdS K58 (CK/base-K.md du JdS, § Marché). Sources : https://www.chess.com/board-reports/2025-q4
+- **K44 — Polytopia : stratégie au tour mobile, 100 % skill** [sûre] : The Battle of Polytopia : 4X au tour par tour, 25 M de téléchargements organiques sur mobile (oct. 2025), présenté comme basé sur le skill.
+  - Origine : reprise JdS K30 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.gamespress.com/MIDJIWAN-CELEBRATES-25-MILLION-DOWNLOADS-OF-THE-BATTLE-OF-POLYTOPIA ; https://www.pocketgamer.biz/the-battle-of-polytopia-surpasses-25m-downloads-on-mobile/
+- **K45 — Petite équipe possible** [sûre] : Polytopia et Gladiabots, nés de développeurs solos, montrent qu'un jeu de stratégie mobile durable peut naître d'une très petite équipe.
+  - Origine : reprise JdS K136 (CK/base-K.md du JdS, § Technique & plateforme). Sources : https://uk.pcmag.com/the-battle-of-polytopia-for-iphone/92472/the-battle-of-polytopia-pc-mag-uks-mobile-game-of-the-year ; https://wiki.gladiabots.com/index.php?title=The_game
+- **K46 — Échecs en ligne : la cadence 10 min domine** [sûre] : Sur un échantillon de 24 h (mars 2025, 19,79 M de parties) sur Chess.com, la cadence 10|0 représente plus de 41 % des parties.
+  - Origine : reprise JdS K37 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.chess.com/article/view/time-controls-and-game-results-on-chess-com
+- **K47 — Clash Royale : 3 min + 2** [sûre] : Une partie de Clash Royale dure 3 minutes, plus jusqu'à 2 minutes de prolongation. Repère pour « rapide ».
+  - Origine : reprise JdS K20 (CK/base-K.md du JdS, § Décomposition d'objets existants). Sources : https://en.wikipedia.org/wiki/Clash_Royale
+- **K48 — Hearthstone : 7–10 min** [sûre] : Une partie classée de Hearthstone dure ≈ 7–10 min selon l'archétype.
+  - Origine : reprise JdS K24 (CK/base-K.md du JdS, § Décomposition d'objets existants). Sources : https://articles.hsreplay.net/2017/08/13/how-long-are-frozen-throne-games/ ; https://www.hsguru.com/meta?min_games=100&sort_by=duration
+- **K49 — Marvel Snap : simultané, pas temps réel** [sûre] : Marvel Snap : les deux joueurs jouent pendant le même tour (environ 1 minute, avec un minuteur), puis tout se résout ensemble. Preuve qu'un tour simultané minuté marche sur mobile.
+  - Origine : reprise JdS K45 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://marvelsnap.helpshift.com/hc/en/3-marvel-snap/faq/46-how-long-do-i-have-to-take-my-turn/ ; https://www.gamedeveloper.com/game-platforms/designers-don-t-sleep-on-marvel-snap-s-simultaneous-turns
+- **K50 — Pay-to-win perçu = confiance** [sûre] : Leçon Supercell (2026) : une nouveauté désirable mais imprévisible à obtenir est perçue comme pay-to-win ; la lisibilité du chemin d'obtention compte autant que la puissance.
+  - Origine : reprise JdS K119 (CK/base-K.md du JdS, § Psychologie du joueur). Sources : https://www.pocketgamer.biz/we-killed-clash-royale-what-supercell-learned-from-failed-updates/
+- **K64 — App Store 3.1.1 : achats intégrés obligatoires** [sûre] : Pour débloquer des fonctions ou une monnaie de jeu, il faut passer par l'achat intégré d'Apple.
+  - Origine : reprise JdS K409 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Apple, App Store Review Guidelines, 3.1.1 In-App Purchase (mise à jour du 16/10/2026) : https://developer.apple.com/app-store/review/guidelines/
+- **K166 — Clash Royale : 3 min de temps normal, puis jusqu'à 2 min de prolongation** [sûre] : Wikipédia : les combats durent au plus trois minutes en temps normal ; à égalité, une prolongation où la première tour détruite gagne ; sans destruction en deux minutes, un départage à la santé des tours.
+  - Origine : externe. Sources : https://en.wikipedia.org/wiki/Clash_Royale
+
+## B — Bonnes pratiques de design
+
+- **K65 — Schell : équité et choix significatifs** [sûre] : Lentille de l'équité (symétrie ?) et des choix significatifs. Un duel simultané symétrique sur 9×9 est équitable par construction.
+  - Origine : reprise JdS K392 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Schell, lentilles n° 30 (Fairness) et n° 32 (Meaningful Choice), transcription : https://gamefroot-developer.gitbooks.io/jesse-schell-the-art-of-game-design-lenses-1-to-1/content/030.html et https://gamefroot-developer.gitbooks.io/jesse-schell-the-art-of-game-design-lenses-1-to-1/content/032.html
+- **K66 — Koster : le fun, c'est la réponse émotionnelle à l'apprentissage** [sûre] : Pour Koster, le fun naît de l'apprentissage ; un jeu dont on a fait le tour lasse. Argument pour la profondeur.
+  - Origine : reprise JdS K395 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Raph Koster, « Theory of Fun: 10 Years Later », GDC Online 2012 (diapositives de l'auteur) : https://raphkoster.com/gaming/gdco12/Koster_Raph_Theory_Fun_10.pdf
+- **K67 — Salen et Zimmerman : lien action-résultat discernable** [sûre] : Le jeu a du sens si le lien entre l'action du joueur et le résultat est discernable et intégré. Une annulation mutuelle doit rester lisible.
+  - Origine : reprise JdS K397 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Katie Salen et Eric Zimmerman, Rules of Play (MIT Press, 2003), définitions de la « meaningful play » citées par Wikipédia : https://en.wikipedia.org/wiki/Meaningful_play
+- **K68 — Hearthstone : itérer vite sur papier, simplifier sans perdre la profondeur** [sûre] : Dodds (GDC 2014) : prototypes papier puis numériques, beaucoup de mauvaises idées essayées puis jetées. QIDIGO se teste sur un goban 9×9 réel.
+  - Origine : reprise JdS K399 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : « 'Iterate fast' and other design lessons learned from Hearthstone », Game Developer (compte rendu de la conférence d'Eric Dodds, GDC 2014) : https://www.gamedeveloper.com/design/-iterate-fast-and-other-design-lessons-learned-from-i-hearthstone-i- ; vidéo : https://www.gdcvault.com/play/1020775/Hearthstone-10-Bits-of-Design
+- **K69 — Riot : le contre-jeu** [sûre] : Le contre-jeu est une action ou une stratégie qui permet de surmonter une menace adverse ; il sert l'équité et la profondeur. La coupure de trajet est un contre-jeu.
+  - Origine : reprise JdS K402 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : Riot Scruffy, « Quick Gameplay Thoughts: May 14 », League of Legends (Riot Games), 14/05/2021 : https://www.leagueoflegends.com/en-us/news/dev/quick-gameplay-thoughts-may-14/
+- **K70 — Loi de Bushnell : facile à apprendre, difficile à maîtriser** [sûre] : Les meilleurs jeux sont faciles à apprendre et difficiles à maîtriser (Bushnell) ; critique de Bogost sur l'aphorisme.
+  - Origine : reprise JdS K403 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : « Bushnell's Law », Wikipédia : https://en.wikipedia.org/wiki/Bushnell%27s_Law ; Ian Bogost, « Persuasive Games: Familiarity, Habituation, and Catchiness », Game Developer : https://www.gamedeveloper.com/design/persuasive-games-familiarity-habituation-and-catchiness
+- **K71 — Zagal et al. (2013) : dark patterns (temps, argent, social)** [sûre] : Patrons conçus pour nuire au joueur contre son intérêt. Cohérent avec K1 et K3 : rien de tel dans QIDIGO.
+  - Origine : reprise JdS K410 (CK/base-K.md du JdS, § Bonnes pratiques de game design (demande de Lomig via CDP, tour 17)). Sources : José P. Zagal, Staffan Björk et Chris Lewis, « Dark Patterns in the Design of Games », Foundations of Digital Games (FDG) 2013 : http://www.fdg2013.org/program/papers/paper06_zagal_etal.pdf
+- **K72 — Into the Breach : l'ennemi annonce ses coups** [sûre] : Into the Breach télégraphie toutes les attaques ennemies : le combat devient une énigme lisible. Piste : montrer les trajets possibles adverses ? (contraire au secret des ordres).
+  - Origine : reprise JdS K341 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.subsetgames.com/itb.html ; https://www.gamedeveloper.com/game-platforms/road-to-the-igf-subset-games-i-into-the-breach-i- ; https://en.wikipedia.org/wiki/Into_the_Breach
+- **K73 — Into the Breach : la clarté avant les bonnes idées** [sûre] : Justin Ma : ils sacrifiaient les bonnes idées au profit de la clarté ; le joueur doit comprendre ce qui se passe dans toute situation. Critère direct pour choisir les règles de coupure.
+  - Origine : reprise JdS K505 (CK/base-K.md du JdS, § Genres & mécaniques). Sources : https://www.gamedeveloper.com/design/-i-into-the-breach-i-dev-on-ui-design-sacrifice-cool-ideas-for-the-sake-of-clarity-every-time- ; https://www.youtube.com/watch?v=s_I07Iq_2XM
+- **K74 — Cowan (2001) : environ quatre éléments en mémoire de travail** [sûre] : Cowan estime la capacité de la mémoire à court terme à environ quatre « chunks ». Argument pour peu de pions à suivre (5 plutôt que 8 ?).
+  - Origine : reprise JdS K527 (CK/base-K.md du JdS, § Psychologie du joueur). Sources : https://doi.org/10.1017/s0140525x01003922
+- **K75 — Information parfaite : les échecs oui, les coups simultanés non** [sûre] : Les échecs sont à information parfaite ; un jeu à coups simultanés ne l'est pas (chacun ignore le coup de l'autre). QIDIGO ajoute une part de lecture de l'adversaire.
+  - Origine : reprise JdS K368 (CK/base-K.md du JdS, § Théorie du jeu / Caillois (demande de Lomig via CDP, tour 15)). Sources : https://en.wikipedia.org/wiki/Perfect_information
+- **K76 — Échecs : un agôn presque pur** [sûre] : Caillois prend les échecs comme exemple d'agôn (compétition pure). QIDIGO, sans hasard, vise aussi l'agôn.
+  - Origine : reprise JdS K369 (CK/base-K.md du JdS, § Théorie du jeu / Caillois (demande de Lomig via CDP, tour 15)). Sources : https://en.wikipedia.org/wiki/Man,_Play_and_Games ; Roger Caillois, Les Jeux et les Hommes, Gallimard, 1958, scan de l'édition originale (OCR relu, coquilles corrigées) : https://monoskop.org/images/4/41/Caillois_Roger_Les_jeux_et_les_hommes_1958.pdf ; https://en.wikipedia.org/wiki/Perfect_information
+
+## P — Prototype et technique
+
+- **K29 — Test par une build TestFlight de base** [sûre] : Réponse de Lomig à Q35 (JdS) : le test se fera par une build TestFlight de base, avec des bêta-testeurs.
+  - Origine : reprise JdS K431 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, réponse écrite dans questions-ouvertes.md (retours/questions-ouvertes-lomig-2026-10-28.md, commit 6845385), Q35
+- **K30 — D'abord une v0 sans serveur (passe-le-téléphone + IA simple)** [sûre] : Réponse de Lomig à Q45 (JdS) : d'abord une v0 sans serveur (passe-le-téléphone et IA simple) dans TestFlight, puis le duel en ligne. Vaut pour un prototype local de QIDIGO.
+  - Origine : reprise JdS K459 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q38-Q45-chat.md), Q45
+- **K31 — L'IA du tutoriel est faible exprès** [sûre] : Réponse de Lomig à Q53 (JdS) : l'IA du tutoriel est faible exprès. Pour un prototype local de QIDIGO, une IA simple suffit.
+  - Origine : reprise JdS K478 (CK/base-K.md du JdS, § Goûts de Lomig). Sources : Lomig, 28/10/2026, chat CDP (texte complet dans reponses-Q51-Q54-chat.md), Q53
+- **K63 — TestFlight : 100 testeurs internes, 10 000 externes** [sûre] : Apple : jusqu'à 100 testeurs internes et jusqu'à 10 000 externes après une revue de la bêta.
+  - Origine : reprise JdS K451 (CK/base-K.md du JdS, § Technique & plateforme). Sources : Apple Developer, « TestFlight » : https://developer.apple.com/testflight/
+- **K85 — Simulation déterministe par ticks** [à creuser] : Clash Royale semble utiliser une simulation déterministe : seules les commandes transitent. QIDIGO (ordres + résolution déterministe) s'y prête encore mieux : on n'envoie qu'un ordre par tour.
+  - Origine : reprise JdS K130 (CK/base-K.md du JdS, § Décomposition d'objets existants). Sources : piste : https://blog.gemserk.com/2016/09/05/analyzing-clash-royale-multiplayer-solution/
+- **K111 — JdS : une IA faible simple (proposition P-43, ai_idle_prob = 0,25)** [à creuser] : Règles v0.2 du JdS, R-12.1 (PROPOSITION P-43) : l'IA ne lit que l'état public du début du tour, donne ses ordres au début de la planification, et avec une probabilité ai_idle_prob = 0,25 une unité ne fait rien. Modèle direct pour une IA de prototype QIDIGO.
+  - Origine : règles du JdS. Sources : /workspace/JeuDuSiecle/CK/regles-v0.md, R-12.1 (JdS)
+
+## D — Déductions (K→K)
+
+- **K157 — Grille 9×9 traits : 81 croisements, 64 cases, 144 segments** [sûre] : Géométrie : 9 × 9 = 81 croisements ; 8 × 8 = 64 cases entre les traits ; 2 × 9 × 8 = 144 segments unitaires. 75 % de 81 = 60,75 (61 croisements) ; 75 % de 64 = 48 cases.
+  - Origine : déduction. Sources : calcul (K94)
+- **K158 — Sur un iPhone 16 en portrait, un croisement a environ 43,7 pt** [sûre] : 393 pt de large / 9 croisements ≈ 43,7 pt par croisement, sans marge : juste sous les 44 pt recommandés par Apple. Le 9×9 tient à la limite en portrait ; tracer un trajet au doigt, croisement par croisement, sera serré.
+  - Origine : déduction. Sources : calcul (K60, K103)
+- **K159 — Avec 5 à 8 pions, « croisements occupés » ne peut pas dépasser 10 %** [sûre] : 5/81 ≈ 6,2 % et 8/81 ≈ 9,9 % : si seule l'occupation compte, aucun seuil de X % significatif n'est atteignable. L'unité de possession doit inclure ce qui est contrôlé ou fermé, pas seulement occupé.
+  - Origine : déduction. Sources : calcul (K96, K157)
+- **K160 — Avec retour en réserve, le matériel ne diminue jamais : la fin doit venir d'une règle** [sûre] : Si chaque pion capturé revient à son propriétaire (K105), aucun joueur ne s'épuise ; et une position peut se répéter (comme un ko). Seule une limite de tours garantit à coup sûr la fin ; un seuil seul ne la garantit pas.
+  - Origine : déduction. Sources : déduction (K105, K116, K106)
+- **K161 — En go simultané, les collisions sur le meilleur point s'accumulent** [à creuser] : F-Go, Fuseki.net et SAS Go ont tous dû traiter la collision (point interdit) ; Fuseki.net rapporte de grands amas de points interdits. Le risque « tout s'annule » de QIDIGO a donc des précédents.
+  - Origine : déduction. Sources : déduction (K144, K145, K147)
+- **K162 — Trajet long = plus de gain, plus de risque (Qix, Paper.io)** [sûre] : Dans Qix, le trait non fini est exposé ; dans Paper.io 2, une trace coupée fait tout perdre. Un trajet long dans QIDIGO s'expose plus à la coupure : c'est un équilibrage naturel.
+  - Origine : déduction. Sources : déduction (K122, K89)
+- **K163 — Le croisement frontal est un conflit dans les deux traditions** [sûre] : Diplomacy interdit l'échange de places sans convoi ; au JdS, Lomig a décidé que l'échange de cases est un combat (K36). Un face-à-face sur un même segment doit compter comme coupure.
+  - Origine : déduction. Sources : déduction (K126, K36)
+- **K164 — Si poser ne peut jamais être coupé, poser domine tant qu'il reste des pions en réserve** [à creuser] : Forum OGS : poser est presque toujours mieux que déplacer d'un cran ; jeu du moulin : la réserve limitée force à passer au déplacement. Avec retour en réserve, la réserve se remplit à chaque capture : poser redevient possible.
+  - Origine : déduction. Sources : déduction (K151, K138, K105)
+- **K165 — Durée maximale = tours × (chrono + résolution)** [sûre] : Avec 5 s de résolution (valeur du JdS, K32, et ordre de grandeur de Frozen Synapse, K83) : 10 tours × 15 s → 3 min 20 s ; 15 × 15 s → 5 min ; 20 × 15 s → 6 min 40 s ; 20 × 10 s → 5 min ; 15 × 30 s → 8 min 45 s (JdS). Repères : Clash Royale 3 min + jusqu'à 2 min de prolongation (K47) ; Hearthstone 7–10 min (K48).
+  - Origine : déduction. Sources : calcul (K108, K32, K83, K47)
