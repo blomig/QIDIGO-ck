@@ -141,3 +141,19 @@ Point flou, avec une interprétation provisoire mise en réglage :
 - **Poids de l'IA forte** : `capture_definitive = 8` (contre 4 pour `retour`, relevé de 2 à 4 avec le
   comptage en cases). À 4, la forte entrait encore dans 3 des pièges réels relevés au banc ; à 8,
   aucun. Voir banc/def-tableau.md pour les résultats en cases.
+
+## Passe « IA robuste » (03/11) : ce que les fortes révèlent des règles (pour Lomig ; aucune règle changée)
+
+- **Les vetos ne coûtent rien.**
+  - Une RENCONTRE annule les deux trajets.
+  - Avec `pose_coupante = annulee`, une pose qui coupe reste en réserve.
+  - Deux fortes passent donc leur temps à se bloquer. Entre deux v1, 92 % des déplacements ne s'exécutent pas
+    (82 RENCONTRE et 12 COUPURE sur 102). Chaque joueur garde environ 1 pion en jeu, et 77 parties sur 500 finissent 0–0.
+- **Bloquer est la bonne réponse.** Une IA qui renonce à un trajet percuté (`repetition` = 3) perd 35 % contre 65 %
+  face à la v1 : renoncer laisse passer la fermeture adverse. Le blocage mutuel est donc un équilibre de la règle, pas
+  un défaut de l'IA.
+- **Leviers possibles, à trancher par Lomig :**
+  - qu'une pose coupante soit consommée (`pose_coupante = maintenue`) ;
+  - qu'une rencontre ne coûte qu'à un seul des deux joueurs (le soutien existe déjà) ;
+  - qu'un pion de réserve non posé coûte quelque chose.
+

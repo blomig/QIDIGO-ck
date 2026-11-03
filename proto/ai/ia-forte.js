@@ -34,7 +34,13 @@ export const POIDS_BASE = Object.freeze({
   potentiel: 1.2, // territoire potentiel : cases presque fermées par ses murs
   exposition: 0.4, // murs exposés à la recoloration, cases exposées à la reprise
   coupure: 0.5, // risque de coupure : pions coincés ou collés à un pion adverse
-  reserve: 0.2, // pions en réserve
+  reserve: 0.2, // pions en réserve (chacun) ; inchangé depuis la v1
+  // passe « IA robuste » (CDP/Lomig 03/11, 20 h) : présence et mobilité. Diagnostic : la v1 (ai/ia-forte-v1.js)
+  // ne voyait aucun intérêt à poser (une pose ne vaut rien à 1 tour) et gardait ~4 pions en réserve.
+  reserve_garde: 0.0, // avoir au moins 1 pion en réserve (munition de coupure : une pose coupante ne coûte rien)
+  presence: 0.0, // pions en jeu, concave : √(pions en jeu)
+  mobilite: 0.0, // croisements atteignables en un trajet par au moins un pion (en dixièmes de la grille)
+  menaces: 0.0, // pions distincts capables d'atteindre une case presque fermée (3 murs), plafonné à 3
   // demande CDP 03/11 (Q4) : avec la capture activée, chaque pion capturé à ce tour (différence entre
   // les deux camps). Sans capture (défaut), ce terme vaut toujours 0 : l'IA par défaut ne change pas.
   capture: 4.0, // 2.0 au banc Q4 (croisements) ; 4.0 depuis le comptage en cases (piège 1 : 9/20 à 2, 20/20 à 4)
@@ -49,11 +55,24 @@ export const POIDS_BASE = Object.freeze({
   poids_coupe: 0.6, // poids relatif d'une réponse adverse « coupure » dans la moyenne
   profondeur2: 0.35, // part de l'estimation du tour suivant
   alea: 0.4, // écart toléré (en points d'évaluation) pour tirer au hasard entre coups proches
+  // passe « IA robuste » : jeu simultané, donc stratégie mixte. Probabilité de jouer selon l'équilibre
+  // (regret matching sur la matrice candidats × réponses) plutôt que le meilleur score. 0 = comme la v1.
+  equilibre: 0.0,
+  // passe « IA robuste » : marge de déploiement. Parmi les lignes à moins de `deploiement` points de la
+  // meilleure, on préfère la meilleure pose tant qu'il reste au moins 2 pions en réserve (1 sert de munition
+  // de coupure). Les pièges tactiques (écart > marge) ne changent donc pas. 0 = comme la v1.
+  deploiement: 2.0,
+  // passe « IA robuste » : un ordre qui vient d'être annulé (RENCONTRE, COUPURE) dans la même position est
+  // prévisible ; pénalité par tour consécutif où ce même ordre a échoué. Sans elle, deux fortes rejouent le même
+  // trajet percuté jusqu'au tour 20 (banc/ia-passivite-diagnostic.md). 0 = comme la v1.
+  repetition: 0.0, // testé à 3 : 34,7 % contre la v1 (abandonner un blocage laisse passer la fermeture adverse)
 });
 
 export const NOMS_POIDS = Object.keys(POIDS_BASE);
 
-const OPTIONS_DEFAUT = { budget: 700, msMax: Infinity, poids: null, kCandidats: 40, mReponses: 30 };
+// v2 (passe « IA robuste », 03/11) : 16 réponses au lieu de 30 et matrice limitée à 65 % du budget, pour que
+// la profondeur 2 (tour suivant) s'exécute enfin ; 10 poses gardées au pré-tri (v1 : 30, 100 %, 6).
+const OPTIONS_DEFAUT = { budget: 700, msMax: Infinity, poids: null, kCandidats: 40, mReponses: 30, partMatrice: 1, nPoses: 10 };
 
 // Poids tunés (ai/poids-tunes.json, écrit par tools/arena.js tuning). Tant qu'ils ne sont pas chargés,
 // ou si le fichier est absent, l'IA utilise POIDS_BASE.
@@ -170,7 +189,9 @@ function geo(n) {
     }
     const vois = [];
     for (let c = 0; c < nbCroisements(n); c++) vois.push(voisins(n, c));
-    g = { N, cotes, casesDuSegment, vois };
+    const autour = [];
+    for (let c = 0; c < nbCroisements(n); c++) autour.push(casesAutourCroisement(n, c));
+    g = { N, cotes, casesDuSegment, vois, autour };
     GEO.set(n, g);
   }
   return g;
@@ -239,7 +260,43 @@ export function caracteristiques(etat, X) {
     if (libres < 2) coupure += 1;
     if (colle) coupure += 0.5;
   }
-  return { ctrl: etat.ctrl[X], cases: casesX, potentiel, exposition, coupure, reserve: etat.reserve[X] };
+  const pr = presenceEtMobilite(etat, X, mX);
+  return { ctrl: etat.ctrl[X], cases: casesX, potentiel, exposition, coupure, reserve: etat.reserve[X], pions: etat.pions[X].length, ...pr };
+}
+
+/**
+ * Mobilité et menaces de X (passe « IA robuste ») : parcours en largeur depuis chaque pion, sur les
+ * croisements libres, jusqu'à trajet_max segments (plafond 7). Approximation : pas de règle ici, seul le
+ * moteur juge les ordres ; ces nombres servent seulement à évaluer une position.
+ */
+function presenceEtMobilite(etat, X, mX) {
+  const n = etat.params.grille;
+  const { vois, autour } = geo(n);
+  const nb = nbCroisements(n);
+  const L = Math.min(longueurMax(etat.params), 7);
+  const occ = new Uint8Array(nb);
+  for (const c of etat.pions.A) occ[c] = 1;
+  for (const c of etat.pions.B) occ[c] = 1;
+  const chaud = (c) => autour[c].some((k) => etat.proprietaires[k] !== X && mX[k] >= 3);
+  const vu = new Uint8Array(nb);
+  let atteint = 0;
+  let menaces = 0;
+  const dist = new Int8Array(nb);
+  for (const p of etat.pions[X]) {
+    dist.fill(-1);
+    dist[p] = 0;
+    const file = [p];
+    let menace = false;
+    for (let h = 0; h < file.length; h++) {
+      const c = file[h];
+      if (!vu[c]) { vu[c] = 1; atteint++; }
+      if (!menace && c !== p && chaud(c)) menace = true;
+      if (dist[c] >= L) continue;
+      for (const v of vois[c]) if (dist[v] < 0 && !occ[v]) { dist[v] = dist[c] + 1; file.push(v); }
+    }
+    if (menace) menaces++;
+  }
+  return { mobilite: (10 * atteint) / nb, menaces: Math.min(3, menaces) };
 }
 
 /** Évaluation de `etat` du point de vue de P. */
@@ -264,6 +321,10 @@ export function evaluer(etat, P, poids = POIDS_BASE) {
     poids.exposition * ft * (a.exposition - b.exposition) -
     poids.coupure * (a.coupure - b.coupure) +
     poids.reserve * (a.reserve - b.reserve) +
+    (poids.reserve_garde || 0) * (Math.min(1, a.reserve) - Math.min(1, b.reserve)) +
+    (poids.presence || 0) * (Math.sqrt(Math.max(0, a.pions - 1)) - Math.sqrt(Math.max(0, b.pions - 1))) + // à partir du 2e pion : le 1er est toujours posé
+    (poids.mobilite || 0) * ft * (a.mobilite - b.mobilite) +
+    (poids.menaces || 0) * ft * (a.menaces - b.menaces) +
     poids.seuil * ((a.ctrl / S) ** 2 - (b.ctrl / S) ** 2)
   );
 }
@@ -309,6 +370,13 @@ function creeCycle(ctx, etat, P, chemin) {
 }
 
 function preScore(etat, P, ordre, poids, ctx) {
+  if (ordre.type === 'poser') {
+    // passe « IA robuste » : une pose près de ses murs (cases à 2-3 murs non possédées) prépare une fermeture.
+    const { autour } = geo(etat.params.grille);
+    let v = 0;
+    for (const k of autour[ordre.croisement]) if (etat.proprietaires[k] !== P) v += ctx.murs[k] >= 3 ? 1 : ctx.murs[k] === 2 ? 0.4 : ctx.murs[k] === 1 ? 0.1 : 0;
+    return v;
+  }
   if (ordre.type !== 'deplacer') return 0;
   const g = geo(etat.params.grille);
   // potentiel ajouté : cases touchées par les nouveaux segments
@@ -392,7 +460,7 @@ function valeur(apres, P, poids) {
 }
 
 /** Ordres de P classés : pré-tri puis évaluation à 1 tour contre « Passer ». */
-function meilleursOrdres(etat, P, poids, cpt, { nPre, nGarde, rng }) {
+function meilleursOrdres(etat, P, poids, cpt, { nPre, nGarde, rng, nPoses = 6 }) {
   const tous = ordresLegaux(etat, P);
   const ctx = contextePreTri(etat, P);
   let notes = tous.map((ordre) => {
@@ -405,7 +473,7 @@ function meilleursOrdres(etat, P, poids, cpt, { nPre, nGarde, rng }) {
   const fermants = notes.filter((x) => x.gain > 0).map((x) => ({ ordre: x.ordre, gain: x.gain }));
   // On garde toujours quelques poses et Passer, même si le pré-tri les classe bas.
   const tete = notes.slice(0, nPre);
-  for (const t of notes.filter((x) => x.ordre.type === 'poser').slice(0, 6)) if (!tete.includes(t)) tete.push(t);
+  for (const t of notes.filter((x) => x.ordre.type === 'poser').slice(0, nPoses)) if (!tete.includes(t)) tete.push(t);
   if (!tete.some((x) => x.ordre.type === 'passer')) tete.push(notes.find((x) => x.ordre.type === 'passer'));
   const res = [];
   for (const t of tete) {
@@ -416,6 +484,7 @@ function meilleursOrdres(etat, P, poids, cpt, { nPre, nGarde, rng }) {
   return { classes: res.slice(0, nGarde), nb: tous.length, fermants };
 }
 
+const cleCible = (o) => (o.type === 'poser' ? 'p' + o.croisement : o.type === 'deplacer' ? 'd' + o.chemin.at(-1) : o.type);
 const cleOrdre = (o) => (o.type === 'poser' ? 'p' + o.croisement : o.type === 'deplacer' ? 'd' + o.chemin.join('.') : o.type);
 
 /**
@@ -437,7 +506,7 @@ export function choisirOrdre(etat, joueur, rng, options = {}) {
   const base = { ...etat, historique: [] };
 
   // 1-3. Nos meilleurs ordres et ceux de l'adversaire, à 1 tour.
-  const nous = meilleursOrdres(base, P, w, cpt, { nPre: 40, nGarde: opts.kCandidats, rng });
+  const nous = meilleursOrdres(base, P, w, cpt, { nPre: 40, nGarde: opts.kCandidats, rng, nPoses: opts.nPoses });
   const eux = meilleursOrdres(base, Q, w, cpt, { nPre: 30, nGarde: opts.mReponses, rng });
 
   // Nos coupures : poses sur les croisements des trajets adverses qui ferment (étape 3b du moteur).
@@ -479,7 +548,7 @@ export function choisirOrdre(etat, joueur, rng, options = {}) {
   // 4. Matrice de gains.
   const lignes = [];
   for (const o of candidats) {
-    if (!cpt.reste() && lignes.length >= 3) break;
+    if ((!cpt.reste() || cpt.n >= opts.partMatrice * opts.budget) && lignes.length >= 3) break;
     const vals = [];
     for (const r of reponses) {
       const apres = resoudre(base, P, o, r.ordre, cpt);
@@ -510,17 +579,82 @@ export function choisirOrdre(etat, joueur, rng, options = {}) {
     lignes.sort((a, b) => b.score - a.score);
   }
 
+  // 5 bis. Équilibre de la matrice (jeu simultané) : un coup prévisible se fait couper ou percuter.
+  if ((w.equilibre || 0) > 0 && lignes.length > 1 && rng.reel() < w.equilibre) {
+    const x = equilibreMatrice(lignes.map((l) => l.vals.map((v) => v.v)));
+    const garde = x.map((p, i) => ({ p, i })).filter((z) => z.p >= 0.04);
+    if (opts.stats) opts.stats.mixte = garde.map((z) => +z.p.toFixed(2));
+    if (garde.length) {
+      const tot = garde.reduce((a, z) => a + z.p, 0);
+      let u = rng.reel() * tot;
+      for (const z of garde) { u -= z.p; if (u <= 0) return finir(lignes[z.i]); }
+      return finir(lignes[garde[garde.length - 1].i]);
+    }
+  }
+
+  // 5 bis'. Répétition d'un ordre annulé.
+  if ((w.repetition || 0) > 0 && etat.historique?.length) {
+    const echecs = new Map();
+    for (let h = etat.historique.length - 1; h >= 0; h--) {
+      const t = etat.historique[h];
+      const o = t.ordres?.[P];
+      if (!o || (o.type !== 'deplacer' && o.type !== 'poser')) break;
+      if (t.journal?.some((x) => x.joueur === P && (x.code === 'DEPLACEMENT' || x.code === 'POSE'))) break;
+      // clé : la destination (un autre chemin vers la même arrivée se fait percuter de la même façon)
+      const k = cleCible(o);
+      echecs.set(k, (echecs.get(k) || 0) + 1);
+    }
+    if (echecs.size) {
+      for (const l of lignes) l.score -= w.repetition * (echecs.get(cleCible(l.ordre)) || 0);
+      lignes.sort((a, b) => b.score - a.score);
+    }
+  }
+
+  // 5 ter. Marge de déploiement.
+  if ((w.deploiement || 0) > 0 && base.reserve[P] >= 2) {
+    const pose = lignes.find((l) => l.ordre.type === 'poser' && l.score >= lignes[0].score - w.deploiement);
+    if (pose && pose !== lignes[0]) return finir(pose);
+  }
+
   // 6. Aléa graïné entre les coups proches.
   const meilleur = lignes[0].score;
   const proches = lignes.filter((l) => l.score >= meilleur - Math.max(0, w.alea));
   const choix = proches.length > 1 ? rng.choisir(proches) : lignes[0];
+  return finir(choix);
+  function finir(choix) {
   if (opts.stats) {
     opts.stats.resolutions = cpt.n;
     opts.stats.candidats = candidats.length;
     opts.stats.reponses = reponses.length;
     opts.stats.ordresLegaux = nous.nb;
     opts.stats.lignes = lignes.slice(0, 6).map((l) => ({ ordre: l.ordre, score: +l.score.toFixed(2), vals: l.vals.map((x) => +x.v.toFixed(1)) }));
+    opts.stats.toutes = lignes.map((l) => ({ type: l.ordre.type, score: l.score, min: Math.min(...l.vals.map((x) => x.v)) }));
+    opts.stats.candidatsTypes = candidats.map((o) => o.type);
     opts.stats.reponsesDetail = reponses.map((r) => ({ ordre: r.ordre, p: +r.poids.toFixed(3) }));
   }
   return choix.ordre;
+  }
+}
+
+/**
+ * Stratégie mixte approchée du joueur « lignes » sur une matrice de gains M[i][j] (somme nulle :
+ * l'adversaire minimise). Regret matching des deux côtés, stratégie moyenne. Déterministe.
+ */
+export function equilibreMatrice(M, iterations = 400) {
+  const n = M.length, m = M[0].length;
+  const rL = new Float64Array(n), rC = new Float64Array(m), sL = new Float64Array(n);
+  const strat = (r) => { let t = 0; for (const v of r) if (v > 0) t += v; return Array.from(r, (v) => (t > 0 ? Math.max(0, v) / t : 1 / r.length)); };
+  for (let it = 0; it < iterations; it++) {
+    const x = strat(rL), y = strat(rC);
+    const uL = new Float64Array(n), uC = new Float64Array(m);
+    let val = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) { uL[i] += M[i][j] * y[j]; uC[j] += M[i][j] * x[i]; }
+    for (let i = 0; i < n; i++) val += x[i] * uL[i];
+    for (let i = 0; i < n; i++) rL[i] += uL[i] - val;
+    for (let j = 0; j < m; j++) rC[j] += val - uC[j];
+    // moyenne pondérée (les itérations tardives comptent plus), plus stable
+    for (let i = 0; i < n; i++) sL[i] += (it + 1) * x[i];
+  }
+  const t = sL.reduce((a, b) => a + b, 0);
+  return Array.from(sL, (v) => v / t);
 }

@@ -7,7 +7,8 @@
 //   node tools/arena.js tuning [--generations 10] [--population 8] [--parties 24] [--validation 300] [--graine 7]
 //   node tools/arena.js expansion [--parties 60] [--graine 3]        (vitesse d'expansion selon trajet_max)
 // Options communes : --workers N (défaut : nb de cœurs), --json fichier (résultats bruts).
-// Configurations : faible | forte (poids de base) | tunee (ai/poids-tunes.json) | fichier:chemin.json
+// Configurations : faible | forte (poids de base) | v1 (ancienne forte figée, ai/ia-forte-v1.js) | tunee (ai/poids-tunes.json) | fichier:chemin.json
+// Un fichier peut aussi fixer les options de recherche : { poids: {...}, options: { mReponses, partMatrice, nPoses, budget } }.
 // Le moteur (engine/) est le seul arbitre : l'arène ne contient aucune règle.
 
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
@@ -18,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { creerEtat, resoudreTour, creerRng, adversaire, nbCases, cotesCase } from '../engine/index.js';
 import * as faible from '../ai/ia-faible.js';
 import * as forte from '../ai/ia-forte.js';
+import * as forteV1 from '../ai/ia-forte-v1.js'; // référence figée (passe « IA robuste », 03/11)
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 export const FICHIER_POIDS = path.join(ICI, '..', 'ai', 'poids-tunes.json');
@@ -71,6 +73,7 @@ export function lirePoidsTunes() {
 export function config(nom, extra = {}) {
   if (typeof nom === 'object') return nom;
   if (nom === 'faible') return { nom, type: 'faible' };
+  if (nom === 'v1') return { nom, type: 'forte-v1', poids: { ...forteV1.POIDS_BASE }, ...extra };
   if (nom === 'forte') return { nom, type: 'forte', poids: { ...forte.POIDS_BASE }, ...extra };
   if (nom === 'tunee') {
     const p = lirePoidsTunes();
@@ -79,14 +82,15 @@ export function config(nom, extra = {}) {
   }
   if (nom.startsWith('fichier:')) {
     const j = JSON.parse(fs.readFileSync(nom.slice(8), 'utf8'));
-    return { nom, type: 'forte', poids: { ...forte.POIDS_BASE, ...(j.poids || j) }, ...extra };
+    return { nom, type: 'forte', poids: { ...forte.POIDS_BASE, ...(j.poids || j) }, ...(j.options || {}), ...extra };
   }
   throw new Error(`Configuration inconnue : ${nom}`);
 }
 
 function jouerOrdre(cfg, etat, j, rng) {
   if (cfg.type === 'faible') return faible.choisirOrdre(etat, j, rng);
-  return forte.choisirOrdre(etat, j, rng, { poids: cfg.poids, budget: cfg.budget ?? 700, kCandidats: cfg.kCandidats, mReponses: cfg.mReponses });
+  if (cfg.type === 'forte-v1') return forteV1.choisirOrdre(etat, j, rng, { poids: cfg.poids, budget: cfg.budget ?? 700, kCandidats: cfg.kCandidats, mReponses: cfg.mReponses });
+  return forte.choisirOrdre(etat, j, rng, { poids: cfg.poids, budget: cfg.budget ?? 700, kCandidats: cfg.kCandidats, mReponses: cfg.mReponses, partMatrice: cfg.partMatrice, nPoses: cfg.nPoses });
 }
 
 /** Cases gagnées ce tour par P, regroupées en morceaux 4-connexes ; un morceau « s'appuie sur le bord » s'il touche le bord. */
@@ -287,6 +291,8 @@ async function match(nomX, nomY, params, n, graine, options = {}) {
 const BORNES = {
   croisements: [0.1, 5], cases: [0, 3], potentiel: [0, 6], exposition: [0, 4], coupure: [0, 4], reserve: [-2, 2], capture: [0, 5], capture_definitive: [0, 10], echelle_cases: [0.5, 4],
   seuil: [0, 60], tours_restants: [0, 3], maximin: [0, 1], temperature: [0.3, 10], poids_coupe: [0, 3], profondeur2: [0, 0.8], alea: [0, 2],
+  // passe « IA robuste » (03/11) : présence et mobilité
+  presence: [0, 6], mobilite: [0, 2], menaces: [0, 4], reserve_garde: [0, 3],
 };
 
 export function muter(poids, rng, sigma) {
@@ -303,11 +309,17 @@ export function muter(poids, rng, sigma) {
 async function tuning(o) {
   const rng = creerRng(o.graine);
   const budgetTuning = { budget: o.budgetTuning }; // mêmes kCandidats et mReponses que l'IA du jeu
-  const base = { nom: 'base', type: 'forte', poids: { ...forte.POIDS_BASE }, ...budgetTuning };
-  const pool = [{ nom: 'faible', type: 'faible' }, base];
+  // passe « IA robuste » (03/11) : la référence est l'ancienne forte figée (ai/ia-forte-v1.js) ;
+  // --depart fichier.json { poids, options } fixe le point de départ et les options de recherche.
+  const dep = o.depart ? JSON.parse(fs.readFileSync(o.depart, 'utf8')) : {};
+  const optRech = dep.options || {};
+  const base = { nom: 'base', type: 'forte', poids: { ...forte.POIDS_BASE, ...(dep.poids || {}) }, ...budgetTuning, ...optRech };
+  const v1 = { nom: 'v1', type: 'forte-v1', poids: { ...forteV1.POIDS_BASE }, ...budgetTuning };
+  const pool = [{ nom: 'faible', type: 'faible' }, v1, base];
   let parent = { ...base, nom: 'gen0' };
   const histoire = [];
-  const reglagesTuning = [{ grille: 9, reprise: 'oui' }, { grille: 9, reprise: 'non' }, { grille: 8, reprise: 'oui' }, { grille: 7, reprise: 'oui' }];
+  // réglages du jeu par défaut (comptage = cases, capture = aucune, zone_regle = actuel)
+  const reglagesTuning = o.defauts ? [{}] : [{ grille: 9, reprise: 'oui' }, { grille: 9, reprise: 'non' }, { grille: 8, reprise: 'oui' }, { grille: 7, reprise: 'oui' }];
   const fitness = async (cands, gen) => {
     // mêmes graines pour tous les candidats d'une génération (nombres aléatoires communs)
     const taches = [];
@@ -353,21 +365,21 @@ async function tuning(o) {
     if (best !== 0) {
       parent = { ...cands[best], nom: `gen${gen}` };
       pool.push({ ...parent, nom: `hof${gen}` }); // les meilleures versions précédentes rejoignent le pool
-      if (pool.length > 4) pool.splice(2, 1); // pool : faible, base, et les 2 dernières meilleures
+      if (pool.length > 5) pool.splice(3, 1); // pool : faible, v1, départ, et les 2 dernières meilleures
       sigma = Math.min(1, sigma * 1.2);
     } else sigma = Math.max(0.15, sigma * 0.8);
   }
   // Validation : parties séparées (autres graines), budget complet, tunée contre forte de base.
-  const tunee = { nom: 'tunee', type: 'forte', poids: parent.poids };
-  const baseV = { nom: 'forte', type: 'forte', poids: { ...forte.POIDS_BASE } };
+  const tunee = { nom: 'tunee', type: 'forte', poids: parent.poids, ...optRech };
+  const baseV = { nom: 'v1', type: 'forte-v1', poids: { ...forteV1.POIDS_BASE } };
   const valid = [];
-  const regV = [{ grille: 9, reprise: 'oui' }, { grille: 9, reprise: 'non' }, { grille: 8, reprise: 'oui' }, { grille: 7, reprise: 'oui' }];
+  const regV = o.defauts ? [{}] : [{ grille: 9, reprise: 'oui' }, { grille: 9, reprise: 'non' }, { grille: 8, reprise: 'oui' }, { grille: 7, reprise: 'oui' }];
   const tachesV = [];
   regV.forEach((params, r) => tachesV.push(...tachesMatch(tunee, baseV, params, Math.round(o.validation / regV.length), deriver(o.graine, 99999, r))));
   const resV = await jouerTout(tachesV, o);
   const bTot = bilan(tachesV, resV);
   console.log('\nValidation (graines séparées, budget complet) :');
-  console.log(texteBilan('tunée', 'forte de base', 'tous réglages', bTot));
+  console.log(texteBilan('tunée', 'v1 (figée)', 'tous réglages', bTot));
   let i0 = 0;
   for (const params of regV) {
     const n = Math.round(o.validation / regV.length);
@@ -379,10 +391,10 @@ async function tuning(o) {
   const sortie = {
     description: 'Poids de l’IA forte tunés par tools/arena.js (stratégie évolutionnaire 1+λ contre un pool : faible, forte de base, meilleures versions précédentes). Lu par ai/ia-forte.js (niveau Fort).',
     date: new Date().toISOString(), graine: o.graine, generations: o.generations, population: o.population, partiesParAdversaire: o.parties,
-    budgetTuning: o.budgetTuning, poids: parent.poids, historique: histoire,
+    budgetTuning: o.budgetTuning, poids: parent.poids, options: optRech, historique: histoire,
     validation: { total: bTot, parReglage: valid },
   };
-  if (bTot.icSansNuls[0] > 0.5 || o.forcer) {
+  if ((bTot.icSansNuls[0] > 0.5 && bTot.icAvecNuls[0] > 0.5) || o.forcer) {
     fs.writeFileSync(o.sortie, JSON.stringify(sortie, null, 2) + '\n');
     console.log(`\nPoids enregistrés : ${o.sortie}`);
   } else {
@@ -460,7 +472,7 @@ async function principal() {
     brut.tuning = await tuning({
       ...opts, graine: Number(a.graine ?? 7), generations: Number(a.generations ?? 10), population: Number(a.population ?? 8),
       parties: Number(a.parties ?? 24), validation: Number(a.validation ?? 300), sigma: Number(a.sigma ?? 0.6),
-      budgetTuning: Number(a.budgetTuning ?? 300), sortie: a.sortie || FICHIER_POIDS, forcer: !!a.forcer,
+      budgetTuning: Number(a.budgetTuning ?? 300), sortie: a.sortie || FICHIER_POIDS, forcer: !!a.forcer, depart: a.depart, defauts: !!a.defauts,
     });
   } else if (a.cmd === 'expansion') {
     const n = Number(a.parties ?? 60);

@@ -116,5 +116,22 @@ node tools/arena.js expansion --parties 60                                   # v
   Les parties de validation (tunée contre base, graines séparées) écrivent `ai/poids-tunes.json` seulement si la borne basse de l'IC dépasse 50 %.
   Sinon, elles écrivent `ai/poids-tunes.rejet.json`. `--forcer` passe outre.
 
+### Forte v2 : passe « IA robuste » (03/11)
+
+- `ai/ia-forte-v1.js` est une copie figée de la forte d'avant la passe. Elle sert de référence (config `v1` d'arena) et ne doit pas être modifiée.
+- Diagnostic chiffré de la passivité : `banc/ia-passivite-diagnostic.md`. Points d'étape et résultats : `banc/ia-active-etat.md`.
+- Ce qui a changé dans `ai/ia-forte.js` :
+  - **Pré-tri des poses.** Une pose est notée selon les cases presque fermées autour du croisement (1 pour 3 murs, 0,4 pour 2, 0,1 pour 1). Avant, toutes les poses valaient 0 et les poses gardées étaient tirées au hasard. 10 poses sont gardées (6 avant).
+  - **Marge de déploiement** (`deploiement` = 2). Parmi les lignes à 2 points ou moins de la meilleure, l'IA joue la meilleure pose, tant qu'il lui reste au moins 2 pions en réserve. Un pion reste toujours disponible pour couper.
+  - **Termes présents mais à 0 par défaut, car ils perdaient ou cassaient des pièges :**
+    - `presence`, `mobilite`, `menaces`, `reserve_garde` ;
+    - `equilibre` (stratégie mixte par regret matching sur la matrice) ;
+    - `repetition` (pénalité d'un ordre qui vient d'échouer) ;
+    - options `mReponses` et `partMatrice`.
+- Arena :
+  - `node tools/arena.js match --a forte --b v1` ;
+  - `tuning --defauts --depart fichier.json` joue contre un pool faible, v1, départ et versions intermédiaires, puis valide contre la v1.
+- Banc des variantes : `IA=v2|v1 node banc/banc-v2.mjs <zone_regle> <capture> <n> <graine> <sortie>`, puis `python3 banc/analyse-v2.py banc/ia-v2-tableau.md`.
+
 Résultats du 03/11 : banc/ à la racine du dépôt local (forte-faible.txt, tuning.txt, expansion.txt, forte-forte.txt ; en croisements).
 Depuis le comptage en cases : cases-forte-faible.json (forte bat faible 200 à 0) et def-*.json / def-tableau.md (banc de la capture définitive).

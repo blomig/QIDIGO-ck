@@ -1,5 +1,5 @@
 {
-  "source": "POIDS_BASE : le tuning du 03/11 (5 générations, validation 400 parties) n’a pas battu la base de façon significative (voir ai/poids-tunes.rejet.json et banc/tuning.txt). Fichier lu par ai/ia-forte.js ; « node tools/arena.js tuning » le remplace si un tuning est validé.",
+  "source": "Forte v2 (passe « IA robuste », 03/11) : = POIDS_BASE de ai/ia-forte.js (réglage Pd2 : marge de déploiement 2, validé contre la v1 figée, voir banc/ia-active-etat.md). Lu par ai/ia-forte.js (navigateur et worker) ; « node tools/arena.js tuning » le remplace si un tuning est validé.",
   "poids": {
     "croisements": 1,
     "cases": 0.3,
@@ -13,6 +13,13 @@
     "temperature": 3,
     "poids_coupe": 0.6,
     "profondeur2": 0.35,
-    "alea": 0.4
+    "alea": 0.4,
+    "reserve_garde": 0,
+    "presence": 0,
+    "mobilite": 0,
+    "menaces": 0,
+    "equilibre": 0,
+    "deploiement": 2,
+    "repetition": 0
   }
 }
