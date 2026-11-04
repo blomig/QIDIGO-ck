@@ -314,15 +314,15 @@ export function resoudreCoupures(etat, ordres) {
       for (const j of JOUEURS) for (const c of etat.pions[j]) if (!partent.has(c)) immobiles.push({ j, c, ch: null, immobile: true });
       const K = Math.max(0, ...act.filter((u) => u.ch).map((u) => u.ch.length - 1));
       const pertes = new Map(); // unité -> index d'arrêt minimal (-1 = annulée)
-      const perdre = (u, k, type, code, cause) => {
+      const perdre = (u, k, type, code, cause, meta = {}) => {
         let stop = -1;
         if (u.ch && arret) stop = type === 'seg' ? k : k - 1;
         if (u.ch && stop >= u.ch.length - 1) return; // déjà arrivé avant le conflit : rien ne change
         if (u.ch && stop <= 0) stop = -1;
         const prec = pertes.get(u);
         pertes.set(u, prec == null ? { stop, code, cause } : (stop < prec.stop ? { stop, code, cause } : prec));
-        if (stop === -1 || !arret) journal.push(entree(tour, code, `${nomJoueur(u.j)} : ${libelle(u)} est annulé${u.o.type === 'poser' ? 'e' : ''} — ${cause}`, { joueur: u.j }));
-        else journal.push(entree(tour, 'ARRET', `${nomJoueur(u.j)} : ${libelle(u)} s’arrête en ${nc(u.ch[stop])} — ${cause}`, { joueur: u.j, croisement: u.ch[stop] }));
+        if (stop === -1 || !arret) journal.push(entree(tour, code, `${nomJoueur(u.j)} : ${libelle(u)} est annulé${u.o.type === 'poser' ? 'e' : ''} — ${cause}`, { joueur: u.j, ...meta }));
+        else journal.push(entree(tour, 'ARRET', `${nomJoueur(u.j)} : ${libelle(u)} s’arrête en ${nc(u.ch[stop])} — ${cause}`, { joueur: u.j, croisement: u.ch[stop], ...meta }));
       };
       const premier = (a, b) => {
         for (let k = 0; k <= K; k++) {
@@ -367,12 +367,22 @@ export function resoudreCoupures(etat, ordres) {
             if (ft > fp) perdre(up, ev.k, 'c', 'COUPURE', `plus faible, ${fp} contre ${ft} (en ${nc(c)}) : le trajet soutenu passe.`);
             else {
               perdre(uq, ev.k, 'c', 'COUPURE', fp > ft ? `plus faible, ${ft} contre ${fp} (en ${nc(c)}, pose de ${nomJoueur(up.j)}).` : `${nomJoueur(up.j)} pose en ${nc(c)}, sur son trajet (pas ${ev.k}).`);
+              // Décision Lomig 04/11 (11 h 49) : en synchro, à égalité, la pose tient (pose_coupante ne joue qu'en mode trajet).
               if (fp === ft) {
-                if (p.pose_coupante === 'annulee') perdre(up, 0, 'c', 'COUPURE', `la pose en ${nc(c)} a coupé un trajet (réglage « pose qui coupe » : annulée).`);
-                else journal.push(entree(tour, 'COUPURE', `${nomJoueur(up.j)} : la pose en ${nc(c)} est maintenue (réglage « pose qui coupe » : maintenue).`, { joueur: up.j }));
+                journal.push(entree(tour, 'COUPURE', `${nomJoueur(up.j)} : la pose en ${nc(c)} est maintenue (égalité : la pose tient).`, { joueur: up.j }));
               }
             }
             continue;
+          }
+          // Décision Lomig 04/11 (11 h 49) : un pion déjà arrivé fait obstacle, même plus faible ; le trajet adverse qui
+          // passe par son croisement s'arrête juste avant (on ne déloge jamais un pion ; jamais deux pions sur un croisement).
+          if (ev.type === 'c') {
+            const au = !enMouvement(u, ev.k), av = !enMouvement(v, ev.k);
+            if (au !== av) {
+              const [arrive, passe] = au ? [u, v] : [v, u];
+              perdre(passe, ev.k, 'c', 'RENCONTRE', `le pion adverse déjà arrivé en ${nc(ev.x.c)} fait obstacle (pas ${ev.k}).`, { obstacle: 'arrive' });
+              continue;
+            }
           }
           const pa = perd(u, v, [ev.x]);
           const pb = perd(v, u, [ev.x]);

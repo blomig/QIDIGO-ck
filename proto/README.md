@@ -187,4 +187,8 @@ Réglage **Conflit** : `trajet` (défaut, v0.3.1) ou `synchro` (piste de Lomig).
 
 ## v0.5 : nouveaux défauts (décision de Lomig, 04/11, 11 h 39)
 
-Par défaut : **conflit = synchro**, **conflit_issue = arret**, **soutien = oui**. Les anciennes valeurs (trajet, annule, soutien désactivé) restent réglables et affichent le badge « modifié ». La consigne rappelle le geste de soutien (toucher un de ses pions, puis un croisement voisin : flèche en pointillé) et le conflit synchro (le plus faible s'arrête au dernier croisement atteint). Les tests écrits pour les anciennes règles les épinglent (`ANCIENS` dans tests/aide.js ; rejeu de la partie de Lomig inchangé). Version affichée : v0.5 (titre, barre du bas, package.json).
+Par défaut : **conflit = synchro**, **conflit_issue = arret**, **soutien = oui**. Les anciennes valeurs (trajet, annule, soutien désactivé) restent réglables et affichent le badge « modifié ». La consigne rappelle le geste de soutien (toucher un de ses pions, puis un croisement voisin : flèche en pointillé) et le conflit synchro (le plus faible s'arrête au dernier croisement atteint). Les tests écrits pour les anciennes règles les épinglent (`ANCIENS` dans tests/aide.js ; rejeu de la partie de Lomig inchangé). Version affichée à l'époque : v0.5 (titre, barre du bas, package.json).
+
+## v0.5.1 (décisions de Lomig, 04/11, 11 h 49)
+
+En synchro : un pion déjà arrivé fait obstacle, même plus faible ; le trajet adverse s'arrête juste avant lui. On ne déloge jamais un pion, et il n'y a jamais deux pions sur un croisement (test de propriété). À égalité entre deux déplacements, les deux s'arrêtent avant le conflit. À égalité entre une pose et un trajet, la pose tient (« pose qui coupe » est sans effet en synchro). Version affichée : v0.5.1.

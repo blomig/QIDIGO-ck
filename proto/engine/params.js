@@ -82,7 +82,7 @@ export const REGLAGES = [
   // --- Choix proto réglables (§3, 2e tableau) ---
   { id: 'pose_coupante', groupe: 'choix', libelle: 'Pose qui coupe un trajet', type: 'choix', defaut: 'annulee',
     valeurs: [['annulee', 'Annulée'], ['maintenue', 'Maintenue']],
-    description: 'Une pose sur un croisement du trajet adverse le coupe ; la pose elle-même est annulée ou a lieu. Q16 est suspendue.' },
+    description: 'Une pose sur un croisement du trajet adverse le coupe ; la pose elle-même est annulée ou a lieu. Q16 est suspendue. Mode trajet seulement : en synchro (défaut), à égalité la pose tient (décision de Lomig, 04/11 11 h 49).' },
   { id: 'trace_adverse', groupe: 'choix', libelle: 'Passage sur une trace adverse', type: 'choix', defaut: 'recolore',
     valeurs: [['recolore', 'La recolore'], ['garde', 'Elle garde sa couleur']],
     description: 'Passer sur un segment adverse le recolore à votre couleur, ou bien il garde la sienne.' },

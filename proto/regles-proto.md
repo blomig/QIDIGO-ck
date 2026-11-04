@@ -1,6 +1,6 @@
 # QIDIGO — règles du prototype web (PROPOSITION)
 
-**Version 0.4 — 04/11/2026, 11 h 41 (heure de Paris).**
+**Version 0.4 (figée le 04/11/2026 à 11 h 50, heure de Paris) — 04/11/2026, 11 h 41 (heure de Paris).**
 
 Historique :
 - v0.1 (03/11, 11 h 48) : première version.
@@ -32,6 +32,11 @@ Historique :
   - les lectures 1 à 10 de Dev sont reprises comme choix proto ;
   - résolution réécrite (§2), l'ancienne étant gardée au §2 bis ;
   - exemples revus, et nouveaux exemples 7, 8 et S-6.
+- **v0.4 figée (04/11/2026, 11 h 50, heure de Paris)** : trois décisions de Lomig relayées par CDP, qui suivent les recommandations 1a, 2a et 3a.
+  - un pion arrivé fait obstacle : le trajet s'arrête avant lui ;
+  - à égalité entre deux trajets, les deux s'arrêtent avant le conflit ;
+  - à égalité entre une pose et un trajet, la pose tient ;
+  - S-4, S-6 et l'exemple 6 sont revus, et l'exemple 9 est ajouté.
 
 Ce document sert au prototype. Ce n'est pas DOCS/RULES.md.
 Sources : décisions de Lomig relayées par CDP, dans la formulation de CDP (03/11 et 04/11), et retours de Dev.
@@ -120,8 +125,9 @@ Réglages : `conflit = synchro` et `conflit_issue = arret`, codés par Dev. Les 
    - en chemin[k] pour un face-à-face entre les pas k et k+1 (point 3).
    Seuls les segments réellement parcourus sont colorés, et ils peuvent fermer une zone. Si aucun segment n'est parcouru, l'ordre est annulé, et le pion reste à son départ sans trace.
    - Si un pion perd plusieurs conflits, c'est l'arrêt le plus tôt qui s'applique (point 3, choix proto).
-   - **Égalité entre deux déplacements** : les deux pions subissent le même sort, donc chacun s'arrête avant le conflit (description de `conflit_issue`, choix proto).
+   - **Égalité entre deux trajets** : les deux s'arrêtent avant le conflit (décision de Lomig relayée par CDP, 04/11).
 6. **On ne déloge jamais un pion immobile.** Contre un pion sans déplacement, le trajet qui arrive perd toujours, quelle que soit sa force. C'est la cause CHAINE (point 4, conforme à la règle du §1).
+   - **Un pion déjà arrivé fait obstacle de la même façon** (décision de Lomig relayée par CDP, 04/11). Un trajet qui atteint son croisement à un pas ultérieur s'arrête au croisement précédent, **même s'il est plus fort**. Il ne le traverse jamais, et on ne compare pas les forces (exemple 9).
 7. **Obstacles et recalcul** (point 4, choix proto).
    - La passe 1 se fait sur les ordres d'origine.
    - Un pion annulé (resté à son départ) ou arrêté devient alors un obstacle pour les pas suivants. On recalcule sur ce nouvel état, en boucle jusqu'à stabilité.
@@ -131,7 +137,7 @@ Réglages : `conflit = synchro` et `conflit_issue = arret`, codés par Dev. Les 
    - Deux trajets amis qui se touchent restent **refusés à la saisie**, selon la géométrie (L4 a, décision de Lomig du 04/11).
 9. **Poses** (point 6, choix proto). Une pose occupe son croisement dès le pas 0.
    - Un trajet adverse qui l'atteint au pas k est en conflit avec elle : on compare les forces.
-   - **À égalité, le trajet perd** (il s'arrête avant), et `pose_coupante` décide du sort de la pose (défaut : annulée).
+   - **À égalité, la pose tient** (décision de Lomig relayée par CDP, 04/11) : elle a lieu, et le trajet s'arrête avant elle. `pose_coupante` ne joue donc qu'en mode trajet.
    - Une pose qui perd est annulée, puisqu'elle ne peut pas s'arrêter.
    - Deux poses adverses au même endroit : les deux sont annulées.
 10. **Coupure du soutien** : inchangée (§3, S2, sur les ordres d'origine ; point 7).
@@ -199,8 +205,9 @@ Après chaque tour :
    même croisement au même pas k, ou face-à-face entre k et k+1.
    - trajet contre trajet : le strictement plus fort passe. Le perdant s'arrête en chemin[k−1]
      (croisement) ou en chemin[k] (face-à-face) ; à égalité, les deux s'arrêtent ainsi.
-   - trajet contre pion sans déplacement : le trajet perd toujours.
-   - trajet contre pose : le strictement plus fort passe ; à égalité, le trajet perd et pose_coupante s'applique.
+   - trajet contre pion sans déplacement, ou contre un pion déjà arrivé à un pas antérieur : le trajet
+     perd toujours, quelle que soit sa force (il s'arrête avant).
+   - trajet contre pose : le strictement plus fort passe ; à égalité, la pose tient et le trajet s'arrête avant.
      Une pose qui perd est annulée.
    - pose contre pose : les deux sont annulées.
    Arrêt sans segment parcouru → ordre annulé. Plusieurs pertes → l'arrêt le plus tôt s'applique.
@@ -284,7 +291,7 @@ Toutes les règles de cette section sont des décisions de Lomig du 04/11, relay
    - On ne soutient ni un trajet adverse ni une pose : une pose a toujours la force 1.
 4. **Conflit.** Quand deux ordres adverses entrent en conflit, on compare leurs forces au moment de la rencontre. En synchro (défaut), c'est le premier conflit de la paire (§1, « Conflit synchronisé ») ; en mode trajet, ce sont les étapes 4a et 4b du §2 bis.
    - Le plus fort **passe**. Le plus faible **s'arrête avant le conflit** (défaut v0.4), ou il est annulé si `conflit_issue = annule` ou en mode trajet (cause « plus faible, f contre g »).
-   - À égalité entre deux déplacements, les deux s'arrêtent avant le conflit (en synchro) ou sont annulés (en mode trajet). Entre une pose et un trajet à égalité, le trajet perd, et `pose_coupante` décide du sort de la pose.
+   - À égalité entre deux déplacements, les deux s'arrêtent avant le conflit (en synchro) ou sont annulés (en mode trajet). Entre une pose et un trajet à égalité, la pose tient et le trajet s'arrête avant elle en synchro (décision de Lomig relayée par CDP) ; en mode trajet, `pose_coupante` décide.
    - Un trajet qui rencontre plusieurs ordres adverses doit être strictement plus fort que **chacun** d'eux pour passer.
 5. **Coupure du soutien.** Le soutien d'un pion p est **coupé** si un trajet adverse **s'arrête** sur le croisement de p. Un trajet qui ne fait que le traverser ne coupe pas.
    - Exception (comme dans Diplomacy, K222) : le soutien n'est pas coupé si ce trajet part du croisement que p soutient.
@@ -327,7 +334,7 @@ Toutes les règles de cette section sont des décisions de Lomig du 04/11, relay
 *S-4. Pose contre trajet soutenu.*
 - Coups : a1 (2,4) → (2,5) ; B pose en (2,5) ; a2, en (1,5), soutient (2,5).
 - La pose occupe (2,5) dès le pas 0, et a1 l'atteint au pas 1. a1 passe (2 contre 1), et la pose est annulée.
-- Sans le soutien, c'est 1 contre 1 : le trajet perd et il est annulé (aucun segment). La pose est annulée avec `pose_coupante = annulee` ; elle a lieu avec `maintenue`.
+- Sans le soutien, c'est 1 contre 1 : **la pose tient**, et a1 est annulé, faute de segment parcouru.
 
 *S-5. Rencontre au milieu d'un trajet soutenu par son arrivée.*
 - Coups : a1 (2,3) → (3,3) → (4,3) ; b1 (3,2) → (3,3) → (3,4) ; a2, en (5,3), soutient (4,3).
@@ -339,7 +346,7 @@ Toutes les règles de cette section sont des décisions de Lomig du 04/11, relay
 *S-6. Arrêt avant le conflit.*
 - Coups : a1 (4,3) → (4,2) ; b1 (2,2) → (3,2) → (4,2) → (5,2) ; a2, en (4,1), soutient (4,2).
 - Au pas 1, a1 arrive en (4,2) et b1 est en (3,2). Au pas 2, b1 atteint (4,2), où se trouve a1.
-- a1 est un pion arrivé, pas un pion sans déplacement. On compare donc les forces (point 3 de Dev) : a1 vaut 2, b1 vaut 1, et b1 perd.
+- a1 est déjà arrivé, donc il fait obstacle. On ne compare pas les forces : le soutien de a2 ne change rien.
 - b1 **s'arrête en (3,2)**, chemin[1]. Il colore le segment (2,2)-(3,2), qui peut fermer une zone.
 
 ## 4. Paramètres
@@ -357,7 +364,7 @@ La valeur par défaut est en gras.
 | `traces` | **`bord_de_zone`**, `decoratives` | choix proto (Q11 laisse le choix ouvert) | 7 |
 | `reprise` | `non`, **`oui`** | Q20 b | 7 |
 | `seuil` | pourcentage, **75** | Lomig ; en cases : 48, 37 et 27 cases sur 64, 49 et 36 | 10 |
-| `pose_coupante` | **`annulee`**, `maintenue` | choix proto (BRIEF : l'ordre adverse est annulé) | 4b |
+| `pose_coupante` | **`annulee`**, `maintenue` | choix proto (BRIEF) ; mode trajet seulement (en synchro, à égalité, la pose tient) | 2 bis |
 | `trace_adverse` | **`recolore`**, `garde` | choix proto | 6 |
 | `retrace_ferme` | `non`, **`oui`** | en vigueur : `oui` (Dev, validé à titre provisoire par CDP) ; je recommande de tester `non` | 6 |
 | `departage` | **`cases_puis_nul`** (= nul en cases), `traces` | en vigueur ; `traces` proposé (question b de Dev ; Q18 suspendue) | 10 |
@@ -460,10 +467,10 @@ y=3    o   o   o      A descend en (2,3)
 
 **6. Chaîne d'annulations (ordres par pion, boucle).** a1 est en (2,2), b1 en (3,2), a2 en (4,2).
 - Coups : a1 (2,2) → (2,3) ; b1 (3,2) → (2,2) ; a2 (4,2) → (3,2) ; B pose en (2,3).
-- Synchro, passe 1 : la pose occupe (2,3) dès le pas 0. a1 l'atteint au pas 1 ; à 1 contre 1, le trajet perd. a1 est annulé, sans segment, et la pose aussi (`pose_coupante = annulee`).
+- Synchro, passe 1 : la pose occupe (2,3) dès le pas 0. a1 l'atteint au pas 1 ; à 1 contre 1, **la pose tient** : B pose en (2,3), et a1 est annulé, sans segment.
 - Recalcul 1 : a1 reste en (2,2). b1 l'atteint au pas 1 contre un pion immobile : b1 est annulé.
 - Recalcul 2 : b1 reste en (3,2). a2 l'atteint au pas 1 : a2 est annulé.
-- Recalcul 3 : rien ne change. Le résultat est le même qu'en mode trajet.
+- Recalcul 3 : rien ne change. Contrairement au mode trajet, la pose de B a lieu.
 - Journal :
   - a1 : pose sur trajet (pose de B) ;
   - pose de B : pose sur trajet (a1) ;
@@ -477,3 +484,8 @@ y=3    o   o   o      A descend en (2,3)
 **8. Trait partagé : le dernier passage colore** (décision, point 11 de Dev). Mêmes coups qu'à l'exemple 7.
 - Le segment (2,2)-(3,2) est parcouru par a1 entre les pas 0 et 1, puis par b1 entre les pas 1 et 2. Il prend la couleur de **B**.
 - Avec `trace_adverse = garde`, il reste à A.
+
+**9. Un pion arrivé fait obstacle** (décision de Lomig relayée par CDP, 04/11).
+- Coups : a1 (4,3) → (4,2) ; b1 (2,2) → (3,2) → (4,2) → (5,2) ; b2, en (6,2), soutient (5,2), l'arrivée de b1.
+- Au pas 1, a1 arrive en (4,2). Au pas 2, b1 l'atteint avec la force 2, contre 1 pour a1.
+- b1 est plus fort, mais il **s'arrête en (3,2)** : on ne traverse pas un pion arrivé. a1 reste en (4,2).

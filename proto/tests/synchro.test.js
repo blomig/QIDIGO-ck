@@ -66,16 +66,28 @@ test('synchro : face-à-face sur un segment -> les deux annulés (arret : idem, 
 
 // A arrive en (2,1) au pas 1 ; B y passe au pas 2.
 const surArrive = (params) => jouer(params, [[1, 1]], [[2, 3]], [d([[1, 1], [2, 1]])], [d([[2, 3], [2, 2], [2, 1], [2, 0]])]);
-test('synchro : passer sur un pion arrivé -> conflit (annule : les deux à leur départ)', () => {
+test('synchro : passer sur un pion arrivé -> il fait obstacle (Lomig 04/11) ; annule : le trajet reste à son départ, le pion arrivé garde son arrivée', () => {
   const r = surArrive(Y());
-  assert.deepEqual(r.etat.pions.A, [cr(n, 1, 1)]);
+  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 1)]);
   assert.deepEqual(r.etat.pions.B, [cr(n, 2, 3)]);
-  assert.match(textes(r), /au pas 2/);
+  assert.match(textes(r), /déjà arrivé en \(2, 1\) fait obstacle \(pas 2\)/);
 });
-test('synchro + arret : pion arrivé -> il garde son arrivée, le trajet qui passe s’arrête avant', () => {
+test('synchro + arret : pion arrivé -> il garde son arrivée, le trajet qui passe s’arrête juste avant', () => {
   const r = surArrive(Y({ conflit_issue: 'arret' }));
   assert.deepEqual(r.etat.pions.A, [cr(n, 2, 1)]);
   assert.deepEqual(r.etat.pions.B, [cr(n, 2, 2)]);
+  assert.ok(r.journal.some((x) => x.code === 'ARRET' && x.obstacle === 'arrive'));
+});
+test('Lomig 04/11 (point 1) : un pion arrivé PLUS FAIBLE fait quand même obstacle à un trajet soutenu (annule et arret)', () => {
+  for (const [issue, finB] of [['annule', [2, 3]], ['arret', [2, 2]]]) {
+    // B soutient son arrivée (2,0) depuis (3,0) : force 2 contre 1 ; A arrive en (2,1) au pas 1.
+    const r = resoudreTour(etatAvec({ params: Y({ soutien: 'oui', conflit_issue: issue }), pions: { A: [[1, 1]], B: [[2, 3], [3, 0]] } }), {
+      A: lot(d([[1, 1], [2, 1]])),
+      B: lot(d([[2, 3], [2, 2], [2, 1], [2, 0]]), { type: 'soutenir', pion: cr(n, 3, 0), cible: cr(n, 2, 0) }),
+    });
+    assert.deepEqual(r.etat.pions.A, [cr(n, 2, 1)], issue);
+    assert.deepEqual(pions(r.etat, 'B'), tri([finB, [3, 0]]), issue);
+  }
 });
 
 test('synchro : pion immobile -> occupe son croisement à tous les pas (annule / arret)', () => {
@@ -103,16 +115,23 @@ test('synchro : le soutien joue au point de conflit -> l’arrivée soutenue pas
   assert.deepEqual(s.etat.pions.B, [cr(n, 3, 2)]);
 });
 
-test('synchro : pose sur le chemin -> le trajet perd au pas où il l’atteint (pose qui coupe = annulée par défaut, comme en trajet) ; arret : il s’arrête avant', () => {
+test('Lomig 04/11 (point 3) : pose contre trajet à égalité -> la pose tient (quel que soit pose_coupante), le trajet s’arrête avant (arret) ou reste au départ (annule)', () => {
   const o = [[d([[1, 1], [2, 1], [3, 1], [4, 1]])], [poser(cr(n, 3, 1))]];
-  const r = jouer(Y(), [[1, 1]], [], ...o);
-  assert.deepEqual(r.etat.pions.A, [cr(n, 1, 1)]);
-  assert.deepEqual(r.etat.pions.B, []);
-  const m = jouer(Y({ pose_coupante: 'maintenue' }), [[1, 1]], [], ...o);
-  assert.deepEqual(m.etat.pions.B, [cr(n, 3, 1)]);
-  const s = jouer(Y({ conflit_issue: 'arret', pose_coupante: 'maintenue' }), [[1, 1]], [], ...o);
-  assert.deepEqual(s.etat.pions.A, [cr(n, 2, 1)]);
-  assert.deepEqual(s.etat.pions.B, [cr(n, 3, 1)]);
+  for (const pc of ['annulee', 'maintenue']) {
+    const r = jouer(Y({ pose_coupante: pc }), [[1, 1]], [], ...o);
+    assert.deepEqual(r.etat.pions.A, [cr(n, 1, 1)]);
+    assert.deepEqual(r.etat.pions.B, [cr(n, 3, 1)]);
+    const s = jouer(Y({ conflit_issue: 'arret', pose_coupante: pc }), [[1, 1]], [], ...o);
+    assert.deepEqual(s.etat.pions.A, [cr(n, 2, 1)]);
+    assert.deepEqual(s.etat.pions.B, [cr(n, 3, 1)]);
+  }
+});
+
+test('Lomig 04/11 (point 2) : égalité entre deux déplacements (arret) -> les deux s’arrêtent avant le conflit', () => {
+  const r = memePas(Y({ conflit_issue: 'arret' }));
+  assert.deepEqual(r.etat.pions.A, [cr(n, 2, 1)]);
+  assert.deepEqual(r.etat.pions.B, [cr(n, 3, 2)]);
+  assert.ok(!r.etat.pions.A.includes(cr(n, 3, 1)) && !r.etat.pions.B.includes(cr(n, 3, 1)));
 });
 
 test('synchro : cascade -> un pion annulé devient immobile et bloque un trajet qui passait sur son départ', () => {
@@ -172,4 +191,49 @@ test('synchro : symétrie A<->B + miroir sur des lots aléatoires (faible contre
     }
   }
   assert.ok(lots > 200);
+});
+
+// Invariant (Lomig 04/11) : jamais deux pions sur un même croisement après la résolution.
+const sansDoublon = (e) => { const t = [...e.pions.A, ...e.pions.B]; return new Set(t).size === t.length; };
+test('propriété : jamais deux pions sur un croisement (synchro annule et arret, soutien non et oui, lots aléatoires)', async () => {
+  const { creerEtat, creerRng } = await import('../engine/index.js');
+  const faible = await import('../ai/ia-faible.js');
+  let lots = 0;
+  for (let g = 0; g < 80; g++) {
+    let e = creerEtat({ conflit: 'synchro', conflit_issue: g % 2 ? 'arret' : 'annule', soutien: g % 4 < 2 ? 'non' : 'oui', pose_coupante: g % 8 < 4 ? 'annulee' : 'maintenue' });
+    const rng = creerRng(3000 + g);
+    while (!e.fini) {
+      e = resoudreTour(e, { A: faible.choisirOrdre(e, 'A', rng), B: faible.choisirOrdre(e, 'B', rng) }).etat;
+      assert.ok(sansDoublon(e), `partie ${g}, tour ${e.tour}`);
+      lots++;
+    }
+  }
+  assert.ok(lots > 500);
+});
+
+// Tests sur les défauts v0.5 (synchro + arret + soutien), sans rien épingler.
+test('défauts v0.5 : arrivée soutenue -> passe ; l’autre s’arrête avant', async () => {
+  const { creerEtat, copier, geler, indice } = await import('../engine/index.js');
+  const e = copier(creerEtat({}));
+  e.pions = { A: [cr(n, 1, 1), cr(n, 4, 1)], B: [cr(n, 3, 3)] }; e.reserve = { A: e.params.nbPions - 2, B: e.params.nbPions - 1 };
+  const r = resoudreTour(geler(e), { A: lot(d([[1, 1], [2, 1], [3, 1]]), { type: 'soutenir', pion: cr(n, 4, 1), cible: cr(n, 3, 1) }), B: lot(d([[3, 3], [3, 2], [3, 1]])) });
+  assert.deepEqual(pions(r.etat, 'A'), tri([[3, 1], [4, 1]]));
+  assert.deepEqual(r.etat.pions.B, [cr(n, 3, 2)]);
+});
+test('défauts v0.5 : parties forte contre faible -> invariant tenu, lots légaux, soutiens joués', async () => {
+  const { choisirLot } = await import('../ai/ia-forte.js');
+  const faible = await import('../ai/ia-faible.js');
+  const { creerEtat, creerRng, lotValide } = await import('../engine/index.js');
+  let soutiens = 0;
+  for (let g = 0; g < 3; g++) {
+    let e = creerEtat({}); const rng = creerRng(40 + g);
+    while (!e.fini) {
+      const oA = choisirLot(e, 'A', rng, { pion: { msMax: Infinity } });
+      if (oA.type === 'lot') { assert.ok(lotValide(e, 'A', oA)); soutiens += oA.ordres.filter((x) => x.type === 'soutenir').length; }
+      e = resoudreTour(e, { A: oA, B: faible.choisirOrdre(e, 'B', rng) }).etat;
+      assert.ok(sansDoublon(e));
+    }
+    assert.equal(e.vainqueur, 'A');
+  }
+  assert.ok(soutiens > 0);
 });

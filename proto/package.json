@@ -1,6 +1,6 @@
 {
   "name": "qidigo-proto",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "Prototype web jouable de QIDIGO (sans dépendance, sans build).",
   "type": "module",
