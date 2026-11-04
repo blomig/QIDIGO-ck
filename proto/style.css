@@ -165,3 +165,10 @@ button { font: inherit; color: inherit; }
   font-family: var(--q-font-num); font-variant-numeric: tabular-nums; font-size: var(--ui-fs-s); white-space: nowrap;
 }
 .ui-ordres b { font-size: var(--ui-fs-m); font-weight: 700; }
+
+/* v0.3.1 §3 : soutien (geste « pion puis croisement voisin ») */
+.ui-soutien-cible { fill: none; stroke: var(--ui-accent); stroke-width: 2.5; }
+.ui-soutien-choix { fill: var(--ui-accent); fill-opacity: 0.18; stroke: var(--ui-accent); stroke-width: 1.5; stroke-dasharray: 2 3; }
+
+/* Numéro de version (v0.5) */
+.barre .version { align-self: center; font-size: 12px; opacity: .55; }

@@ -15,7 +15,9 @@ test('valeurs par défaut de regles-proto.md §3', () => {
   assert.equal(p.nbTours, 20);
   assert.equal(p.dureeTourS, 20);
   assert.equal(p.trajet_max, 5); // décision Lomig 03/11
-  assert.equal(p.soutien, 'non');
+  assert.equal(p.soutien, 'oui'); // décision Lomig 04/11 11 h 39 (v0.5)
+  assert.equal(p.conflit, 'synchro');
+  assert.equal(p.conflit_issue, 'arret');
   assert.equal(p.traces, 'bord_de_zone');
   assert.equal(p.reprise, 'oui'); // décision Lomig 03/11
   assert.equal(p.seuil, 75);

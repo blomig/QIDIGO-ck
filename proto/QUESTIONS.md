@@ -187,9 +187,7 @@ par « rien » dans le journal ; l'interface ne permet pas de le donner), plutô
 9. **Conflits avec l'adversaire quand chacun a plusieurs ordres** : ils sont lus sur les ordres d'origine. Un trajet qui
    rencontre deux trajets adverses les annule tous les deux. Une pose adverse ne coupe que le trajet qu'elle touche ; les
    autres trajets du joueur s'exécutent.
-10. **Soutien** (désactivé par défaut) : un pion qui soutient ne se déplace pas au même tour, et un pion soutient au plus
-    un trajet. Si une pose touche à la fois un trajet soutenu et un trajet non soutenu, elle coupe le second et elle est
-    annulée.
+10. **Soutien** : remplacé par le §3 de regles-proto v0.3.1 (voir la section « Passe v0.3 » ci-dessous).
 11. **Saisie à l'écran** (choix du CDP pour le proto) :
     - glisser depuis un pion qui a déjà un trajet remplace ce trajet ;
     - toucher un pion qui a un ordre annule cet ordre ;
@@ -201,3 +199,63 @@ par « rien » dans le journal ; l'interface ne permet pas de le donner), plutô
       l'ordre du pion de tête.
     - Si l'annulation d'un ordre rend un autre ordre invalide (un suiveur qui comptait sur le départ du pion de tête),
       cet autre ordre est retiré lui aussi, et un message le dit.
+
+## Passe v0.3 / v0.3.1 (04/11)
+
+### Soutien (§3) : lectures L1 à L5 tranchées par Lomig le 04/11 (relais CDP), toutes restent réglables
+- **L1 `soutien_point = arrivee`** — tranchée 04/11 : soutenir l'arrivée soutient tout le trajet, à tout point de rencontre
+  (arrivée, croisement traversé, segment). Variantes de test : `rencontre`, `trajet`.
+- **L2 `soutien_adverse = non`** — tranchée 04/11. Avec `oui` (test) : un ordre de soutien `pour: 'adverse'` renforce les trajets adverses.
+- **L3 `soutien_pose = non`** — tranchée 04/11 : une pose vaut toujours 1. Avec `oui` (test) : 1 + soutiens sur son croisement.
+- **L4 trajets amis qui se croisent** — tranchée 04/11 : refusés à la saisie (et deux trajets amis n'ont pas la même
+  arrivée). Vérifié avec le soutien activé (test `L4` de tests/v03.test.js). Un trajet ami ne traverse pas un pion qui soutient.
+- **L5 `coupure = arret`** — tranchée 04/11 : seule une arrivée adverse sur le pion qui soutient coupe le soutien (sauf si ce
+  trajet part du croisement soutenu) ; la coupure tient même si l'attaque échoue. Variante de test : `traversee`.
+- Les noms des 4 réglages de soutien sont ceux du CDP : la v0.3.1 ne les nomme pas.
+
+### Points codés à la lecture la plus littérale (à confirmer si besoin)
+1. **Plusieurs causes d'annulation** : avec `annule_coupe = oui`, 4a, 4b et 4c se lisent tous sur les ordres d'origine et
+   chaque cause est journalisée (un trajet qui rencontre deux trajets adverses reçoit deux lignes). Avant la v0.3, le proto
+   lisait 4b sur les survivants de 4a en mode pion : un trajet annulé en 4a ne coupait plus une pose. Le mode joueur est
+   inchangé (un seul conflit possible) : la référence de 300 parties est identique.
+2. **`annule_coupe = non`** : relu de façon séquentielle (4a entre ordres actifs, puis 4b, puis 4c, puis 5, en boucle).
+   Un recalcul simultané de 4 sur les survivants redonnerait exactement le résultat de `oui` au premier passage ; la lecture
+   séquentielle est la seule qui change quelque chose. **À confirmer par le Créa.**
+3. **Conflit pose contre trajet, avec soutien** : une pose vaut 1 ; un trajet soutenu (2+) annule la pose et passe ; à
+   égalité, `pose_coupante` décide. Si une pose touche deux trajets, chaque paire se lit à part (S3 « contre chacun »).
+4. **Soutien en défense / sans objet** : lu sur les ordres d'origine (S1) : défense si un pion ami est en x et n'a pas d'ordre
+   de déplacement ; sinon « soutien sans objet » s'il ne vise pas l'arrivée d'un trajet ami. Un soutien vers l'arrivée d'un
+   trajet ami qui est annulé plus tard reste « soutien d'un trajet » au journal.
+5. **Garde-fou « pose invalide »** : une pose sur un croisement occupé est refusée à la validation (INVALIDE) ; le garde-fou
+   de l'étape 5 reste, journalisé « pose invalide » (il ne peut pas se déclencher avec la validation actuelle).
+6. **`territoire_acquis = murs`** : appliqué juste après l'exécution (étape 6), avant les fermetures ; une fermeture du même
+   tour peut donc reprendre la case. « Mur de P » = segment à la couleur de P au début du tour. **À confirmer.**
+7. **`departage = traces`** : compte tous les segments à la couleur du joueur à la fin du dernier tour.
+8. **`retrace_ferme`** : le DEPLACEMENT du journal porte maintenant `retraces` (segments déjà à P reparcourus). La
+   couleur est la même dans les deux valeurs ; seule l'appartenance à nouveaux(P) change.
+9. **Ancien soutien (v0.1/v0.2, champ `soutien` d'un déplacement)** : supprimé, le champ est ignoré.
+
+### Observé au banc (banc/soutien, banc/v03) : à lire par le Créa
+- Avec la forte v2, ~76-79 % des poses et trajets donnés sont annulés, avec ou sans soutien (l'IA donne beaucoup
+  d'ordres « offerts » qui échouent). Le soutien ne baisse ce taux que de 3 points : l'IA ne joue que ~1,5 soutien par
+  partie. Voir banc/soutien/tableau.md.
+
+- Banc v0.3 (200 parties, IA v2) : retrace_ferme = non et departage = traces ne bougent pas les nuls de façon significative (4,5 / 4,0 / 3,5 %). Voir banc/v03-etat.md.
+
+## Conflit synchro (piste de Lomig, relayée par le CDP le 04/11 — non publiée, hors v0.3.1)
+
+Réglages `conflit` = [trajet] | synchro et `conflit_issue` = [annule] | arret, ce dernier sans effet en mode trajet (vérifié par un test). Code : `resoudreCoupures`, bloc `synchro` ; tests : tests/synchro.test.js. Lectures littérales prises, **à confirmer** :
+
+1. **Pas** : au pas k, un pion qui se déplace est en chemin[k], puis reste sur son arrivée. Une pose et un pion sans déplacement (immobile, qui soutient, ou dont l'ordre est annulé) occupent leur croisement à tous les pas, y compris le pas 0.
+2. **Un seul conflit par paire** : pour deux pions, seul le PREMIER conflit dans le temps compte (croisement au pas k, ou face-à-face entre k et k+1). La force est comparée en ce seul point (« strictement plus fort », règle S3 de la v0.3.1) avec la force habituelle (soutien sur l'arrivée d'origine, même si le trajet est ensuite arrêté).
+3. **arret** : on s'arrête en chemin[k−1] pour un conflit de croisement au pas k, et en chemin[k] pour un face-à-face entre k et k+1. S'il ne reste aucun segment, l'ordre est annulé. Seuls les segments réellement parcourus sont colorés, et ils peuvent fermer. Si plusieurs conflits sont perdus, c'est l'arrêt le plus tôt qui s'applique. Un pion **déjà arrivé** qui perd contre un trajet qui passe garde son arrivée (il l'a atteinte sans conflit) ; l'autre trajet, s'il a gagné, **traverse** ce pion arrivé (cas étrange, à trancher). Journal : code ARRET.
+4. **Obstacles et recalcul** : oui. Un pion annulé (resté au départ) ou arrêté devient un obstacle pour les pas suivants, et on recalcule sur ce nouvel état, en boucle jusqu'à stabilité (cascade, test « cascade »). La passe 1 se fait sur les ordres d'origine, et **rien n'est repêché** : un ordre annulé ou arrêté ne revient jamais, même si sa cause disparaît. C'est l'équivalent pas à pas de l'étape 5 (départs libérés). Contre un pion sans ordre, celui qui arrive perd toujours (CHAINE, « on ne déloge jamais un pion immobile »).
+5. **Pions amis** : seul un pion ami déjà arrêté (immobile, arrivé, posé ou arrêté) fait obstacle (CHAINE). Deux trajets amis qui se touchent restent **refusés à la saisie selon la géométrie** (L4, règle actuelle), même en synchro.
+6. **Poses** : une pose occupe son croisement dès le pas 0. Un trajet adverse qui l'atteint au pas k est en conflit : les forces sont comparées, et à égalité le trajet perd et `pose_coupante` s'applique comme en mode trajet (défaut « annulée »). Donc « à égalité, même sort » ne vaut qu'entre deux déplacements. Deux poses adverses au même endroit : les deux annulées. Une pose ne peut pas « s'arrêter » : avec arret, elle est annulée. Pose sur un pion adverse resté sur place : « pose invalide » (garde-fou).
+7. **Coupure de soutien** : inchangée (S2 sur les ordres d'origine : un trajet adverse dont l'**arrivée** est le pion qui soutient le coupe, même s'il est ensuite annulé ou arrêté avant). Ce trajet est de toute façon en conflit avec le pion immobile.
+8. **depart_libere** : sans effet en synchro. Le calendrier tranche à lui seul : on peut traverser ou rejoindre un départ que l'adversaire a déjà quitté, puisqu'il l'a quitté au pas 1. `annule_coupe` est aussi sans effet en synchro (lecture unique, ordres d'origine puis recalcul).
+9. **Mode joueur** (`ordres = joueur`) : même règle, appliquée avec un ordre par joueur.
+10. **Banc (300 parties par combinaison)** : en synchro, les annulations passent de 78,7 % à 57,7 % (annule) et à 33 % (arret, plus 19 % d'arrêts). Mais A gagne seulement 37 à 42 % des parties décisives (IC95 sous 50 %) : biais à expliquer. Voir banc/synchro/tableau.md.
+11. **Bug corrigé (04/11, 11:20)** : en synchro, un segment parcouru par les deux camps à des pas différents prenait toujours la couleur de B (ordre de traitement A puis B). Désormais **le dernier passage dans le temps colore** (avec trace_adverse = garde, le premier reste) : lecture littérale, **à confirmer**. Équilibre A/B revenu à environ 50 % (banc/synchro/tableau.md). Le point 10 ci-dessus date d'avant le correctif.
+
+12. **Tranché par Lomig le 04/11 à 11 h 39 (relayé par le CDP)** : défauts conflit = synchro, conflit_issue = arret, soutien = oui (v0.5). Les anciennes valeurs restent réglables. Les lectures littérales 1 à 9 et 11 ci-dessus restent à confirmer.

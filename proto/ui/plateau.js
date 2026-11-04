@@ -3,7 +3,7 @@
 
 import { plateauSVG } from '../design/plateau.js';
 import {
-  coord, indice, sontAdjacents, cheminDroit, coordCase, croisementsControles, validerOrdre, deplacer, poser, longueurMax,
+  coord, indice, sontAdjacents, voisins as voisinsDe, cheminDroit, coordCase, croisementsControles, validerOrdre, deplacer, poser, longueurMax,
 } from '../engine/index.js';
 
 /** Camp graphique du designer : A = Noir (« n »), B = Blanc (« b »). */
@@ -88,7 +88,7 @@ export function optionsPlateau(etat, vue, geo) {
     const depart = vue.chemin?.[0] ?? (prop?.type === 'deplacer' ? prop.chemin[0] : null);
     for (const q of pions) {
       if (q.idx === depart) q.sel = true;
-      if (prop?.type === 'deplacer' && prop.soutien === q.idx) q.sel = true;
+      if (vue.soutienDe === q.idx) q.sel = true;
     }
     // choix proto (CDP 03/11) : aperçu de fermeture calculé sur le téléphone avec le même moteur
     // (zones en pointillé, pions qui seraient capturés). L'ordre adverse est inconnu : on suppose « Passer ».
@@ -245,7 +245,7 @@ export function installerSaisie(conteneur, rappels) {
     }
     // Tap sur un croisement : poser.
     const v = validerOrdre(etat, moi, poser(g.depart));
-    rappels.surOrdre(v.ok ? v.ordre : null, v.ok ? null : v.raison, true);
+    rappels.surOrdre(v.ok ? v.ordre : null, v.ok ? null : v.raison, true, g.depart);
   };
   conteneur.addEventListener('pointerup', finir);
   conteneur.addEventListener('pointercancel', finir);
@@ -296,13 +296,22 @@ export function dessinerPlateau(conteneur, etat, vue, geo) {
   let svg = plateauSVG(optionsPlateau(etat, vue, geo));
   // choix proto (CDP 03/11) : lien de soutien en pointillé, seulement si la variante est active.
   const prop = vue.proposition;
-  if (vue.phase === 'saisie' && etat.params.soutien === 'oui' && prop?.type === 'deplacer' && prop.soutien != null) {
+  // v0.3.1 §3 (geste CDP 04/11) : soutiens donnés = flèche en pointillé du pion vers le croisement soutenu ;
+  // geste en cours = croisements voisins cerclés.
+  if (vue.phase === 'saisie' && etat.params.soutien === 'oui') {
     const n = etat.params.grille;
     const X = (c) => geo.margin + coord(n, c).x * geo.pitch;
     const Y = (c) => geo.margin + coord(n, c).y * geo.pitch;
-    const a = prop.soutien;
-    const b = prop.chemin[0];
-    svg = svg.replace(/<\/svg>$/, `<path class="ui-soutien" d="M${X(a)} ${Y(a)}L${X(b)} ${Y(b)}"/></svg>`);
+    const liste = prop?.type === 'lot' ? prop.ordres : prop ? [prop] : [];
+    let extra = liste.filter((x) => x.type === 'soutenir').map((x) => {
+      const ax = X(x.pion), ay = Y(x.pion), bx = X(x.cible), by = Y(x.cible);
+      const r = geo.pitch * 0.16;
+      return `<g class="ui-soutien-ordre"><path class="ui-soutien" d="M${ax} ${ay}L${bx} ${by}"/><circle class="ui-soutien-cible" cx="${bx}" cy="${by}" r="${r}"/></g>`;
+    }).join('');
+    if (vue.soutienDe != null) {
+      extra += voisinsDe(n, vue.soutienDe).map((c) => `<circle class="ui-soutien-choix" cx="${X(c)}" cy="${Y(c)}" r="${geo.pitch * 0.22}"/>`).join('');
+    }
+    if (extra) svg = svg.replace(/<\/svg>$/, `<g class="ui-soutiens" aria-hidden="true">${extra}</g></svg>`);
   }
   // décision Lomig 03/11 : les cases reprises clignotent (couleur du nouveau propriétaire), puis
   // gardent un liseré accent. Jetons Goban ; prefers-reduced-motion -> pas d'animation (style.css).
@@ -337,7 +346,7 @@ export function dessinerPlateau(conteneur, etat, vue, geo) {
     }
     const r = geo.pitch * 0.2;
     const badges = ordres.map((x, k) => {
-      const c = x.type === 'deplacer' ? x.chemin[0] : x.croisement;
+      const c = x.type === 'deplacer' ? x.chemin[0] : x.type === 'soutenir' ? x.pion : x.croisement;
       const bx = X(c) + geo.pitch * 0.3, by = Y(c) - geo.pitch * 0.3;
       return `<g class="ui-num-ordre"><circle cx="${bx}" cy="${by}" r="${r}"/><text x="${bx}" y="${by}" font-size="${r * 1.3}">${k + 1}</text></g>`;
     }).join('');

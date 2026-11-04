@@ -50,13 +50,18 @@ test('trajet_max : 3 segments', () => {
   assert.ok(!validerOrdre(e, 'A', deplacer(ch(n, [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]]))).ok);
 });
 
-test('soutien : ignoré s’il n’est pas adjacent au départ', () => {
-  const e = etatAvec({ pions: { A: [[2, 2], [2, 3], [6, 6]] }, params: { soutien: 'oui' } });
-  const t = ch(n, [[2, 2], [3, 2]]);
-  assert.equal(validerOrdre(e, 'A', deplacer(t, cr(n, 2, 3))).ordre.soutien, cr(n, 2, 3));
-  const v = validerOrdre(e, 'A', deplacer(t, cr(n, 6, 6)));
-  assert.ok(v.ok);
-  assert.equal(v.ordre.soutien, undefined);
+test('soutien v0.3 : ordre « soutenir » valide seulement sur un pion à soi, vers un croisement voisin', () => {
+  const e = etatAvec({ pions: { A: [[2, 2], [2, 3]], B: [[6, 6]] }, params: { soutien: 'oui' } });
+  const S = (pion, cible, pour) => ({ type: 'soutenir', pion, cible, ...(pour ? { pour } : {}) });
+  assert.ok(validerOrdre(e, 'A', S(cr(n, 2, 3), cr(n, 3, 3))).ok);
+  assert.ok(validerOrdre(e, 'A', S(cr(n, 2, 3), cr(n, 2, 2))).ok); // défense d'un pion immobile : permise, sans effet
+  assert.ok(!validerOrdre(e, 'A', S(cr(n, 2, 3), cr(n, 4, 3))).ok); // pas voisin
+  assert.ok(!validerOrdre(e, 'A', S(cr(n, 6, 6), cr(n, 6, 5))).ok); // pion adverse
+  assert.ok(!validerOrdre(e, 'A', S(cr(n, 2, 3), cr(n, 3, 3), 'adverse')).ok); // soutien_adverse = non
+  const sans = etatAvec({ pions: { A: [[2, 3]] } });
+  assert.ok(!validerOrdre(sans, 'A', S(cr(n, 2, 3), cr(n, 3, 3))).ok); // soutien = non (défaut)
+  // l'ancien champ « soutien » d'un déplacement (v0.2) est ignoré
+  assert.equal(validerOrdre(e, 'A', { type: 'deplacer', chemin: ch(n, [[2, 2], [3, 2]]), soutien: cr(n, 2, 3) }).ordre.soutien, undefined);
 });
 
 test('rien est toujours valide', () => {

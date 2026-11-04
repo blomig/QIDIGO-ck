@@ -60,14 +60,13 @@ test('« rien » ne coupe rien ; une pose ailleurs non plus', () => {
   assert.equal(r.etat.couleurs[cleSegment(cr(n, 1, 1), cr(n, 2, 1))], 'A');
 });
 
-test('soutien : face à un trajet non soutenu, le trajet soutenu passe ; une pose ne le coupe pas', () => {
+test('soutien v0.3 (mode joueur) : un ordre de soutien seul ne bouge rien et ne coupe rien', () => {
+  // Avec un ordre par joueur, soutenir prend l'unique ordre : le pion reste et aucun trajet n'est renforcé.
   const e = etatAvec({ pions: { A: [[2, 2], [2, 3]], B: [[4, 2]] }, params: { soutien: 'oui' } });
-  const r = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]]), cr(n, 2, 3)), B: deplacer(ch(n, [[4, 2], [3, 2], [3, 1]])) });
-  assert.ok(r.etat.pions.A.includes(cr(n, 3, 2)));
-  assert.deepEqual(r.etat.pions.B, [cr(n, 4, 2)]);
-  const r2 = resoudreTour(e, { A: deplacer(ch(n, [[2, 2], [3, 2]]), cr(n, 2, 3)), B: poser(cr(n, 3, 2)) });
-  assert.ok(r2.etat.pions.A.includes(cr(n, 3, 2)));
-  assert.equal(r2.etat.reserve.B, 4);
+  const r = resoudreTour(e, { A: { type: 'soutenir', pion: cr(n, 2, 3), cible: cr(n, 3, 3) }, B: deplacer(ch(n, [[4, 2], [3, 2], [3, 1]])) });
+  assert.deepEqual(pos(r.etat, 'A'), [cr(n, 2, 2), cr(n, 2, 3)].sort((a, b) => a - b));
+  assert.deepEqual(r.etat.pions.B, [cr(n, 3, 1)]);
+  assert.ok(codes(r.journal).includes('SOUTIEN'));
 });
 
 // ---------------------------------------------------------------------------

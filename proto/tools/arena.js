@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { creerEtat, resoudreTour, creerRng, adversaire, nbCases, cotesCase } from '../engine/index.js';
+import { listeOrdres } from '../engine/resolution.js';
 import * as faible from '../ai/ia-faible.js';
 import * as forte from '../ai/ia-forte.js';
 import * as forteV1 from '../ai/ia-forte-v1.js'; // référence figée (passe « IA robuste », 03/11)
@@ -135,6 +136,8 @@ export function jouerPartie({ cfgA, cfgB, params, graine }) {
   const ordres = { A: { poser: 0, deplacer: 0, passer: 0, rien: 0 }, B: { poser: 0, deplacer: 0, passer: 0, rien: 0 } };
   const longueurs = { A: [], B: [] };
   let coupes = 0;
+  // Taux d'ordres annulés (v0.3) : poses et trajets donnés, valides, puis exécutés ; soutiens donnés / coupés.
+  const exec = { donnes: 0, invalides: 0, executes: 0, soutiens: 0, soutiensCoupes: 0, retraces: 0 };
   while (!e.fini) {
     const o = {};
     for (const j of ['A', 'B']) {
@@ -147,11 +150,19 @@ export function jouerPartie({ cfgA, cfgB, params, graine }) {
     const avant = e.proprietaires;
     const r = resoudreTour(e, o);
     coupes += r.journal.filter((x) => x.code === 'COUPURE' || x.code === 'RENCONTRE').length;
+    for (const j of ['A', 'B']) for (const x of listeOrdres(o[j])) if (x.type === 'poser' || x.type === 'deplacer') exec.donnes++;
+    for (const x of r.journal) {
+      if (x.code === 'POSE' || x.code === 'DEPLACEMENT') exec.executes++;
+      if (x.code === 'INVALIDE') exec.invalides++;
+      if (x.code === 'SOUTIEN') exec.soutiens++;
+      if (x.code === 'SOUTIEN_COUPE') exec.soutiensCoupes++;
+      if (x.code === 'DEPLACEMENT') exec.retraces += x.retraces || 0;
+    }
     e = r.etat;
     for (const j of ['A', 'B']) for (const f of fermeturesDuTour(e.params.grille, avant, e.proprietaires, j)) fermetures[j].push({ ...f, tour: e.historique.at(-1).tour });
     ctrlParTour.push({ A: e.ctrl.A, B: e.ctrl.B });
   }
-  return { vainqueur: e.vainqueur, raison: e.raisonFin, tours: e.historique.length, ctrl: e.ctrl, temps, ctrlParTour, fermetures, ordres, longueurs, coupes, params };
+  return { vainqueur: e.vainqueur, raison: e.raisonFin, tours: e.historique.length, ctrl: e.ctrl, temps, ctrlParTour, fermetures, ordres, longueurs, coupes, exec, params };
 }
 
 // ---------------------------------------------------------------------------
@@ -220,6 +231,7 @@ export function bilan(taches, res) {
   const durees = [];
   const tX = [], tY = [];
   const passesX = [];
+  const ex = { donnes: 0, invalides: 0, executes: 0, soutiens: 0, soutiensCoupes: 0, retraces: 0 };
   for (let i = 0; i < res.length; i++) {
     const r = res[i];
     const X = taches[i].xA ? 'A' : 'B';
@@ -233,6 +245,7 @@ export function bilan(taches, res) {
     tY.push(...r.temps[Y]);
     const tot = Object.values(r.ordres[X]).reduce((a, b) => a + b, 0);
     passesX.push(r.ordres[X].passer / tot);
+    if (r.exec) for (const k in ex) ex[k] += r.exec[k];
   }
   const n = res.length;
   const decisives = v + d;
@@ -244,6 +257,8 @@ export function bilan(taches, res) {
     dureeMoy: moyenne(durees), dureeP95: quantile(durees, 0.95),
     msParCoupX: { moy: moyenne(tX), p95: quantile(tX, 0.95) }, msParCoupY: { moy: moyenne(tY), p95: quantile(tY, 0.95) },
     partPassesX: moyenne(passesX),
+    ordresDonnes: ex.donnes, tauxAnnules: ex.donnes ? (ex.donnes - ex.invalides - ex.executes) / ex.donnes : 0,
+    soutiens: ex.soutiens, soutiensCoupes: ex.soutiensCoupes, retraces: ex.retraces,
   };
 }
 
@@ -253,7 +268,8 @@ export function texteBilan(nomX, nomY, reglage, b) {
     ` — victoires (nuls exclus) ${pct(b.tauxSansNuls)} [IC95 ${pct(lo)} ; ${pct(hi)}]` +
     ` ; nuls = ½ : ${pct(b.tauxNulsDemi)} [${pct(b.icAvecNuls[0])} ; ${pct(b.icAvecNuls[1])}]` +
     ` — fins au seuil ${b.victoiresAuSeuil}, au dernier tour ${b.victoiresAuTour20} — durée ${b.dureeMoy.toFixed(1)} tours (p95 ${b.dureeP95})` +
-    ` — ms/coup ${nomX} ${b.msParCoupX.moy.toFixed(0)} (p95 ${b.msParCoupX.p95.toFixed(0)}), ${nomY} ${b.msParCoupY.moy.toFixed(1)} (p95 ${b.msParCoupY.p95.toFixed(1)})`;
+    ` — ms/coup ${nomX} ${b.msParCoupX.moy.toFixed(0)} (p95 ${b.msParCoupX.p95.toFixed(0)}), ${nomY} ${b.msParCoupY.moy.toFixed(1)} (p95 ${b.msParCoupY.p95.toFixed(1)})` +
+    ` — ordres annulés ${pct(b.tauxAnnules)} (sur ${b.ordresDonnes})` + (b.soutiens ? ` — soutiens ${b.soutiens} (coupés ${b.soutiensCoupes})` : '');
 }
 
 export function lireReglages(txt) {

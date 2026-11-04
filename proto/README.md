@@ -29,7 +29,7 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
   Le trait se colle aux croisements (avec une loupe sous le doigt).
 - **Prêt** valide l'ordre. **Effacer** l'efface. Sans ordre, ce bouton devient **Passer**.
   Si le chrono expire, l'ordre en cours est envoyé s'il est valide, sinon « Passer ».
-- **Soutien** (variante) : pendant un déplacement, touchez un de vos pions voisin du départ.
+- **Soutien** (réglage, désactivé par défaut ; regles-proto v0.3.1 §3) : touchez un de vos pions sans ordre (ses croisements voisins s'entourent), puis le croisement voisin à soutenir. Une flèche en pointillé montre le soutien. Toucher à nouveau le pion annule le geste ou le soutien. Pour renforcer un trajet, soutenez son arrivée.
 - **Reprise** (décision de Lomig, 03/11 : `reprise = oui` par défaut) : fermer une zone prend toutes ses cases, y compris celles de l'adversaire.
   On reprend donc un territoire par morceaux. Les cases reprises clignotent dans la couleur du nouveau propriétaire, puis gardent un liseré accent.
   Avec prefers-reduced-motion, elles sont seulement teintées. Le journal l'indique (« Joueur A reprend 2 cases à Joueur B. »).
@@ -165,3 +165,26 @@ réserve : une pose au plus par tour, ou sans limite selon `poses_par_tour`.
   - Chaque ordre porte un numéro près de son pion.
   - Le compteur « ordres n/m » s'affiche dans la ligne d'état.
 - **Banc et résultats.** Voir `banc/ordres-pion-tableau.md` et `banc/ordres-pion-etat.md`.
+
+## Passe v0.3 / v0.3.1 (04/11)
+
+- Soutien réécrit d'après regles-proto v0.3.1 §3 : ordre `{ type: 'soutenir', pion, cible }`, étapes S1 (collecte :
+  trajet / défense / sans objet), S2 (coupure sur les ordres d'origine), S3 (forces dans 4a et 4b). Codes de journal
+  `SOUTIEN` et `SOUTIEN_COUPE`. Réglages `soutien_point` [arrivee], `soutien_adverse` [non], `soutien_pose` [non],
+  `coupure` [arret] (tranchés par Lomig le 04/11, gardés réglables).
+- Nouveaux réglages (cartes dans Réglages, badge « modifié ») : `retrace_ferme` [oui], `departage` [cases_puis_nul] | traces,
+  `annule_coupe` [oui], `territoire_acquis` [acquis] | murs (code `MURS`).
+- IA forte v2 : essaie, pour chaque pion, de soutenir l'arrivée voisine d'un trajet ami du lot ; prévoit aussi une réponse
+  adverse avec soutiens.
+- `tools/arena.js` : taux d'ordres annulés, soutiens donnés et coupés.
+- Tests : `tests/v03.test.js` (S-1 à S-5, variante de S-3, L1 à L5, chaque nouveau réglage, IA). Référence mode joueur
+  (300 parties) identique : `banc/ordres-pion/reference-joueur-v03.mjs`.
+- Bancs : `banc/soutien/` (soutien non contre oui) et `banc/v03/` (défauts, retrace_ferme = non, departage = traces).
+
+## Piste « conflit synchro » (04/11, non publiée)
+
+Réglage **Conflit** : `trajet` (défaut, v0.3.1) ou `synchro` (piste de Lomig). En synchro, le temps se compte en pas, et à chaque pas tous les pions avancent d'un segment. Il n'y a conflit que si deux pions adverses sont sur le même croisement au même pas, ou s'ils s'échangent sur un segment. **Issue** (`conflit_issue`, synchro seulement) : `annule` (le pion reste à son départ) ou `arret` (il s'arrête au dernier croisement atteint sans conflit). Lectures à confirmer : QUESTIONS.md, section « conflit synchro ». Banc : banc/synchro/tableau.md.
+
+## v0.5 : nouveaux défauts (décision de Lomig, 04/11, 11 h 39)
+
+Par défaut : **conflit = synchro**, **conflit_issue = arret**, **soutien = oui**. Les anciennes valeurs (trajet, annule, soutien désactivé) restent réglables et affichent le badge « modifié ». La consigne rappelle le geste de soutien (toucher un de ses pions, puis un croisement voisin : flèche en pointillé) et le conflit synchro (le plus faible s'arrête au dernier croisement atteint). Les tests écrits pour les anciennes règles les épinglent (`ANCIENS` dans tests/aide.js ; rejeu de la partie de Lomig inchangé). Version affichée : v0.5 (titre, barre du bas, package.json).

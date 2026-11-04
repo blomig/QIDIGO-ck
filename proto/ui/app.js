@@ -4,6 +4,7 @@
 import {
   creerEtat, resoudreTour, validerOrdre, passer, creerRng, graineAleatoire, seuilCroisements, totalScore, uniteScore,
   nbCroisements, adversaire, nomJoueur, lot, validerLotJoueur, listeOrdres, posesMaxParTour, deplacer,
+  soutenir, sontAdjacents, pionDeLOrdre,
 } from '../engine/index.js';
 import { demanderOrdre } from '../ai/ia.js';
 import { choisirOrdre as choisirFacile } from '../ai/ia-faible.js';
@@ -76,6 +77,7 @@ function nouvellePartie() {
 }
 
 function demarrerTour() {
+  S.soutienDe = null;
   S.ordres = {};
   S.joueur = 'A';
   S.dernier = null;
@@ -103,13 +105,23 @@ function debutSaisie() {
   rendre();
 }
 
+/** Rappel des règles actives (v0.5) : geste de soutien et conflit synchro. */
+function aideRegles(p) {
+  let t = '';
+  if (p.soutien === 'oui') t += ' Soutenir : touchez un de vos pions, puis un croisement voisin (flèche en pointillé) ; un trajet soutenu à son arrivée est plus fort.';
+  if (p.conflit === 'synchro') t += p.conflit_issue === 'arret'
+    ? ' Conflit : tous les pions avancent d’un segment à la fois ; deux pions adverses au même endroit au même moment se bloquent, et le plus faible (les deux à égalité) s’arrête au dernier croisement atteint.'
+    : ' Conflit : tous les pions avancent d’un segment à la fois ; deux pions adverses au même endroit au même moment se bloquent, et le plus faible (les deux à égalité) reste à son départ.';
+  return t;
+}
+
 function consigne() {
   const e = S.etat;
   const reste = e.reserve[S.joueur];
   if (!reste && !e.pions[S.joueur].length) return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : vous n'avez plus aucun pion (${e.retires[S.joueur]} retiré${e.retires[S.joueur] > 1 ? 's' : ''} de la partie). Vous ne pouvez que passer.`;
   if (enPion()) {
     const pm = posesMaxParTour(e.params);
-    return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : un ordre par pion. Glissez depuis chacun de vos pions pour le déplacer, touchez un croisement pour poser (${Number.isFinite(pm) ? `${pm} pose${pm > 1 ? 's' : ''} au plus par tour` : 'poses sans limite'}${reste ? `, ${reste} en réserve` : ', réserve vide'}). Touchez un ordre pour l’annuler. Un pion sans ordre passe.`;
+    return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : un ordre par pion. Glissez depuis chacun de vos pions pour le déplacer, touchez un croisement pour poser (${Number.isFinite(pm) ? `${pm} pose${pm > 1 ? 's' : ''} au plus par tour` : 'poses sans limite'}${reste ? `, ${reste} en réserve` : ', réserve vide'}). Touchez un ordre pour l’annuler. Un pion sans ordre passe.${aideRegles(e.params)}`;
   }
   return `${nomJoueur(S.joueur)} (${COULEUR[S.joueur]}) : touchez un croisement pour poser${reste ? ` (${reste} en réserve)` : ' (réserve vide)'}, ou glissez depuis un de vos pions le long des traits.`;
 }
@@ -211,7 +223,7 @@ function decrireProposition() {
   const nc = (c) => `(${c % n}, ${Math.floor(c / n)})`;
   if (!p) return consigne();
   if (p.type === 'lot') {
-    const parts = p.ordres.map((x, k) => `${k + 1}) ${x.type === 'poser' ? `poser en ${nc(x.croisement)}` : `${nc(x.chemin[0])} → ${nc(x.chemin.at(-1))}`}`);
+    const parts = p.ordres.map((x, k) => `${k + 1}) ${x.type === 'poser' ? `poser en ${nc(x.croisement)}` : x.type === 'soutenir' ? `${nc(x.pion)} soutient ${nc(x.cible)}` : `${nc(x.chemin[0])} → ${nc(x.chemin.at(-1))}`}`);
     let t = `Vos ordres : ${parts.join(' ; ')}.`;
     const adv = S.etat.pions[adversaire(S.joueur)];
     if (p.ordres.some((x) => x.type === 'deplacer' && x.chemin.slice(1).some((c) => adv.includes(c)))) t += ' Un trajet vise un pion adverse : il n’aboutit que si ce pion part.';
@@ -220,20 +232,49 @@ function decrireProposition() {
     return t + ' Touchez un ordre pour l’annuler, « Prêt » pour valider.';
   }
   let t;
+  if (p.type === 'soutenir') return `Votre ordre : le pion en ${nc(p.pion)} soutient ${nc(p.cible)}. Touchez le pion pour annuler, « Prêt » pour valider.`;
   if (p.type === 'poser') t = `Votre ordre : poser en ${nc(p.croisement)}.`;
   else {
     t = `Votre ordre : déplacer ${nc(p.chemin[0])} → ${nc(p.chemin[p.chemin.length - 1])} (${p.chemin.length - 1} segment${p.chemin.length > 2 ? 's' : ''})`;
-    if (p.soutien != null) t += `, soutenu par ${nc(p.soutien)}`;
     t += '.';
     const adv = S.etat.pions[adversaire(S.joueur)];
     if (p.chemin.slice(1).some((c) => adv.includes(c))) t += S.etat.params.depart_libere === 'arrivee_seule'
       ? ' Ordre conditionnel : il n’aboutit que si le pion adverse part (et on peut seulement s’arrêter sur son départ, pas le traverser).'
       : ' Ordre conditionnel : il n’aboutit que si le pion adverse part.';
-    else if (S.etat.params.soutien === 'oui' && p.soutien == null) t += ' Touchez un de vos pions voisin du départ pour le soutenir.';
   }
   if (S.apercu?.gain > 0) t += ` Aperçu (si l’autre passe) : +${S.apercu.gain} ${uniteScore(S.etat.params)}.`;
   if (S.apercu?.captures.length) t += ` Capture prévue : ${S.apercu.captures.length}.`;
   return t + ' Touchez « Prêt » pour valider.';
+}
+
+// v0.3.1 §3 point 2 (geste CDP 04/11) : toucher un de ses pions sans ordre, puis un croisement voisin = soutenir.
+const nomC = (c) => `(${c % S.etat.params.grille}, ${Math.floor(c / S.etat.params.grille)})`;
+/** Termine un geste de soutien commencé sur S.soutienDe, vers le croisement c. Retourne vrai si le tap est consommé. */
+function finirSoutien(c) {
+  const de = S.soutienDe;
+  if (de == null) return false;
+  S.soutienDe = null;
+  if (c === de) { S.message = 'Soutien annulé. ' + decrireProposition(); S.erreur = false; dessiner(); rendre(); return true; }
+  if (!sontAdjacents(S.etat.params.grille, de, c)) {
+    S.message = `Soutien annulé : ${nomC(c)} n’est pas voisin de ${nomC(de)} (un pas le long d’un trait).`;
+    S.erreur = true;
+    rendre();
+    return true;
+  }
+  const o = soutenir(de, c);
+  if (enPion()) {
+    const rej = fixerLot([...ordresProp().filter((x) => pionDeLOrdre(x) !== de), o]);
+    if (rej.length) { S.message = rej[0].raison; S.erreur = true; majApercu(); rendre(); return true; }
+  } else {
+    const v = validerOrdre(S.etat, S.joueur, o);
+    if (!v.ok) { S.message = v.raison; S.erreur = true; rendre(); return true; }
+    S.proposition = v.ordre;
+  }
+  majApercu();
+  S.message = `Le pion en ${nomC(de)} soutient ${nomC(c)}. ` + decrireProposition();
+  S.erreur = false;
+  rendre();
+  return true;
 }
 
 /** Mode pion : ajoute, remplace ou annule un ordre du lot. */
@@ -271,7 +312,7 @@ function surOrdrePion(ordre, raison, estTap) {
     S.proposition = lot(...v.ordres);
   } else {
     // Trajet (déjà validé avec le lot) : il remplace l'ordre éventuel du même pion.
-    const rej = fixerLot([...avant.filter((x) => !(x.type === 'deplacer' && x.chemin[0] === ordre.chemin[0])), ordre]);
+    const rej = fixerLot([...avant.filter((x) => pionDeLOrdre(x) !== ordre.chemin[0]), ordre]);
     if (rej.length) {
       S.message = rej[0].raison;
       S.erreur = true;
@@ -295,7 +336,7 @@ function installer() {
     // Mode pion : un tracé se valide avec les autres ordres du lot (il remplace l'ordre éventuel du même pion).
     validerTrace: (chemin) => {
       if (!enPion()) return validerOrdre(S.etat, S.joueur, deplacer(chemin));
-      const autres = ordresProp().filter((x) => !(x.type === 'deplacer' && x.chemin[0] === chemin[0]));
+      const autres = ordresProp().filter((x) => pionDeLOrdre(x) !== chemin[0]);
       const v = validerLotJoueur(S.etat, S.joueur, lot(...autres, deplacer(chemin)));
       if (v.rejets.length) return { ok: false, raison: v.rejets[0].raison };
       return { ok: true, ordre: v.ordres.find((x) => x.type === 'deplacer' && x.chemin[0] === chemin[0]) };
@@ -306,7 +347,9 @@ function installer() {
       dessiner();
       afficherCompteurPas(document.querySelector('.plateau-zone'), $('plateau'), S.etat, S.chemin, S.doigt, S.geo);
     },
-    surOrdre: (ordre, raison, estTap) => {
+    surOrdre: (ordre, raison, estTap, croisement) => {
+      if (estTap && S.soutienDe != null && finirSoutien(croisement ?? ordre?.croisement)) return;
+      if (!estTap) S.soutienDe = null;
       if (enPion() && (ordre || estTap)) {
         surOrdrePion(ordre, raison, estTap);
         return;
@@ -326,30 +369,35 @@ function installer() {
     },
     surTapPion: (c) => {
       const p = S.proposition;
+      // Geste de soutien en cours : un pion ami voisin = soutien en défense ; le même pion = annuler.
+      if (S.soutienDe != null && finirSoutien(c)) return;
+      const avecSoutien = S.etat.params.soutien === 'oui';
+      if (!enPion() && avecSoutien && p?.type === 'soutenir' && p.pion === c) {
+        S.proposition = null;
+        S.message = 'Soutien annulé. ' + decrireProposition();
+        S.erreur = false;
+        rendre();
+        return;
+      }
       if (enPion()) {
         // Toucher un pion qui a un ordre annule cet ordre.
         const avant = ordresProp();
-        if (avant.some((x) => x.type === 'deplacer' && x.chemin[0] === c)) {
-          const retires = fixerLot(avant.filter((x) => !(x.type === 'deplacer' && x.chemin[0] === c)));
+        if (avant.some((x) => pionDeLOrdre(x) === c)) {
+          const retires = fixerLot(avant.filter((x) => pionDeLOrdre(x) !== c));
           majApercu();
           S.message = 'Ordre annulé. ' + (retires.length ? `${retires.length} autre${retires.length > 1 ? 's' : ''} ordre${retires.length > 1 ? 's' : ''} retiré${retires.length > 1 ? 's' : ''} : ${retires[0].raison} ` : '') + decrireProposition();
+        } else if (avecSoutien) {
+          S.soutienDe = c;
+          S.message = `Soutien : touchez un croisement voisin de ${nomC(c)} (touchez à nouveau le pion pour annuler). Ou glissez pour le déplacer.`;
         } else S.message = 'Glissez depuis ce pion le long des traits pour le déplacer.';
         S.erreur = false;
         rendre();
         return;
       }
-      // Variante soutien : toucher un pion voisin du départ le désigne (ou le retire).
-      if (S.etat.params.soutien === 'oui' && p?.type === 'deplacer' && c !== p.chemin[0]) {
-        const essai = { ...p, soutien: p.soutien === c ? undefined : c };
-        const v = validerOrdre(S.etat, S.joueur, essai);
-        if (v.ok && (essai.soutien == null || v.ordre.soutien === c)) {
-          S.proposition = v.ordre;
-          S.message = decrireProposition();
-          S.erreur = false;
-        } else {
-          S.message = 'Le soutien doit être un de vos pions, voisin du croisement de départ.';
-          S.erreur = true;
-        }
+      if (avecSoutien) {
+        S.soutienDe = c;
+        S.message = `Soutien : touchez un croisement voisin de ${nomC(c)} (touchez à nouveau le pion pour annuler). Ou glissez pour le déplacer.`;
+        S.erreur = false;
         rendre();
         return;
       }
@@ -426,6 +474,7 @@ function dessiner() {
     phase: S.phase,
     joueur: S.joueur,
     proposition: S.proposition,
+    soutienDe: S.soutienDe ?? null,
     chemin: S.chemin,
     doigt: S.doigt,
     apercu: S.apercu,

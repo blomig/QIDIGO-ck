@@ -117,7 +117,7 @@ test('pose sur le trajet de son propre pion : illégal ; pose sur son propre dé
 });
 
 test('conflits adverses à plusieurs : chaque rencontre est lue sur les ordres d’origine', () => {
-  // A1 rencontre B1 et B2 : les trois annulés ; A2 passe.
+  // A1 rencontre B1 et B2 : les trois annulés ; A2 passe. v0.3 : chaque cause est journalisée (A1 : deux).
   const e = etatAvec({ params: P(), pions: { A: [[3, 1], [7, 7]], B: [[2, 3], [4, 3]] } });
   const r = resoudreTour(e, {
     A: lot(d([[3, 1], [3, 2], [3, 3], [3, 4]]), d([[7, 7], [7, 6]])),
@@ -125,7 +125,7 @@ test('conflits adverses à plusieurs : chaque rencontre est lue sur les ordres d
   });
   assert.deepEqual(pos(r.etat, 'A'), tri([cr(n, 3, 1), cr(n, 7, 6)]));
   assert.deepEqual(pos(r.etat, 'B'), tri([cr(n, 2, 3), cr(n, 4, 3)]));
-  assert.equal(codes(r.journal).filter((c) => c === 'RENCONTRE').length, 3);
+  assert.equal(codes(r.journal).filter((c) => c === 'RENCONTRE').length, 4);
 });
 
 test('pose adverse qui coupe un des trajets : l’autre trajet du même joueur s’exécute', () => {
@@ -152,8 +152,13 @@ test('fermetures multiples au même tour : chaque zone fermée compte (gain = un
 
 test('soutien en mode pion : le pion qui soutient ne se déplace pas', () => {
   const e = etatAvec({ params: P({ soutien: 'oui' }), pions: { A: [[2, 2], [2, 3]] } });
-  const l = lot({ ...d([[2, 2], [3, 2]]), soutien: cr(n, 2, 3) }, d([[2, 3], [1, 3]]));
-  assert.match(rejets(e, 'A', l)[0], /soutient|soutenir|qui soutient/);
+  const l = lot({ type: 'soutenir', pion: cr(n, 2, 3), cible: cr(n, 3, 3) }, d([[2, 3], [1, 3]]));
+  assert.match(rejets(e, 'A', l)[0], /déjà un ordre|soutient/);
+  const l2 = lot(d([[2, 3], [1, 3]]), { type: 'soutenir', pion: cr(n, 2, 3), cible: cr(n, 3, 3) });
+  assert.match(rejets(e, 'A', l2)[0], /déjà un ordre/);
+  // un trajet ami ne traverse pas un pion qui soutient (il ne part pas)
+  const l3 = lot({ type: 'soutenir', pion: cr(n, 2, 3), cible: cr(n, 3, 3) }, d([[2, 2], [2, 3], [2, 4]]));
+  assert.match(rejets(e, 'A', l3)[0], /ne part pas|de vos pions/);
 });
 
 // IA en mode pion, par défaut (décision Lomig 04/11).

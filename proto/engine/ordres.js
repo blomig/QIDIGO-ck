@@ -1,7 +1,10 @@
 // Ordres et validation (regles-proto.md §1 « Ordres » et étape 2).
 // Un seul ordre par joueur et par tour :
 //   { type: 'poser', croisement }
-//   { type: 'deplacer', chemin: [c0, ..., ck], soutien?: croisement }   (c0 = un pion du joueur)
+//   { type: 'deplacer', chemin: [c0, ..., ck] }   (c0 = un pion du joueur)
+//   { type: 'soutenir', pion, cible, pour? }   regles-proto v0.3 §3 (réglage soutien = oui) : le pion reste immobile
+//                      et soutient le croisement voisin `cible` ; pour = 'adverse' seulement si soutien_adverse = oui.
+//   (L'ancien champ `soutien` d'un déplacement, v0.1/v0.2, est remplacé par cet ordre : il est ignoré.)
 //   { type: 'passer' } choix proto (CDP 03/11) : ordre explicite « Passer » (bouton, ou automatique
 //                      à la fin du chrono si aucun ordre n'a été donné) ; valide, ne fait rien, ne coupe rien.
 //   { type: 'rien' }   ordre absent ou invalide (regles-proto.md étapes 1-2) ; même effet que « Passer ».
@@ -12,8 +15,11 @@ import { occupant } from './etat.js';
 import { longueurMax } from './params.js';
 
 export const poser = (croisement) => ({ type: 'poser', croisement });
-export const deplacer = (chemin, soutien) =>
-  soutien == null ? { type: 'deplacer', chemin: chemin.slice() } : { type: 'deplacer', chemin: chemin.slice(), soutien };
+export const deplacer = (chemin) => ({ type: 'deplacer', chemin: chemin.slice() });
+/** Ordre de soutien (v0.3 §3) : le pion en `pion` soutient le croisement voisin `cible`. */
+export const soutenir = (pion, cible, pour) => (pour === 'adverse' ? { type: 'soutenir', pion, cible, pour } : { type: 'soutenir', pion, cible });
+/** Croisement du pion qui reçoit l'ordre (null pour une pose). */
+export const pionDeLOrdre = (o) => (o?.type === 'deplacer' ? o.chemin[0] : o?.type === 'soutenir' ? o.pion : null);
 export const rien = () => ({ type: 'rien' });
 export const passer = () => ({ type: 'passer' });
 /** Mode `ordres = pion` (piste CDP 03/11) : un lot d'ordres pour un joueur, au plus un par pion + les poses. */
@@ -72,13 +78,17 @@ export function validerOrdre(etat, joueur, ordre, { amisPartants = null } = {}) 
       // décision Lomig 03/11 : la résolution tranche : s'arrêter sur son départ libéré ou le traverser
       // réussit (réglage depart_libere), et un pion qui ne part pas n'est jamais traversé ni rejoint.
     }
-    let soutien;
-    if (p.soutien === 'oui' && ordre.soutien != null) {
-      // Étape 2 : un soutien non adjacent au départ (ou qui n'est pas un pion du joueur) est ignoré.
-      const s = ordre.soutien;
-      if (estCroisementValide(n, s) && s !== ch[0] && occupant(etat, s) === joueur && sontAdjacents(n, s, ch[0])) soutien = s;
-    }
-    return { ok: true, ordre: deplacer(ch, soutien) };
+    return { ok: true, ordre: deplacer(ch) };
+  }
+
+  if (ordre.type === 'soutenir') {
+    // regles-proto v0.3 §3, étape 2 : seulement si soutien = oui ; cible voisine du pion par un segment.
+    if (p.soutien !== 'oui') return ko('Le soutien est désactivé (réglage « Soutien »).');
+    const { pion, cible } = ordre;
+    if (!estCroisementValide(n, pion) || occupant(etat, pion) !== joueur) return ko('Le soutien se donne à un de vos pions posés.');
+    if (!estCroisementValide(n, cible) || !sontAdjacents(n, pion, cible)) return ko('On soutient un croisement voisin du pion, à un pas le long d’un trait.');
+    if (ordre.pour === 'adverse' && p.soutien_adverse !== 'oui') return ko('Soutenir l’adversaire est désactivé (réglage « soutenir l’adversaire »).');
+    return { ok: true, ordre: soutenir(pion, cible, ordre.pour) };
   }
 
   return ko('Type d’ordre inconnu.');
@@ -111,7 +121,8 @@ export function ordresDuLot(o) {
  *    cela couvre aussi deux pions amis qui visent la même arrivée ;
  *  - pas de pose sur le trajet d'un pion ami (elle le couperait) ; deux poses ne visent pas le même croisement ;
  *  - au plus `poses_par_tour` poses, et pas plus que la réserve ;
- *  - (soutien) un pion qui soutient ne se déplace pas, et un pion qui se déplace ne soutient pas.
+ *  - (soutien, v0.3 §3) un pion bouge OU soutient, jamais les deux ; un trajet ami ne traverse pas un pion qui soutient
+ *    (il ne part pas : règle de stabilité ci-dessous).
  * @returns {string|null} raison du refus
  */
 export function conflitDansLot(etat, joueur, acceptes, o, rencontre) {
@@ -122,8 +133,11 @@ export function conflitDansLot(etat, joueur, acceptes, o, rencontre) {
     if (traj.some((t) => t.chemin[0] === o.chemin[0])) return 'Ce pion a déjà un ordre ce tour.';
     for (const t of traj) if (rencontre(t.chemin, o.chemin)) return 'Deux de vos trajets se rencontreraient (croisement ou segment commun) : interdit.';
     for (const x of poses) if (o.chemin.includes(x.croisement)) return 'Ce trajet passe par votre propre pose de ce tour : interdit.';
-    if (o.soutien != null && traj.some((t) => t.chemin[0] === o.soutien)) return 'Le pion qui soutient se déplace déjà : interdit.';
-    if (traj.some((t) => t.soutien === o.chemin[0])) return 'Ce pion soutient déjà un autre trajet : interdit.';
+    if (acceptes.some((x) => x.type === 'soutenir' && x.pion === o.chemin[0])) return 'Ce pion soutient déjà : il ne peut pas bouger au même tour.';
+    return null;
+  }
+  if (o.type === 'soutenir') {
+    if (acceptes.some((x) => pionDeLOrdre(x) === o.pion)) return 'Ce pion a déjà un ordre ce tour.';
     return null;
   }
   if (o.type === 'poser') {

@@ -19,7 +19,7 @@ import {
 } from '../engine/grille.js';
 import { adversaire, occupant } from '../engine/etat.js';
 import { longueurMax, seuilCroisements, compteEnCases } from '../engine/params.js';
-import { validerOrdre, poser, deplacer, passer, rien, lot, posesMaxParTour } from '../engine/ordres.js';
+import { validerOrdre, poser, deplacer, passer, rien, lot, posesMaxParTour, soutenir } from '../engine/ordres.js';
 import { resoudreTour, executer, fermeturesDe, lotValide } from '../engine/resolution.js';
 
 /** Poids « forte de base » (choisis à la main avant tuning). Les noms sont ceux du rapport. */
@@ -485,7 +485,7 @@ function meilleursOrdres(etat, P, poids, cpt, { nPre, nGarde, rng, nPoses = 6 })
 }
 
 const cleCible = (o) => (o.type === 'poser' ? 'p' + o.croisement : o.type === 'deplacer' ? 'd' + o.chemin.at(-1) : o.type);
-const cleOrdre = (o) => (o.type === 'poser' ? 'p' + o.croisement : o.type === 'deplacer' ? 'd' + o.chemin.join('.') : o.type);
+const cleOrdre = (o) => (o.type === 'poser' ? 'p' + o.croisement : o.type === 'deplacer' ? 'd' + o.chemin.join('.') : o.type === 'soutenir' ? 's' + o.pion + '>' + o.cible : o.type);
 
 /**
  * Choisit l'ordre de `joueur`.
@@ -736,6 +736,20 @@ function lotGlouton(base, X, u, w, rng, tirage = false) {
   return acc;
 }
 
+/** Ajoute à un lot les soutiens de ses pions libres vers l'arrivée voisine d'un de ses trajets (soutien = oui). */
+function avecSoutiens(base, X, l) {
+  if (base.params.soutien !== 'oui') return l;
+  const n = base.params.grille;
+  const occupes = new Set(l.map((o) => (o.type === 'deplacer' ? o.chemin[0] : o.type === 'soutenir' ? o.pion : -1)));
+  const res = l.slice();
+  for (const c of base.pions[X]) {
+    if (occupes.has(c)) continue;
+    const t = l.find((o) => o.type === 'deplacer' && voisins(n, c).includes(o.chemin[o.chemin.length - 1]) && !o.chemin.includes(c));
+    if (t) { res.push(soutenir(c, t.chemin[t.chemin.length - 1])); occupes.add(c); }
+  }
+  return lotValide(base, X, lot(...res)) ? res : l;
+}
+
 const cleLot = (l) => l.map(cleOrdre).sort().join('|');
 
 /**
@@ -764,6 +778,7 @@ export function choisirLot(etat, joueur, rng, options = {}) {
   const ajouter = (l, p) => { if (!reponses.some((r) => cleLot(r.l) === cleLot(l))) reponses.push({ l, p }); };
   const gQ = lotGlouton(base, Q, uQ, w, rng);
   ajouter(gQ, 0.5);
+  if (base.params.soutien === 'oui') ajouter(avecSoutiens(base, Q, gQ), 0.3);
   for (let k = 0; k < o.nVariantes; k++) ajouter(lotGlouton(base, Q, uQ, w, rng, true), 0.15);
   if (base.reserve[Q] > 0) {
     for (const c of ciblesDeCoupure(base, uP.fermants, 2)) {
@@ -794,6 +809,11 @@ export function choisirLot(etat, joueur, rng, options = {}) {
   };
   let courant = lotGlouton(base, P, uP, w, rng);
   let score = noter(courant);
+  if (base.params.soutien === 'oui') {
+    const ls = avecSoutiens(base, P, courant);
+    const ss = noter(ls);
+    if (ss > score + 1e-9) { courant = ls; score = ss; }
+  }
   const depart = noter([]);
   if (depart > score) { courant = []; score = depart; }
   const slots = [...uP.parPion.keys()];
@@ -802,8 +822,16 @@ export function choisirLot(etat, joueur, rng, options = {}) {
     let ameliore = false;
     for (const d of rng.melanger(slots)) {
       if (!cpt.reste()) break;
-      const sans = courant.filter((x) => !(x.type === 'deplacer' && x.chemin[0] === d));
+      const sans = courant.filter((x) => !((x.type === 'deplacer' && x.chemin[0] === d) || (x.type === 'soutenir' && x.pion === d)));
       const alternatives = [sans, ...uP.parPion.get(d).map((x) => [...sans, x.ordre])];
+      // v2 + soutien (v0.3.1 §3) : le pion peut aussi soutenir l'arrivée voisine d'un trajet ami du lot courant.
+      if (base.params.soutien === 'oui') {
+        for (const t of sans) {
+          if (t.type !== 'deplacer') continue;
+          const arr = t.chemin[t.chemin.length - 1];
+          if (voisins(base.params.grille, d).includes(arr)) alternatives.push([...sans, soutenir(d, arr)]);
+        }
+      }
       for (const l of alternatives) {
         if (!cpt.reste()) break;
         if (cleLot(l) === cleLot(courant) || !lotValide(base, P, lot(...l))) continue;

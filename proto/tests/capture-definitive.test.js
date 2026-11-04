@@ -100,7 +100,7 @@ test('définitive IA forte (piège 2) : elle sort son pion d’une zone qui va s
 // (0), la forte s'y fait prendre (partie 223 : 5 graines sur 5 ; partie 157 : 5 sur 5).
 const PIEGES = JSON.parse(fs.readFileSync(new URL('./pieges-definitive.json', import.meta.url)));
 function etatPiege(p) {
-  const e = copier(creerEtat({ ordres: 'joueur', grille: n, capture: 'definitive' }));
+  const e = copier(creerEtat({ ordres: 'joueur', conflit: 'trajet', conflit_issue: 'annule', soutien: 'non', grille: n, capture: 'definitive' })); // anciens défauts (pièges relevés en mode trajet)
   for (const j of ['A', 'B']) e.pions[j] = p.pions[j].map(([x, y]) => indice(n, x, y));
   e.reserve = { ...p.reserve };
   e.couleurs = {};
