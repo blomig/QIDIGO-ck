@@ -58,16 +58,16 @@ test('traces = decoratives : un ancien mur ne compte plus', () => {
 });
 
 test('comptage = interieur : une case seule vaut 0', () => {
-  const e = copier(creerEtat({ comptage: 'interieur' }));
+  const e = copier(creerEtat({ ordres: 'joueur', comptage: 'interieur' }));
   e.proprietaires[indiceCase(n, 4, 4)] = 'A';
   assert.equal(compter(geler(e)).A, 0);
-  const f = copier(creerEtat());
+  const f = copier(creerEtat({ ordres: 'joueur', ordres: 'joueur' }));
   f.proprietaires[indiceCase(n, 4, 4)] = 'A';
   assert.equal(compter(geler(f)).A, 4);
 });
 
 test('croisement sur une frontière commune : à personne', () => {
-  const e = copier(creerEtat());
+  const e = copier(creerEtat({ ordres: 'joueur', ordres: 'joueur' }));
   e.proprietaires[indiceCase(n, 0, 0)] = 'A';
   e.proprietaires[indiceCase(n, 1, 0)] = 'B';
   const c = compter(geler(e));
@@ -76,7 +76,7 @@ test('croisement sur une frontière commune : à personne', () => {
 });
 
 test('fin au seuil (un seul joueur)', () => {
-  const e = copier(creerEtat({ grille: 7, seuil: 10 })); // S = ⌈4,9⌉ = 5
+  const e = copier(creerEtat({ ordres: 'joueur', grille: 7, seuil: 10 })); // S = ⌈4,9⌉ = 5
   e.pions.A = [cr(7, 2, 2)];
   e.reserve.A = 4;
   const r = resoudreTour(geler(e), { A: deplacer(ch(7, [[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]])), B: rien() });
@@ -90,7 +90,7 @@ test('fin au seuil (un seul joueur)', () => {
 });
 
 test('fin après 20 tours : partie nulle à égalité parfaite', () => {
-  let e = creerEtat();
+  let e = creerEtat({ ordres: 'joueur', ordres: 'joueur' });
   for (let t = 1; t <= 20; t++) {
     assert.equal(e.fini, false);
     assert.equal(e.tour, t);
@@ -105,7 +105,7 @@ test('fin après 20 tours : partie nulle à égalité parfaite', () => {
 });
 
 test('fin après nbTours : départage par les cases possédées', () => {
-  const e = copier(creerEtat({ nbTours: 1, comptage: 'interieur' }));
+  const e = copier(creerEtat({ ordres: 'joueur', nbTours: 1, comptage: 'interieur' }));
   e.proprietaires[indiceCase(n, 4, 4)] = 'A'; // 1 case, 0 croisement en « intérieur »
   const r = resoudreTour(geler(e), { A: rien(), B: rien() });
   assert.equal(r.etat.vainqueur, 'A');
@@ -114,7 +114,7 @@ test('fin après nbTours : départage par les cases possédées', () => {
 test('IA faible : toujours légale et jamais au-delà de trajet_max sur 30 parties (7, 8, 9)', () => {
   for (let g = 1; g <= 30; g++) {
     const rng = creerRng(g);
-    let e = creerEtat({ grille: [7, 8, 9][g % 3], soutien: g % 2 ? 'oui' : 'non', trajet_max: [5, 3, 'illimite', 4, 7][g % 5] });
+    let e = creerEtat({ ordres: 'joueur', grille: [7, 8, 9][g % 3], soutien: g % 2 ? 'oui' : 'non', trajet_max: [5, 3, 'illimite', 4, 7][g % 5] });
     let tours = 0;
     while (!e.fini) {
       const oA = choisirOrdre(e, 'A', rng);
@@ -141,7 +141,7 @@ test('IA faible : toujours légale et jamais au-delà de trajet_max sur 30 parti
 test('IA faible : déterministe à graine égale', () => {
   const jouer = () => {
     const rng = creerRng(42);
-    let e = creerEtat();
+    let e = creerEtat({ ordres: 'joueur', ordres: 'joueur' });
     while (!e.fini) e = resoudreTour(e, { A: choisirOrdre(e, 'A', rng), B: choisirOrdre(e, 'B', rng) }).etat;
     return JSON.stringify(e);
   };

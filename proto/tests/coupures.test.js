@@ -244,7 +244,7 @@ test('Q10 : les IA faible et forte ne posent jamais sur un croisement occupé', 
   let poses = 0;
   for (const [ia, parties, budget] of [[faible, 20, null], [forteIA, 2, 150]]) {
     for (let g = 0; g < parties; g++) {
-      let e = creerEtat({ grille: 9 });
+      let e = creerEtat({ ordres: 'joueur', grille: 9 });
       const rng = creerRng(1000 + g);
       while (!e.fini) {
         const ordres = {};

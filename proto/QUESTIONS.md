@@ -158,29 +158,30 @@ Point flou, avec une interprétation provisoire mise en réglage :
   - qu'un pion de réserve non posé coûte quelque chose.
 
 
-## Ordres par pion (piste testée le 03/11, réglage `ordres = pion`, défaut inchangé `joueur`)
+## Ordres par pion (`ordres = pion`, défaut depuis le 04/11)
 
-Ces choix sont des lectures du CDP pour le proto, pas des règles. Lomig doit trancher chacun d'eux. Le principe suivi :
-ce qui serait un auto-sabotage absurde est **refusé à la saisie** (ordre invalide, remplacé par « rien » dans le
-journal ; l'interface ne permet pas de le donner), plutôt que de s'annuler en silence.
+- **Q « ordres » : tranchée par Lomig (04/11).** `ordres = pion` devient le défaut, avec `poses_par_tour = 1` : au plus
+  une pose depuis la réserve par tour, en plus d'un ordre par pion en jeu. `joueur` et `illimite` restent des réglages.
 
-1. **Nombre de poses** : au plus **une pose depuis la réserve par tour**, en plus d'un ordre par pion en jeu (lecture du
-   CDP). Sous-variante `poses_par_tour = illimite` : autant de poses que la réserve le permet.
-2. **Pion sans ordre** : il passe (Passer implicite). Un lot vide équivaut à « Passer ».
-3. **Deux trajets amis qui se croisent ou partagent un segment** : refusé à la saisie. Le test est le même qu'entre
+Les points 2 à 6 restent des **choix proto, à soumettre à Lomig un par un**. Les points 7 à 11 sont aussi des lectures
+du CDP. Le principe suivi : ce qui serait un auto-sabotage absurde est **refusé à la saisie** (ordre invalide, remplacé
+par « rien » dans le journal ; l'interface ne permet pas de le donner), plutôt que de s'annuler en silence.
+
+2. **Pion sans ordre** (à soumettre) : il passe (Passer implicite). Un lot vide équivaut à « Passer ».
+3. **Deux trajets amis qui se croisent ou partagent un segment** (à soumettre) : refusé à la saisie. Le test est le même qu'entre
    adversaires (même fonction de rencontre, réglage `depart_libere` compris). Seul le premier trajet saisi est gardé.
    Alternative possible : ils s'annulent comme entre adversaires.
-4. **Deux pions amis qui visent la même arrivée** : c'est un croisement commun, donc refusé à la saisie (cas 3).
-5. **Un pion qui vise le départ d'un pion ami qui part** : permis, c'est l'équivalent du « départ libéré ». On peut s'y
+4. **Deux pions amis qui visent la même arrivée** (à soumettre) : c'est un croisement commun, donc refusé à la saisie (cas 3).
+5. **Départ ami libéré et échange de places** (à soumettre) : un pion qui vise le départ d'un pion ami qui part : permis, c'est l'équivalent du « départ libéré ». On peut s'y
    arrêter ou le traverser (`traversee`), ou seulement s'y arrêter (`arrivee_seule`). Si le pion de tête est arrêté (par
    exemple par une rencontre adverse), le suiveur est annulé en chaîne (code CHAINE, « votre pion en … ne part pas »),
    comme pour un départ adverse. Traverser un pion ami qui ne bouge pas est refusé à la saisie. Deux pions amis peuvent
    échanger leurs places par des trajets disjoints : les déplacements d'un même joueur sont simultanés.
-6. **Pose sur le trajet de son propre pion** : refusée à la saisie, car elle le couperait. La pose sur le départ de son
+6. **Pose sur le trajet de son propre pion** (à soumettre) : refusée à la saisie, car elle le couperait. La pose sur le départ de son
    propre pion reste interdite, comme avant (croisement occupé au début du tour, Q10). Deux poses amies sur le même
    croisement sont refusées.
 7. **Un pion, un ordre** : un second ordre pour le même pion est refusé.
-8. **Fermetures multiples dans un même tour** : tous les segments tracés par le joueur à ce tour forment ensemble
+8. **Fermetures multiples dans un même tour** (toutes les zones fermées comptent, à soumettre avec 2 à 6) : tous les segments tracés par le joueur à ce tour forment ensemble
    `nouveaux(P)`, et toute zone qu'ils ferment compte (gain = union). Les captures et la reprise s'appliquent ensuite
    comme d'habitude.
 9. **Conflits avec l'adversaire quand chacun a plusieurs ordres** : ils sont lus sur les ordres d'origine. Un trajet qui

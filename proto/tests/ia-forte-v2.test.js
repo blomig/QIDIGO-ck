@@ -41,7 +41,7 @@ test('v1 figée : fichier séparé, mêmes poids de référence (réserve 0.2, p
 });
 
 test('v2 : la marge de déploiement ne choisit une pose que dans la marge et avec ≥ 2 pions en réserve', () => {
-  let e = creerEtat({});
+  let e = creerEtat({ ordres: 'joueur', ordres: 'joueur' });
   const r = { A: creerRng(21), B: creerRng(22) };
   let vus = 0;
   for (let t = 0; t < 10 && !e.fini; t++) {

@@ -13,11 +13,12 @@ const tri = (l) => l.slice().sort((a, b) => a - b);
 const d = (pts) => deplacer(ch(n, pts));
 const rejets = (e, j, l) => validerLotJoueur(e, j, l).rejets.map((r) => r.raison);
 
-test('défauts inchangés : ordres = joueur, poses_par_tour = 1 ; un lot est invalide en mode joueur', () => {
+test('défauts (décision Lomig 04/11) : ordres = pion, poses_par_tour = 1 ; un lot est invalide en mode joueur', () => {
   const p = parametresParDefaut();
-  assert.equal(p.ordres, 'joueur');
+  assert.equal(p.ordres, 'pion');
   assert.equal(p.poses_par_tour, 1);
-  const e = creerEtat();
+  assert.equal(creerEtat().params.ordres, 'pion');
+  const e = creerEtat({ ordres: 'joueur' });
   assert.equal(validerOrdre(e, 'A', lot(poser(0))).ok, false);
 });
 
@@ -153,4 +154,39 @@ test('soutien en mode pion : le pion qui soutient ne se déplace pas', () => {
   const e = etatAvec({ params: P({ soutien: 'oui' }), pions: { A: [[2, 2], [2, 3]] } });
   const l = lot({ ...d([[2, 2], [3, 2]]), soutien: cr(n, 2, 3) }, d([[2, 3], [1, 3]]));
   assert.match(rejets(e, 'A', l)[0], /soutient|soutenir|qui soutient/);
+});
+
+// IA en mode pion, par défaut (décision Lomig 04/11).
+test('mode pion par défaut : la faible et la forte donnent toujours des lots légaux ; la forte est reproductible', async () => {
+  const faible = await import('../ai/ia-faible.js');
+  const forte = await import('../ai/ia-forte.js');
+  const { creerRng, lotValide } = await import('../engine/index.js');
+  for (let g = 0; g < 3; g++) {
+    let e = creerEtat({ grille: [7, 9, 9][g] });
+    const rA = creerRng(40 + g), rB = creerRng(50 + g);
+    const opt = { budget: 300, pion: { msMax: Infinity } };
+    while (!e.fini) {
+      const oA = forte.choisirOrdre(e, 'A', rA, opt);
+      const oB = faible.choisirOrdre(e, 'B', rB);
+      if (g === 0) assert.deepEqual(forte.choisirOrdre(e, 'A', creerRng(5), opt), forte.choisirOrdre(e, 'A', creerRng(5), opt));
+      assert.ok(oA.type === 'lot' || oA.type === 'passer', JSON.stringify(oA));
+      assert.ok(lotValide(e, 'A', oA), JSON.stringify(oA));
+      assert.ok(lotValide(e, 'B', oB), JSON.stringify(oB));
+      const r = resoudreTour(e, { A: oA, B: oB });
+      assert.ok(!codes(r.journal).includes('INVALIDE'));
+      e = r.etat;
+    }
+  }
+});
+
+test('mode pion (équivalent simple des pièges) : la forte prend une fermeture offerte en un trajet', async () => {
+  const forte = await import('../ai/ia-forte.js');
+  const { creerRng } = await import('../engine/index.js');
+  const e = etatAvec({ params: { ordres: 'pion' }, pions: { A: [[0, 3], [6, 6]], B: [[7, 1]] },
+    couleurs: [[[2, 0], [2, 1], 'A'], [[2, 1], [2, 2], 'A'], [[2, 2], [2, 3], 'A']] });
+  for (let g = 0; g < 3; g++) {
+    const o = forte.choisirOrdre(e, 'A', creerRng(g), { budget: 400, pion: { msMax: Infinity } });
+    const r = resoudreTour(e, { A: o, B: passer() });
+    assert.ok(r.etat.ctrl.A >= 6, `fermeture manquée : ${JSON.stringify(o)}`);
+  }
 });

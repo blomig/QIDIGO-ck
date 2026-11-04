@@ -42,7 +42,7 @@ test('Ordre absent (chrono) : traité comme ne rien faire', () => {
 });
 
 test('Décompte : une case seule vaut 4 croisements, deux cases voisines 6', () => {
-  const e = copier(creerEtat());
+  const e = copier(creerEtat({ ordres: 'joueur', ordres: 'joueur' }));
   e.proprietaires[indiceCase(n, 4, 4)] = 'A';
   assert.equal(compter(geler(copier(e))).A, 4);
   e.proprietaires[indiceCase(n, 5, 4)] = 'A';
@@ -53,7 +53,7 @@ test('Décompte : une case seule vaut 4 croisements, deux cases voisines 6', () 
 });
 
 test('Décompte : toute la grille possédée = 81 croisements, au-dessus du seuil de 61', () => {
-  const e = copier(creerEtat());
+  const e = copier(creerEtat({ ordres: 'joueur', ordres: 'joueur' }));
   e.proprietaires.fill('A');
   const c = compter(geler(e));
   assert.equal(c.A, 81);
@@ -61,7 +61,7 @@ test('Décompte : toute la grille possédée = 81 croisements, au-dessus du seui
 });
 
 test('Décompte : coin -> 1 case suffit au coin, frontière commune exclue', () => {
-  const e = copier(creerEtat());
+  const e = copier(creerEtat({ ordres: 'joueur', ordres: 'joueur' }));
   e.proprietaires[indiceCase(n, 0, 0)] = 'A';
   e.proprietaires[indiceCase(n, 0, 1)] = 'B';
   const c = croisementsControles(geler(e));

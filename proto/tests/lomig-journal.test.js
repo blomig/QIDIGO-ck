@@ -15,7 +15,7 @@ const casesA = (e) => e.proprietaires.filter((p) => p === 'A').length;
 
 /** Positions réelles de la partie (début de chaque tour), avec les ordres de B figés (IA faible d'alors). */
 function rejouer() {
-  let e = creerEtat({ comptage: 'frontiere', ...L.params }); // partie jouée en croisements
+  let e = creerEtat({ ordres: 'joueur', comptage: 'frontiere', ...L.params, ordres: 'joueur' }); // partie jouée en croisements
   const etats = [];
   const journaux = [];
   for (const [t, oA] of L.ordresA.entries()) {
@@ -40,7 +40,7 @@ test('Lomig : le moteur rejoue le journal à l’identique (A gagne 81 à 0 au t
 });
 
 test('Lomig : avec l’IA forte en B, les mêmes ordres de A ne gagnent plus', () => {
-  let e = creerEtat({ comptage: 'frontiere', ...L.params }); // partie jouée en croisements
+  let e = creerEtat({ ordres: 'joueur', comptage: 'frontiere', ...L.params, ordres: 'joueur' }); // partie jouée en croisements
   const rng = creerRng(L.graine);
   for (const oA of L.ordresA) {
     if (e.fini) break;

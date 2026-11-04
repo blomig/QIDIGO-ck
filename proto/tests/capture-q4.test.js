@@ -14,7 +14,7 @@ const position = (pionB, params = {}) => etatAvec({ params: { grille: n, capture
 const captures = (journal) => journal.filter((x) => x.code === 'CAPTURE');
 
 test('Q4 : le défaut reste capture = aucune', () => {
-  assert.equal(creerEtat({}).params.capture, 'aucune');
+  assert.equal(creerEtat({ ordres: 'joueur', ordres: 'joueur' }).params.capture, 'aucune');
   const r = resoudreTour(position([1, 1], { capture: 'aucune' }), { A: FERMER, B: passer() });
   assert.equal(captures(r.journal).length, 0);
   assert.deepEqual(r.etat.pions.B, [cr(n, 1, 1)]);

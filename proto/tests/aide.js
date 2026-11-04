@@ -6,7 +6,8 @@ import { creerEtat, copier, geler, indice, cleSegment } from '../engine/index.js
  * pions = { A: [[x,y],...], B: [...] } ; couleurs = [[[x1,y1],[x2,y2],'A'], ...]
  */
 export function etatAvec({ params = {}, pions = {}, couleurs = [], tour } = {}) {
-  const e = copier(creerEtat(params));
+  // Tests écrits pour le mode « un ordre par joueur » : on le fixe, sauf si le test demande `ordres`.
+  const e = copier(creerEtat({ ordres: 'joueur', ...params }));
   const n = e.params.grille;
   for (const j of ['A', 'B']) {
     e.pions[j] = (pions[j] || []).map(([x, y]) => indice(n, x, y));

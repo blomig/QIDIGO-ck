@@ -15,6 +15,9 @@ node --test                      # tests du moteur (Node ≥ 20 ; ne pas passer 
 
 ## Jouer
 
+- **Un ordre par pion** (décision de Lomig, 04/11 : `ordres = pion` et `poses_par_tour = 1` par défaut) : à chaque tour, chacun de vos pions en jeu peut recevoir un trajet, et vous pouvez en plus poser **un** pion depuis la réserve. Un pion sans ordre passe.
+  Chaque ordre porte un numéro près de son pion, et un compteur « ordres n/m » s'affiche dans la ligne d'état. Toucher un pion qui a un ordre, ou une pose prévue, annule cet ordre ; « Tout effacer » vide le lot.
+  L'ancienne règle « un ordre par joueur » reste dans les Réglages (`ordres = joueur`). La description ci-dessous des poses et des trajets vaut pour chaque ordre.
 - **Poser** : touchez un croisement **libre**. On ne pose jamais sur un croisement occupé, ni par un de ses pions ni par un pion adverse, même si ce pion part pendant le tour (décision de Lomig, 03/11, Q10). Un tap sur un pion ne pose rien.
 - **Départ libéré** (décision de Lomig, 03/11) : un pion peut s'arrêter sur le croisement que quitte un pion adverse, ou le traverser.
   Si ce pion ne part pas, l'ordre est annulé, en chaîne. Le réglage `depart_libere` permet de tester « seulement s'y arrêter ».
@@ -136,10 +139,11 @@ node tools/arena.js expansion --parties 60                                   # v
 Résultats du 03/11 : banc/ à la racine du dépôt local (forte-faible.txt, tuning.txt, expansion.txt, forte-forte.txt ; en croisements).
 Depuis le comptage en cases : cases-forte-faible.json (forte bat faible 200 à 0) et def-*.json / def-tableau.md (banc de la capture définitive).
 
-## Ordres par pion (piste à l'essai, 03/11)
+## Ordres par pion (défaut depuis le 04/11, décision de Lomig)
 
-Réglages `ordres` (`joueur`, le défaut, ou `pion`) et `poses_par_tour` (`1`, le défaut, ou `illimite`). Ce sont deux
-cartes du panneau Réglages ; les défauts ne changent pas.
+Réglages `ordres` (`pion`, le défaut, ou `joueur`) et `poses_par_tour` (`1`, le défaut, ou `illimite`). Ce sont deux
+cartes du panneau Réglages ; revenir au mode joueur y affiche le badge « modifié ». Les tests propres au mode joueur, le rejeu de
+la partie de Lomig et la référence `banc/ordres-pion/reference-joueur.mjs` fixent `ordres = joueur`.
 
 En mode pion, chaque pion en jeu reçoit un trajet, ou passe s'il n'en reçoit pas. On peut en plus poser depuis la
 réserve : une pose au plus par tour, ou sans limite selon `poses_par_tour`.

@@ -57,13 +57,13 @@ export const REGLAGES = [
   { id: 'seuil', groupe: 'variante', libelle: 'Seuil de victoire (%)', type: 'nombre', defaut: 75, min: 1, max: 100,
     description: 'Posséder ce pourcentage du territoire, arrondi au supérieur. En cases (défaut, décision de Lomig 03/11) : 75 % = 48/64 en 9×9, 37/49 en 8×8, 27/36 en 7×7. En croisements : 61/81, 48/64, 37/49 (Q7 a).' },
 
-  // Piste « un ordre par pion » (demande de Lomig relayée par le CDP, 03/11) : « joueur » reste le défaut.
-  { id: 'ordres', groupe: 'variante', libelle: 'Ordres', type: 'choix', defaut: 'joueur',
+  // « Un ordre par pion » : défaut validé par Lomig (04/11), une pose par tour ; « joueur » reste un réglage.
+  { id: 'ordres', groupe: 'variante', libelle: 'Ordres', type: 'choix', defaut: 'pion',
     valeurs: [['joueur', 'Un par joueur'], ['pion', 'Un par pion']],
-    description: 'Un par joueur (défaut, règle actuelle) : un seul ordre par tour, poser, déplacer ou passer. Un par pion (piste à tester, façon Diplomacy) : chaque pion en jeu reçoit son déplacement (ou passe, implicite), et on peut en plus poser depuis la réserve (voir « Poses par tour »). Tout se résout ensemble avec les règles actuelles. Vos propres ordres ne doivent pas se gêner : deux de vos trajets qui se rencontreraient, ou une pose sur votre propre trajet, sont refusés à la saisie. Un pion peut entrer sur le croisement qu’un de vos pions quitte, comme pour un départ adverse (lecture CDP, à confirmer).' },
+    description: 'Un par pion (défaut, décision de Lomig 04/11, façon Diplomacy) : chaque pion en jeu reçoit son déplacement (ou passe, implicite), et on peut en plus poser depuis la réserve (voir « Poses par tour »). Tout se résout ensemble avec les règles actuelles. Vos propres ordres ne doivent pas se gêner : deux de vos trajets qui se rencontreraient, ou une pose sur votre propre trajet, sont refusés à la saisie. Un pion peut entrer sur le croisement qu’un de vos pions quitte, comme pour un départ adverse (lecture CDP, à confirmer). Un par joueur (ancienne règle) : un seul ordre par tour, poser, déplacer ou passer.' },
   { id: 'poses_par_tour', groupe: 'variante', libelle: 'Poses par tour (ordres par pion)', type: 'choix', defaut: 1,
     valeurs: [[1, 'Une au plus'], ['illimite', 'Sans limite']],
-    description: 'Avec « un ordre par pion » seulement. Une au plus (lecture du CDP pour le proto) : au plus une pose depuis la réserve par tour, en plus des déplacements. Sans limite : autant de poses que de pions en réserve.' },
+    description: 'Avec « un ordre par pion » seulement. Une au plus (défaut, décision de Lomig 04/11) : au plus une pose depuis la réserve par tour, en plus des déplacements. Sans limite : autant de poses que de pions en réserve.' },
 
   // --- Choix proto réglables (§3, 2e tableau) ---
   { id: 'pose_coupante', groupe: 'choix', libelle: 'Pose qui coupe un trajet', type: 'choix', defaut: 'annulee',

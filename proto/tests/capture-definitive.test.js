@@ -16,10 +16,10 @@ const captures = (journal, v) => journal.filter((x) => x.code === 'CAPTURE' && (
 const sansHisto = (e) => ({ ...e, params: { ...e.params, capture: 'X' }, historique: [] });
 
 test('définitive : valeur proposée dans les Réglages, défaut inchangé (aucune)', () => {
-  assert.equal(creerEtat({}).params.capture, 'aucune');
+  assert.equal(creerEtat({ ordres: 'joueur', ordres: 'joueur' }).params.capture, 'aucune');
   const p = REGLAGES.find((x) => x.id === 'capture');
   assert.ok(p.valeurs.some(([v]) => v === 'definitive'));
-  assert.equal(creerEtat({ capture: 'definitive' }).params.capture, 'definitive');
+  assert.equal(creerEtat({ ordres: 'joueur', capture: 'definitive' }).params.capture, 'definitive');
 });
 
 test('définitive = sans_retour exactement (même état, même journal)', () => {
@@ -65,7 +65,7 @@ test('définitive, cas limite : plus aucun pion -> il continue et ne peut que pa
 });
 
 test('définitive, cas limite : les deux sans pion -> la partie va au dernier tour, territoire acquis', () => {
-  let e = copier(creerEtat({ grille: n, capture: 'definitive', nbPions: 1 }));
+  let e = copier(creerEtat({ ordres: 'joueur', grille: n, capture: 'definitive', nbPions: 1 }));
   e.pions = { A: [], B: [] }; e.reserve = { A: 0, B: 0 }; e.retires = { A: 1, B: 1 };
   e.proprietaires[0] = 'A'; e.ctrl = { A: 4, B: 0 };
   e = geler(e);
@@ -100,7 +100,7 @@ test('définitive IA forte (piège 2) : elle sort son pion d’une zone qui va s
 // (0), la forte s'y fait prendre (partie 223 : 5 graines sur 5 ; partie 157 : 5 sur 5).
 const PIEGES = JSON.parse(fs.readFileSync(new URL('./pieges-definitive.json', import.meta.url)));
 function etatPiege(p) {
-  const e = copier(creerEtat({ grille: n, capture: 'definitive' }));
+  const e = copier(creerEtat({ ordres: 'joueur', grille: n, capture: 'definitive' }));
   for (const j of ['A', 'B']) e.pions[j] = p.pions[j].map(([x, y]) => indice(n, x, y));
   e.reserve = { ...p.reserve };
   e.couleurs = {};

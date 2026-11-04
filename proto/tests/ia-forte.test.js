@@ -57,7 +57,7 @@ test('piège : reprendre une zone (reprise = oui)', () => {
 });
 
 test('l’IA forte est reproductible (même graine, même ordre) et toujours légale', () => {
-  let e = creerEtat({ grille: 7 });
+  let e = creerEtat({ ordres: 'joueur', grille: 7 });
   const r1 = creerRng(9), r2 = creerRng(10);
   while (!e.fini) {
     const oA = choisirOrdre(e, 'A', r1, { budget: 150 });
